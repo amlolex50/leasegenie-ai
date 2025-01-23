@@ -139,7 +139,7 @@ export const InvitationManagement = () => {
                 <TableRow key={invitation.id}>
                   <TableCell>{invitation.email}</TableCell>
                   <TableCell>
-                    <Badge variant={invitation.status === 'PENDING' ? 'secondary' : 'success'}>
+                    <Badge variant={invitation.status === 'PENDING' ? 'secondary' : 'default'}>
                       {invitation.status}
                     </Badge>
                   </TableCell>
