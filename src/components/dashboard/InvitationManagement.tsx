@@ -17,11 +17,17 @@ export const InvitationManagement = () => {
   const { data: invitations, refetch } = useQuery({
     queryKey: ['invitations'],
     queryFn: async () => {
+      console.log('Fetching invitations...');
       const { data, error } = await supabase
         .from('invitations')
         .select('*')
         .order('created_at', { ascending: false });
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Error fetching invitations:', error);
+        throw error;
+      }
+      console.log('Fetched invitations:', data);
       return data;
     }
   });
@@ -31,9 +37,12 @@ export const InvitationManagement = () => {
     setIsLoading(true);
 
     try {
+      console.log('Getting current user...');
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
+      console.log('Current user:', user);
 
+      console.log('Creating invitation...');
       const { error } = await supabase
         .from('invitations')
         .insert([
@@ -54,6 +63,7 @@ export const InvitationManagement = () => {
       setEmail("");
       refetch();
     } catch (error: any) {
+      console.error('Error creating invitation:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -66,6 +76,7 @@ export const InvitationManagement = () => {
 
   const handleDelete = async (id: string) => {
     try {
+      console.log('Deleting invitation:', id);
       const { error } = await supabase
         .from('invitations')
         .delete()
@@ -80,6 +91,7 @@ export const InvitationManagement = () => {
 
       refetch();
     } catch (error: any) {
+      console.error('Error deleting invitation:', error);
       toast({
         title: "Error",
         description: error.message,
