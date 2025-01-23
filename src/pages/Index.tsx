@@ -95,25 +95,25 @@ const Index = () => {
     {
       icon: Building,
       label: "Total Properties",
-      value: properties?.length || "0",
+      value: String(properties?.length || "0"),
       trend: "+1 this month"
     },
     {
       icon: Home,
       label: "Total Units",
-      value: units?.length || "0",
+      value: String(units?.length || "0"),
       trend: "80% occupied"
     },
     {
       icon: DollarSign,
       label: "Monthly Revenue",
-      value: `$${leases?.reduce((acc: number, lease: any) => acc + Number(lease.monthly_rent), 0).toLocaleString() || "0"}`,
+      value: `$${(leases?.reduce((acc: number, lease: any) => acc + Number(lease.monthly_rent), 0) || 0).toLocaleString()}`,
       trend: "+8% vs last month"
     },
     {
       icon: Users,
       label: "Active Tenants",
-      value: leases?.length || "0",
+      value: String(leases?.length || "0"),
       trend: "+2 this month"
     }
   ];
