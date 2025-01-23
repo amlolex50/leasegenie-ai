@@ -18,9 +18,12 @@ export const InvitationManagement = () => {
     queryKey: ['invitations'],
     queryFn: async () => {
       console.log('Fetching invitations...');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
       const { data, error } = await supabase
         .from('invitations')
-        .select('*')
+        .select('*, users!invitations_invited_by_fkey(email)')
         .order('created_at', { ascending: false });
       
       if (error) {
