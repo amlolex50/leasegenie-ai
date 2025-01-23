@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { Building, ClipboardList, Home, Settings, Tool } from "lucide-react";
+import { Building, ClipboardList, Home, Settings, Wrench } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 
 export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
@@ -10,7 +10,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
     { icon: Home, label: "Dashboard", path: "/" },
     { icon: Building, label: "Properties", path: "/properties" },
     { icon: ClipboardList, label: "Leases", path: "/leases" },
-    { icon: Tool, label: "Maintenance", path: "/maintenance" },
+    { icon: Wrench, label: "Maintenance", path: "/maintenance" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ];
 

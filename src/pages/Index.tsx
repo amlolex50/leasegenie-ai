@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Building, DollarSign, Tool, Users } from "lucide-react";
+import { Building, DollarSign, Wrench, Users } from "lucide-react";
 
 const StatCard = ({ icon: Icon, label, value, trend }: { icon: any, label: string, value: string, trend?: string }) => (
   <Card className="p-6 backdrop-blur-sm bg-card border shadow-sm hover:shadow-md transition-all">
@@ -20,7 +20,7 @@ const Index = () => {
     { icon: Building, label: "Total Properties", value: "12", trend: "+2 this month" },
     { icon: Users, label: "Active Tenants", value: "45", trend: "+5 this month" },
     { icon: DollarSign, label: "Monthly Revenue", value: "$52,000", trend: "+8% vs last month" },
-    { icon: Tool, label: "Pending Maintenance", value: "3", trend: "-2 this week" },
+    { icon: Wrench, label: "Pending Maintenance", value: "3", trend: "-2 this week" },
   ];
 
   return (
