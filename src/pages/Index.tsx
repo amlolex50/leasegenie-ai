@@ -2,12 +2,13 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building, DollarSign, Home, Users, Wrench, AlertTriangle, Calendar } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { ChartContainer } from "@/components/ui/chart";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { InvitationManagement } from "@/components/dashboard/InvitationManagement";
 
 const StatCard = ({ icon: Icon, label, value, trend }: { icon: any, label: string, value: string, trend?: string }) => (
   <Card className="hover:shadow-lg transition-shadow">
@@ -157,6 +158,11 @@ const LandlordDashboard = () => {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      <div>
+        <h2 className="text-2xl font-bold mb-6">Invitation Management</h2>
+        <InvitationManagement />
       </div>
     </div>
   );
