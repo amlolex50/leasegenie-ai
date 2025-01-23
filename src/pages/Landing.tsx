@@ -42,7 +42,7 @@ export default function Landing() {
 
             {/* Dashboard Preview */}
             <div className="relative mx-auto max-w-5xl mb-32">
-              <div className="bg-white rounded-xl shadow-sm p-8">
+              <div className="bg-[#D3E4FD] rounded-xl shadow-sm p-8 text-left">
                 <div className="bg-white rounded-2xl overflow-hidden">
                   {/* Dashboard Header */}
                   <div className="flex items-center justify-between p-4">
