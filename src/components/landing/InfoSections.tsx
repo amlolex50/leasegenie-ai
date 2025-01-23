@@ -1,8 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Users } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function InfoSections() {
+  const pieData = [
+    { name: 'Enterprise', value: 50 },
+    { name: 'Growth', value: 30 },
+    { name: 'Starter', value: 20 },
+  ];
+
+  const COLORS = ['#3B82F6', '#22C55E', '#F97316'];
+
   return (
     <div className="py-16">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-24">
@@ -29,14 +38,25 @@ export default function InfoSections() {
 
           <div className="mt-12">
             <div className="relative w-64 h-64">
-              <div className="rounded-full overflow-hidden">
-                {/* Pie Chart Visualization */}
-                <div className="relative w-full h-full">
-                  <div className="absolute inset-0 bg-blue-500" style={{ clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)' }}></div>
-                  <div className="absolute inset-0 bg-green-500" style={{ clipPath: 'polygon(50% 50%, 50% 100%, 0 100%, 0 0, 50% 0)' }}></div>
-                  <div className="absolute inset-0 bg-orange-500" style={{ clipPath: 'polygon(85% 85%, 100% 50%, 100% 100%)' }}></div>
-                </div>
-              </div>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
               {/* Labels */}
               <div className="absolute top-0 right-0 text-sm">Enterprise 50%</div>
               <div className="absolute bottom-0 left-0 text-sm">Growth 30%</div>
