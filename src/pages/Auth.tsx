@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,15 +12,50 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const invitationId = searchParams.get("invitation");
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (invitationId) {
+      const fetchInvitation = async () => {
+        const { data: invitation, error } = await supabase
+          .from('invitations')
+          .select('email, status')
+          .eq('id', invitationId)
+          .single();
+
+        if (error) {
+          toast({
+            title: "Error",
+            description: "Invalid or expired invitation",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (invitation.status !== 'PENDING') {
+          toast({
+            title: "Error",
+            description: "This invitation has already been used or has expired",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        setEmail(invitation.email);
+      };
+
+      fetchInvitation();
+    }
+  }, [invitationId]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
     try {
-      // First create the auth user
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -42,11 +77,21 @@ export default function Auth() {
               id: data.user.id,
               email,
               full_name: fullName,
-              role: 'LANDLORD'
+              role: invitationId ? 'TENANT' : 'LANDLORD'
             }
           ]);
 
         if (profileError) throw profileError;
+
+        // If this was an invitation signup, update the invitation status
+        if (invitationId) {
+          const { error: inviteError } = await supabase
+            .from('invitations')
+            .update({ status: 'ACCEPTED' })
+            .eq('id', invitationId);
+
+          if (inviteError) throw inviteError;
+        }
 
         toast({
           title: "Success!",
@@ -99,13 +144,15 @@ export default function Auth() {
             LeaseGenie AI
           </CardTitle>
           <CardDescription>
-            Manage your properties with AI-powered insights
+            {invitationId 
+              ? "Complete your registration to accept the invitation"
+              : "Manage your properties with AI-powered insights"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
+          <Tabs defaultValue={invitationId ? "signup" : "signin"} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signin" disabled={!!invitationId}>Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
             <TabsContent value="signin">
@@ -151,6 +198,7 @@ export default function Auth() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    readOnly={!!invitationId}
                   />
                 </div>
                 <div>

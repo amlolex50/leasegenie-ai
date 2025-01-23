@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Mail } from "lucide-react";
+import { Loader2, Mail, RefreshCw } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const InvitationForm = () => {
@@ -11,6 +11,14 @@ export const InvitationForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const sendInvitationEmail = async (invitationId: string, email: string, inviterName: string) => {
+    const { data: { error } } = await supabase.functions.invoke('send-invitation-email', {
+      body: { to: email, invitationId, inviterName },
+    });
+
+    if (error) throw error;
+  };
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +28,17 @@ export const InvitationForm = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { error } = await supabase
+      // Get user's full name
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+
+      if (userError) throw userError;
+
+      // Create invitation
+      const { data: invitation, error: inviteError } = await supabase
         .from('invitations')
         .insert([
           {
@@ -28,9 +46,14 @@ export const InvitationForm = () => {
             role: 'TENANT',
             invited_by: user.id,
           }
-        ]);
+        ])
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (inviteError) throw inviteError;
+
+      // Send email
+      await sendInvitationEmail(invitation.id, email, userData.full_name);
 
       toast({
         title: "Invitation sent",
