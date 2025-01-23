@@ -20,23 +20,7 @@ export default function Auth() {
     setLoading(true);
     
     try {
-      const { data: existingUsers, error: queryError } = await supabase
-        .from('users')
-        .select('email')
-        .eq('email', email);
-
-      if (queryError) throw queryError;
-
-      if (existingUsers && existingUsers.length > 0) {
-        toast({
-          title: "Error",
-          description: "This email is already registered. Please sign in instead.",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
+      // First create the auth user
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
