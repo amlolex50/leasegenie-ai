@@ -20,7 +20,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
     <div className="min-h-screen bg-[#F8FAFC] flex">
       <Sidebar className="border-r border-gray-200">
         <SidebarContent>
-          <div className="p-4 flex items-center gap-2 border-b border-gray-200">
+          <div className="h-16 flex items-center gap-2 px-4 border-b border-gray-200">
             <span className="text-blue-600 text-2xl">★</span>
             <span className="font-semibold text-xl">LeaseGenie</span>
           </div>
@@ -42,7 +42,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         </SidebarContent>
       </Sidebar>
       <main className="flex-1 overflow-auto">
-        <div className="p-4 border-b border-gray-200 bg-white flex items-center justify-between">
+        <div className="h-16 px-4 border-b border-gray-200 bg-white flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-gray-600">Home / Dashboard</span>
           </div>
