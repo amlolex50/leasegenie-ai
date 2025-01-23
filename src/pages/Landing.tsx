@@ -2,8 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import InfoSections from "@/components/landing/InfoSections";
+import { useNavigate } from "react-router-dom";
 
 export default function Landing() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
@@ -16,12 +19,17 @@ export default function Landing() {
             </div>
             <div className="hidden md:flex items-center gap-12">
               <a href="#" className="text-gray-600 hover:text-gray-900">Home</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900">Feature</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900">How It Work</a>
+              <a href="#" className="text-gray-600 hover:text-gray-900">Features</a>
+              <a href="#" className="text-gray-600 hover:text-gray-900">How It Works</a>
               <a href="#" className="text-gray-600 hover:text-gray-900">About Us</a>
-              <a href="#" className="text-gray-600 hover:text-gray-900">Testimonial</a>
+              <a href="#" className="text-gray-600 hover:text-gray-900">Testimonials</a>
             </div>
-            <Button className="bg-primary text-white hover:bg-primary/90 rounded-full px-6">Get in Touch</Button>
+            <Button 
+              className="bg-primary text-white hover:bg-primary/90 rounded-full px-6"
+              onClick={() => navigate('/auth')}
+            >
+              Get Started
+            </Button>
           </nav>
 
           {/* Hero Section */}
@@ -35,8 +43,19 @@ export default function Landing() {
                 Empowering commercial landlords and property managers with AI-driven lease management, predictive maintenance, and automated support.
               </p>
               <div className="flex justify-center gap-4">
-                <Button variant="outline" className="rounded-full px-8">Learn More</Button>
-                <Button className="bg-primary text-white hover:bg-primary/90 rounded-full px-8">Get Started</Button>
+                <Button 
+                  variant="outline" 
+                  className="rounded-full px-8"
+                  onClick={() => navigate('/auth')}
+                >
+                  Learn More
+                </Button>
+                <Button 
+                  className="bg-primary text-white hover:bg-primary/90 rounded-full px-8"
+                  onClick={() => navigate('/auth')}
+                >
+                  Get Started
+                </Button>
               </div>
             </div>
 
