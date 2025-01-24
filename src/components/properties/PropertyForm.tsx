@@ -54,6 +54,14 @@ export const PropertyForm = ({ property }: PropertyFormProps) => {
 
   const onSubmit = async (data: PropertyFormValues) => {
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
       if (isEditing) {
         const { error } = await supabase
           .from("properties")
@@ -67,7 +75,10 @@ export const PropertyForm = ({ property }: PropertyFormProps) => {
           description: "Property updated successfully",
         });
       } else {
-        const { error } = await supabase.from("properties").insert([data]);
+        const { error } = await supabase.from("properties").insert({
+          ...data,
+          owner_id: user.id,
+        });
 
         if (error) throw error;
 

@@ -63,9 +63,10 @@ export const UnitForm = ({ propertyId, unit }: UnitFormProps) => {
   const onSubmit = async (data: UnitFormValues) => {
     try {
       const unitData = {
-        ...data,
+        unit_name: data.unit_name,
         property_id: propertyId,
         floor_area: parseFloat(data.floor_area),
+        status: data.status,
       };
 
       if (isEditing) {
@@ -81,7 +82,7 @@ export const UnitForm = ({ propertyId, unit }: UnitFormProps) => {
           description: "Unit updated successfully",
         });
       } else {
-        const { error } = await supabase.from("units").insert([unitData]);
+        const { error } = await supabase.from("units").insert(unitData);
 
         if (error) throw error;
 
