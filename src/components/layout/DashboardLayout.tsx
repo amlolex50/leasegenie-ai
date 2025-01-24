@@ -32,7 +32,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
           <SidebarContent>
             <div className="h-16 flex items-center gap-2 px-4 border-b border-gray-200">
               <span className="text-blue-600 text-2xl">★</span>
-              <span className="font-semibold text-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">LeaseGenie</span>
+              <span className="font-semibold text-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">LeaseGenie AI</span>
             </div>
             <SidebarGroup>
               <SidebarGroupLabel>Menu</SidebarGroupLabel>
