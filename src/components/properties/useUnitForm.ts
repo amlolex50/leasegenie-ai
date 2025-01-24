@@ -40,35 +40,32 @@ export const useUnitForm = (propertyId: string, unit?: {
       };
 
       if (isEditing && unit) {
-        const { error } = await supabase
+        const { data: updatedUnit, error } = await supabase
           .from("units")
           .update(unitData)
-          .eq("id", unit.id);
+          .eq("id", unit.id)
+          .select()
+          .single();
 
         if (error) throw error;
-
-        toast({
-          title: "Success",
-          description: "Unit updated successfully",
-        });
+        return updatedUnit;
       } else {
-        const { error } = await supabase.from("units").insert(unitData);
+        const { data: newUnit, error } = await supabase
+          .from("units")
+          .insert(unitData)
+          .select()
+          .single();
 
         if (error) throw error;
-
-        toast({
-          title: "Success",
-          description: "Unit created successfully. You can now add documents to this unit.",
-        });
+        return newUnit;
       }
-
-      navigate(`/properties/${propertyId}`);
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to save unit",
         variant: "destructive",
       });
+      return null;
     }
   };
 
