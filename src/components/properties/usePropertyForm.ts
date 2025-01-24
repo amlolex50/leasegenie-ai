@@ -78,6 +78,6 @@ export const usePropertyForm = (property?: Property) => {
 
   return {
     form,
-    onSubmit: form.handleSubmit(onSubmit),
+    onSubmit,
   };
 };
