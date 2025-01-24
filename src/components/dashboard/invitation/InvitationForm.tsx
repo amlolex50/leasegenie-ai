@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Mail, RefreshCw } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const InvitationForm = () => {
@@ -13,11 +13,12 @@ export const InvitationForm = () => {
   const queryClient = useQueryClient();
 
   const sendInvitationEmail = async (invitationId: string, email: string, inviterName: string) => {
-    const { data: { error } } = await supabase.functions.invoke('send-invitation-email', {
+    const { data, error } = await supabase.functions.invoke('send-invitation-email', {
       body: { to: email, invitationId, inviterName },
     });
 
     if (error) throw error;
+    return data;
   };
 
   const handleInvite = async (e: React.FormEvent) => {
@@ -53,7 +54,13 @@ export const InvitationForm = () => {
       if (inviteError) throw inviteError;
 
       // Send email
-      await sendInvitationEmail(invitation.id, email, userData.full_name);
+      try {
+        await sendInvitationEmail(invitation.id, email, userData.full_name);
+      } catch (emailError) {
+        console.error('Error sending invitation email:', emailError);
+        // Continue with success message even if email fails
+        // The invitation is still created in the database
+      }
 
       toast({
         title: "Invitation sent",
