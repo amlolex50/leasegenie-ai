@@ -57,11 +57,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         <div className="absolute top-0 right-0 h-full border-r border-gray-200 pointer-events-none transition-transform duration-300 group-hover:translate-x-[16rem] w-[3rem] bg-white -translate-x-12" />
       </div>
       <main className="flex-1 overflow-auto relative">
-        <div className="h-16 px-8 bg-white flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-blue-500 text-2xl">★</span>
-            <span className="font-semibold text-xl">LeaseGenie AI</span>
-          </div>
+        <div className="flex items-center justify-end px-8 py-4 shadow-md rounded-[20px] relative z-10 bg-white mx-4 mt-4">
           <div className="flex items-center gap-4">
             <div className="relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
