@@ -13,6 +13,7 @@ interface PropertyFormProps {
 export const PropertyForm = ({ property }: PropertyFormProps) => {
   const { form, onSubmit } = usePropertyForm(property);
   const [tempId] = useState(() => crypto.randomUUID());
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   return (
     <Form {...form}>
@@ -25,7 +26,8 @@ export const PropertyForm = ({ property }: PropertyFormProps) => {
           </p>
           <DocumentUpload 
             entityId={property?.id || tempId} 
-            entityType="property" 
+            entityType="property"
+            onFileSelect={setSelectedFile}
           />
         </div>
         <Button type="submit">{property ? "Update" : "Create"} Property</Button>

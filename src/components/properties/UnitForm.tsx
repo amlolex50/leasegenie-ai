@@ -5,6 +5,7 @@ import { useUnitForm } from "./useUnitForm";
 import { DocumentUpload } from "./DocumentUpload";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UnitFormProps {
   propertyId: string;
