@@ -18,7 +18,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
   const navigate = useNavigate();
 
   const menuItems = [
-    { icon: Home, label: "Dashboard", path: "/" },
+    { icon: Home, label: "Dashboard", path: "/dashboard" },
     { icon: Building, label: "Properties", path: "/properties" },
     { icon: ClipboardList, label: "Leases", path: "/leases" },
     { icon: Wrench, label: "Maintenance", path: "/maintenance" },
@@ -57,7 +57,19 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         <div className="absolute top-0 right-0 h-full border-r border-gray-200 pointer-events-none transition-transform duration-300 group-hover:translate-x-[16rem] w-[3rem] bg-white -translate-x-12" />
       </div>
       <main className="flex-1 overflow-auto relative">
-        <div className="flex items-center justify-end px-8 py-4 shadow-md rounded-[20px] relative z-10 bg-white mx-4 mt-4">
+        <div className="flex items-center justify-between px-8 py-4 shadow-md rounded-[20px] relative z-10 bg-white mx-4 mt-4">
+          <div className="flex items-center gap-4">
+            {menuItems.map((item) => (
+              <Button
+                key={item.label}
+                variant="ghost"
+                className="text-gray-600 hover:text-gray-900"
+                onClick={() => navigate(item.path)}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </div>
           <div className="flex items-center gap-4">
             <div className="relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
