@@ -14,7 +14,7 @@ export default function Landing() {
           {/* Navigation */}
           <nav className="flex items-center justify-between px-8 py-4 shadow-md rounded-[20px] relative z-10">
             <div className="flex items-center gap-2">
-              <span className="text-primary text-2xl">★</span>
+              <span className="text-blue-500 text-2xl">★</span>
               <span className="font-semibold text-xl">LeaseGenie AI</span>
             </div>
             <div className="hidden md:flex items-center gap-12">
@@ -25,7 +25,7 @@ export default function Landing() {
               <a href="#" className="text-gray-600 hover:text-gray-900">Testimonials</a>
             </div>
             <Button 
-              className="bg-primary text-white hover:bg-primary/90 rounded-full px-6"
+              className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-6"
               onClick={() => navigate('/auth')}
             >
               Get Started
@@ -37,7 +37,7 @@ export default function Landing() {
             <div className="text-center mb-16">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
                 Your Intelligent Partner For<br />
-                <span className="text-primary">Commercial Lease Management</span>
+                <span className="text-blue-500">Commercial Lease Management</span>
               </h1>
               <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
                 Empowering commercial landlords and property managers with AI-driven lease management, predictive maintenance, and automated support.
@@ -51,7 +51,7 @@ export default function Landing() {
                   Learn More
                 </Button>
                 <Button 
-                  className="bg-primary text-white hover:bg-primary/90 rounded-full px-8"
+                  className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-8"
                   onClick={() => navigate('/auth')}
                 >
                   Get Started
@@ -66,7 +66,7 @@ export default function Landing() {
                   {/* Dashboard Header */}
                   <div className="flex items-center justify-between p-4">
                     <div className="flex items-center gap-4">
-                      <span className="text-primary text-2xl">★</span>
+                      <span className="text-blue-500 text-2xl">★</span>
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-gray-600">Home / Dashboard</span>
                       </div>
@@ -109,7 +109,7 @@ export default function Landing() {
                   {/* Dashboard Content */}
                   <div className="p-6">
                     <div className="grid grid-cols-3 gap-6 mb-8">
-                      <div className="bg-blue-500 rounded-xl p-6 text-white">
+                      <div className="bg-blue-600 rounded-xl p-6 text-white">
                         <div className="mb-2">
                           <div className="text-sm opacity-80">Total Compliance</div>
                           <div className="text-3xl font-bold">32.46%</div>
@@ -222,7 +222,7 @@ export default function Landing() {
                       <p className="text-gray-600 mb-4">"{testimonial.quote}"</p>
                     </div>
                     <div className="flex items-center mt-4">
-                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
                         <span className="text-primary font-bold text-lg">{testimonial.author[0]}</span>
                       </div>
                       <div>
