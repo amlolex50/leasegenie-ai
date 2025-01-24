@@ -63,6 +63,7 @@ export type Database = {
           expires_at: string | null
           id: string
           invited_by: string
+          landlord_id: string | null
           role: string
           status: string
         }
@@ -72,6 +73,7 @@ export type Database = {
           expires_at?: string | null
           id?: string
           invited_by: string
+          landlord_id?: string | null
           role: string
           status?: string
         }
@@ -81,6 +83,7 @@ export type Database = {
           expires_at?: string | null
           id?: string
           invited_by?: string
+          landlord_id?: string | null
           role?: string
           status?: string
         }
@@ -88,6 +91,13 @@ export type Database = {
           {
             foreignKeyName: "invitations_invited_by_fkey"
             columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_landlord_id_fkey"
+            columns: ["landlord_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -376,6 +386,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          landlord_id: string | null
           phone: string | null
           role: string
           updated_at: string
@@ -385,6 +396,7 @@ export type Database = {
           email: string
           full_name: string
           id?: string
+          landlord_id?: string | null
           phone?: string | null
           role: string
           updated_at?: string
@@ -394,11 +406,20 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          landlord_id?: string | null
           phone?: string | null
           role?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_landlord_id_fkey"
+            columns: ["landlord_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       work_orders: {
         Row: {

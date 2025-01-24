@@ -46,6 +46,7 @@ export const InvitationForm = () => {
             email,
             role: 'TENANT',
             invited_by: user.id,
+            landlord_id: user.id // Set the landlord_id to the current user's id
           }
         ])
         .select()
@@ -58,8 +59,6 @@ export const InvitationForm = () => {
         await sendInvitationEmail(invitation.id, email, userData.full_name);
       } catch (emailError) {
         console.error('Error sending invitation email:', emailError);
-        // Continue with success message even if email fails
-        // The invitation is still created in the database
       }
 
       toast({

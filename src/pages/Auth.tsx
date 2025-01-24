@@ -22,7 +22,7 @@ export default function Auth() {
       const fetchInvitation = async () => {
         const { data: invitation, error } = await supabase
           .from('invitations')
-          .select('email, status')
+          .select('email, status, landlord_id')
           .eq('id', invitationId)
           .single();
 
@@ -56,6 +56,18 @@ export default function Auth() {
     setLoading(true);
     
     try {
+      let invitation;
+      if (invitationId) {
+        const { data, error } = await supabase
+          .from('invitations')
+          .select('landlord_id, role')
+          .eq('id', invitationId)
+          .single();
+          
+        if (error) throw error;
+        invitation = data;
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -77,7 +89,8 @@ export default function Auth() {
               id: data.user.id,
               email,
               full_name: fullName,
-              role: invitationId ? 'TENANT' : 'LANDLORD'
+              role: invitation ? invitation.role : 'LANDLORD',
+              landlord_id: invitation ? invitation.landlord_id : null
             }
           ]);
 
