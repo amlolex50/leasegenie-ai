@@ -8,6 +8,9 @@ import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Properties from "./pages/Properties";
+import PropertyDetails from "./pages/PropertyDetails";
+import CreateProperty from "./pages/CreateProperty";
+import EditProperty from "./pages/EditProperty";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 
@@ -61,6 +64,24 @@ const App = () => {
                 path="/properties"
                 element={
                   session ? <Properties /> : <Navigate to="/auth" replace />
+                }
+              />
+              <Route
+                path="/properties/create"
+                element={
+                  session ? <CreateProperty /> : <Navigate to="/auth" replace />
+                }
+              />
+              <Route
+                path="/properties/:id"
+                element={
+                  session ? <PropertyDetails /> : <Navigate to="/auth" replace />
+                }
+              />
+              <Route
+                path="/properties/:id/edit"
+                element={
+                  session ? <EditProperty /> : <Navigate to="/auth" replace />
                 }
               />
             </Routes>
