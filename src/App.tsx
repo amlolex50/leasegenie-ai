@@ -7,6 +7,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
+import Properties from "./pages/Properties";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 
@@ -54,6 +55,12 @@ const App = () => {
                 path="/dashboard"
                 element={
                   session ? <Index /> : <Navigate to="/auth" replace />
+                }
+              />
+              <Route
+                path="/properties"
+                element={
+                  session ? <Properties /> : <Navigate to="/auth" replace />
                 }
               />
             </Routes>
