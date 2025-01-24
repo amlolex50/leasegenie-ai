@@ -32,7 +32,7 @@ export const PropertyForm = ({ property }: PropertyFormProps) => {
       // First create the property
       const propertyResult = await onSubmit(data);
       
-      if (!propertyResult) {
+      if (!propertyResult?.id) {
         throw new Error("Failed to create property");
       }
 

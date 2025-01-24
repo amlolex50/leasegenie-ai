@@ -29,7 +29,7 @@ export const usePropertyForm = (property?: Property) => {
       }
 
       if (property?.id) {
-        const { error } = await supabase
+        const { data: updatedProperty, error } = await supabase
           .from("properties")
           .update({
             name: data.name,
@@ -38,7 +38,9 @@ export const usePropertyForm = (property?: Property) => {
             state: data.state,
             country: data.country,
           })
-          .eq("id", property.id);
+          .eq("id", property.id)
+          .select()
+          .single();
 
         if (error) throw error;
 
@@ -46,8 +48,10 @@ export const usePropertyForm = (property?: Property) => {
           title: "Success",
           description: "Property updated successfully",
         });
+        
+        return updatedProperty;
       } else {
-        const { error } = await supabase
+        const { data: newProperty, error } = await supabase
           .from("properties")
           .insert({
             name: data.name,
@@ -56,7 +60,9 @@ export const usePropertyForm = (property?: Property) => {
             state: data.state,
             country: data.country,
             owner_id: user.id,
-          });
+          })
+          .select()
+          .single();
 
         if (error) throw error;
 
@@ -64,15 +70,16 @@ export const usePropertyForm = (property?: Property) => {
           title: "Success",
           description: "Property created successfully",
         });
+        
+        return newProperty;
       }
-
-      navigate("/properties");
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to save property",
         variant: "destructive",
       });
+      return null;
     }
   };
 
