@@ -8,7 +8,14 @@ export const propertyFormSchema = z.object({
   country: z.string().min(1, "Country is required"),
 });
 
+export const unitFormSchema = z.object({
+  unit_name: z.string().min(1, "Unit name is required"),
+  floor_area: z.string().min(1, "Floor area is required"),
+  status: z.enum(["VACANT", "OCCUPIED"]),
+});
+
 export type PropertyFormValues = z.infer<typeof propertyFormSchema>;
+export type UnitFormValues = z.infer<typeof unitFormSchema>;
 
 export interface Property {
   id: string;
@@ -17,4 +24,11 @@ export interface Property {
   city: string;
   state: string;
   country: string;
+}
+
+export interface Unit {
+  id: string;
+  unit_name: string;
+  floor_area: number;
+  status: "VACANT" | "OCCUPIED";
 }
