@@ -48,6 +48,12 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
             <span className="font-semibold text-xl">LeaseGenie AI</span>
             <span className="text-gray-500 ml-2">Dashboard</span>
           </div>
+          <div className="hidden md:flex items-center gap-8">
+            <a href="#" className="text-gray-600 hover:text-gray-900">Dashboard</a>
+            <a href="#" className="text-gray-600 hover:text-gray-900">Properties</a>
+            <a href="#" className="text-gray-600 hover:text-gray-900">Leases</a>
+            <a href="#" className="text-gray-600 hover:text-gray-900">Maintenance</a>
+          </div>
           <div className="flex items-center gap-4">
             <div className="relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
