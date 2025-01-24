@@ -18,11 +18,11 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex">
-      <Sidebar className="border-r border-gray-200">
+      <Sidebar collapsible="icon" className="border-r border-gray-200 group hover:w-64 transition-all duration-300">
         <SidebarContent>
           <div className="h-16 flex items-center gap-2 px-4 border-b border-gray-200">
             <span className="text-blue-600 text-2xl">★</span>
-            <span className="font-semibold text-xl">LeaseGenie</span>
+            <span className="font-semibold text-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">LeaseGenie</span>
           </div>
           <SidebarGroup>
             <SidebarGroupLabel>Menu</SidebarGroupLabel>
@@ -30,9 +30,12 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
               <SidebarMenu>
                 {menuItems.map((item) => (
                   <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton onClick={() => navigate(item.path)}>
+                    <SidebarMenuButton 
+                      onClick={() => navigate(item.path)}
+                      tooltip={item.label}
+                    >
                       <item.icon className="w-5 h-5" />
-                      <span>{item.label}</span>
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">{item.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -42,16 +45,10 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         </SidebarContent>
       </Sidebar>
       <main className="flex-1 overflow-auto">
-        <div className="h-16 px-8 border-b border-gray-200 bg-white flex items-center justify-between shadow-md rounded-[20px] m-4">
+        <div className="h-16 px-8 border-b border-gray-200 bg-white flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-blue-500 text-2xl">★</span>
             <span className="font-semibold text-xl">LeaseGenie AI</span>
-          </div>
-          <div className="hidden md:flex items-center gap-12">
-            <a href="#" className="text-gray-600 hover:text-gray-900">Dashboard</a>
-            <a href="#" className="text-gray-600 hover:text-gray-900">Properties</a>
-            <a href="#" className="text-gray-600 hover:text-gray-900">Leases</a>
-            <a href="#" className="text-gray-600 hover:text-gray-900">Maintenance</a>
           </div>
           <div className="flex items-center gap-4">
             <div className="relative">
