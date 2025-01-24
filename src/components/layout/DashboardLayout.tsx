@@ -45,7 +45,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
             </SidebarGroup>
           </SidebarContent>
         </Sidebar>
-        <div className="absolute top-0 right-0 h-full border-r border-gray-200 pointer-events-none" />
+        <div className="absolute top-0 right-0 h-full border-r border-gray-200 pointer-events-none transition-transform duration-300 group-hover:translate-x-[16rem] w-[3rem] bg-white" />
       </div>
       <main className="flex-1 overflow-auto">
         <div className="h-16 px-8 border-b border-gray-200 bg-white flex items-center justify-between">
