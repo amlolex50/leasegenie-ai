@@ -18,32 +18,35 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex">
-      <Sidebar collapsible="icon" className="border-r border-gray-200 group hover:w-64 transition-all duration-300">
-        <SidebarContent>
-          <div className="h-16 flex items-center gap-2 px-4 border-b border-gray-200">
-            <span className="text-blue-600 text-2xl">★</span>
-            <span className="font-semibold text-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">LeaseGenie</span>
-          </div>
-          <SidebarGroup>
-            <SidebarGroupLabel>Menu</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {menuItems.map((item) => (
-                  <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton 
-                      onClick={() => navigate(item.path)}
-                      tooltip={item.label}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-      </Sidebar>
+      <div className="relative">
+        <Sidebar collapsible="icon" className="group hover:w-64 transition-all duration-300">
+          <SidebarContent>
+            <div className="h-16 flex items-center gap-2 px-4 border-b border-gray-200">
+              <span className="text-blue-600 text-2xl">★</span>
+              <span className="font-semibold text-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">LeaseGenie</span>
+            </div>
+            <SidebarGroup>
+              <SidebarGroupLabel>Menu</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {menuItems.map((item) => (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton 
+                        onClick={() => navigate(item.path)}
+                        tooltip={item.label}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">{item.label}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+        <div className="absolute top-0 right-0 h-full border-r border-gray-200 pointer-events-none" />
+      </div>
       <main className="flex-1 overflow-auto">
         <div className="h-16 px-8 border-b border-gray-200 bg-white flex items-center justify-between">
           <div className="flex items-center gap-2">
