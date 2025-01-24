@@ -16,9 +16,20 @@ export const InvitationForm = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const sendInvitationEmail = async (invitationId: string, email: string, inviterName: string) => {
+  const generateTemporaryPassword = () => {
+    const length = 12;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * charset.length);
+      password += charset[randomIndex];
+    }
+    return password;
+  };
+
+  const sendInvitationEmail = async (invitationId: string, email: string, inviterName: string, temporaryPassword: string) => {
     const { data, error } = await supabase.functions.invoke('send-invitation-email', {
-      body: { to: email, invitationId, inviterName },
+      body: { to: email, invitationId, inviterName, temporaryPassword },
     });
 
     if (error) throw error;
@@ -42,6 +53,8 @@ export const InvitationForm = () => {
 
       if (userError) throw userError;
 
+      const temporaryPassword = generateTemporaryPassword();
+
       // Create invitation
       const { data: invitation, error: inviteError } = await supabase
         .from('invitations')
@@ -50,7 +63,8 @@ export const InvitationForm = () => {
             email,
             role,
             invited_by: user.id,
-            landlord_id: user.id // Set the landlord_id to the current user's id
+            landlord_id: user.id,
+            temporary_password: temporaryPassword
           }
         ])
         .select()
@@ -60,9 +74,10 @@ export const InvitationForm = () => {
 
       // Send email
       try {
-        await sendInvitationEmail(invitation.id, email, userData.full_name);
+        await sendInvitationEmail(invitation.id, email, userData.full_name, temporaryPassword);
       } catch (emailError) {
         console.error('Error sending invitation email:', emailError);
+        throw emailError;
       }
 
       toast({

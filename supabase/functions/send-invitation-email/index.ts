@@ -11,6 +11,7 @@ interface EmailRequest {
   to: string;
   inviterName: string;
   invitationId: string;
+  temporaryPassword: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -27,7 +28,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("RESEND_API_KEY is not configured");
     }
 
-    const { to, inviterName, invitationId } = await req.json() as EmailRequest;
+    const { to, inviterName, invitationId, temporaryPassword } = await req.json() as EmailRequest;
     console.log("Parsed request data:", { to, inviterName, invitationId });
 
     // Get the origin from the request headers or use a default production URL
@@ -41,9 +42,11 @@ const handler = async (req: Request): Promise<Response> => {
       html: `
         <h2>You've been invited to LeaseGenie!</h2>
         <p>${inviterName} has invited you to join their property management system.</p>
-        <p>Click the link below to accept the invitation:</p>
+        <p>Your temporary password is: <strong>${temporaryPassword}</strong></p>
+        <p>Click the link below to accept the invitation and sign in:</p>
         <a href="${invitationUrl}">Accept Invitation</a>
         <p>This invitation will expire in 7 days.</p>
+        <p>Please change your password after your first login.</p>
       `,
     };
 

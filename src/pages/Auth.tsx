@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -22,11 +23,11 @@ export default function Auth() {
       const fetchInvitation = async () => {
         const { data: invitation, error } = await supabase
           .from('invitations')
-          .select('email, status, landlord_id')
+          .select('email, status, landlord_id, role, temporary_password')
           .eq('id', invitationId)
           .single();
 
-        if (error) {
+        if (error || !invitation) {
           toast({
             title: "Error",
             description: "Invalid or expired invitation",
@@ -45,6 +46,62 @@ export default function Auth() {
         }
 
         setEmail(invitation.email);
+        
+        // Automatically sign up the user with the temporary password
+        try {
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email: invitation.email,
+            password: invitation.temporary_password,
+          });
+
+          if (signUpError) throw signUpError;
+
+          if (signUpData.user) {
+            // Create user profile
+            const { error: profileError } = await supabase
+              .from('users')
+              .insert([
+                {
+                  id: signUpData.user.id,
+                  email: invitation.email,
+                  role: invitation.role,
+                  landlord_id: invitation.landlord_id,
+                  full_name: email.split('@')[0] // Temporary name, user can update later
+                }
+              ]);
+
+            if (profileError) throw profileError;
+
+            // Update invitation status
+            const { error: inviteError } = await supabase
+              .from('invitations')
+              .update({ status: 'ACCEPTED' })
+              .eq('id', invitationId);
+
+            if (inviteError) throw inviteError;
+
+            // Sign in the user
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+              email: invitation.email,
+              password: invitation.temporary_password,
+            });
+
+            if (signInError) throw signInError;
+
+            toast({
+              title: "Welcome!",
+              description: "Your account has been created. Please change your password in settings.",
+            });
+
+            navigate("/dashboard");
+          }
+        } catch (error: any) {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
       };
 
       fetchInvitation();
@@ -56,18 +113,6 @@ export default function Auth() {
     setLoading(true);
     
     try {
-      let invitation;
-      if (invitationId) {
-        const { data, error } = await supabase
-          .from('invitations')
-          .select('landlord_id, role')
-          .eq('id', invitationId)
-          .single();
-          
-        if (error) throw error;
-        invitation = data;
-      }
-
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -89,22 +134,11 @@ export default function Auth() {
               id: data.user.id,
               email,
               full_name: fullName,
-              role: invitation ? invitation.role : 'LANDLORD',
-              landlord_id: invitation ? invitation.landlord_id : null
+              role: 'LANDLORD'
             }
           ]);
 
         if (profileError) throw profileError;
-
-        // If this was an invitation signup, update the invitation status
-        if (invitationId) {
-          const { error: inviteError } = await supabase
-            .from('invitations')
-            .update({ status: 'ACCEPTED' })
-            .eq('id', invitationId);
-
-          if (inviteError) throw inviteError;
-        }
 
         toast({
           title: "Success!",
@@ -148,6 +182,18 @@ export default function Auth() {
     }
   };
 
+  // If loading invitation details, show loading state
+  if (invitationId && loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          <p className="text-gray-600">Setting up your account...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
@@ -189,7 +235,14 @@ export default function Auth() {
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Signing in..." : "Sign In"}
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
                 </Button>
               </form>
             </TabsContent>
@@ -224,7 +277,14 @@ export default function Auth() {
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Signing up..." : "Sign Up"}
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing up...
+                    </>
+                  ) : (
+                    "Sign Up"
+                  )}
                 </Button>
               </form>
             </TabsContent>

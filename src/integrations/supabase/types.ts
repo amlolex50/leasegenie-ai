@@ -66,6 +66,7 @@ export type Database = {
           landlord_id: string | null
           role: string
           status: string
+          temporary_password: string | null
         }
         Insert: {
           created_at?: string | null
@@ -76,6 +77,7 @@ export type Database = {
           landlord_id?: string | null
           role: string
           status?: string
+          temporary_password?: string | null
         }
         Update: {
           created_at?: string | null
@@ -86,6 +88,7 @@ export type Database = {
           landlord_id?: string | null
           role?: string
           status?: string
+          temporary_password?: string | null
         }
         Relationships: [
           {
