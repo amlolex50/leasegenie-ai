@@ -4,6 +4,7 @@ import { PropertyFormFields } from "./PropertyFormFields";
 import { usePropertyForm } from "./usePropertyForm";
 import { Property } from "./types";
 import { DocumentUpload } from "./DocumentUpload";
+import { useState } from "react";
 
 interface PropertyFormProps {
   property?: Property;
@@ -11,19 +12,23 @@ interface PropertyFormProps {
 
 export const PropertyForm = ({ property }: PropertyFormProps) => {
   const { form, onSubmit } = usePropertyForm(property);
-  const isEditing = !!property;
+  const [tempId] = useState(() => crypto.randomUUID());
 
   return (
     <Form {...form}>
       <form onSubmit={onSubmit} className="space-y-6">
         <PropertyFormFields form={form} />
-        {isEditing && (
-          <div className="border rounded-lg p-4 space-y-4">
-            <h3 className="text-lg font-medium">Property Documents</h3>
-            <DocumentUpload entityId={property.id} entityType="property" />
-          </div>
-        )}
-        <Button type="submit">{isEditing ? "Update" : "Create"} Property</Button>
+        <div className="border rounded-lg p-4 space-y-4">
+          <h3 className="text-lg font-medium">Property Documents</h3>
+          <p className="text-sm text-muted-foreground">
+            Upload relevant documents for this property (PDF or Word documents only)
+          </p>
+          <DocumentUpload 
+            entityId={property?.id || tempId} 
+            entityType="property" 
+          />
+        </div>
+        <Button type="submit">{property ? "Update" : "Create"} Property</Button>
       </form>
     </Form>
   );
