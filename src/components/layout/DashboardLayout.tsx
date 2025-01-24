@@ -18,7 +18,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex">
-      <div className="relative">
+      <div className="relative z-10">
         <Sidebar collapsible="icon" className="group w-12 hover:w-64 transition-all duration-300">
           <SidebarContent>
             <div className="h-16 flex items-center gap-2 px-4 border-b border-gray-200">
@@ -47,7 +47,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         </Sidebar>
         <div className="absolute top-0 right-0 h-full border-r border-gray-200 pointer-events-none transition-transform duration-300 group-hover:translate-x-[16rem] w-[3rem] bg-white -translate-x-12" />
       </div>
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto relative">
         <div className="h-16 px-8 border-b border-gray-200 bg-white flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-blue-500 text-2xl">★</span>
