@@ -16,7 +16,7 @@ export const PropertyForm = ({ property }: PropertyFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={onSubmit} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <PropertyFormFields form={form} />
         <div className="border rounded-lg p-4 space-y-4">
           <h3 className="text-lg font-medium">Property Documents</h3>
