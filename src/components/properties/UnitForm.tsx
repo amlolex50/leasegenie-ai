@@ -26,8 +26,8 @@ export const UnitForm = ({ propertyId, unit }: UnitFormProps) => {
   const handleSubmit = async (data: any) => {
     if (!selectedFile) {
       toast({
-        title: "Missing document",
-        description: "Please select a document to upload",
+        title: "Missing file",
+        description: "Please select a document or image to upload",
         variant: "destructive",
       });
       return;
@@ -41,7 +41,7 @@ export const UnitForm = ({ propertyId, unit }: UnitFormProps) => {
         throw new Error("Failed to create unit");
       }
 
-      // Then upload the document
+      // Then upload the file
       const fileExt = selectedFile.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const bucketName = "unit_documents";
@@ -68,12 +68,12 @@ export const UnitForm = ({ propertyId, unit }: UnitFormProps) => {
 
       toast({
         title: "Success",
-        description: "Unit created and document uploaded successfully",
+        description: "Unit created and file uploaded successfully",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to create unit or upload document",
+        description: "Failed to create unit or upload file",
         variant: "destructive",
       });
     }
@@ -84,9 +84,9 @@ export const UnitForm = ({ propertyId, unit }: UnitFormProps) => {
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <UnitFormFields form={form} />
         <div className="border rounded-lg p-4 space-y-4">
-          <h3 className="text-lg font-medium">Unit Documents</h3>
+          <h3 className="text-lg font-medium">Unit Documents & Images</h3>
           <p className="text-sm text-muted-foreground">
-            Upload relevant documents for this unit (PDF or Word documents only)
+            Upload relevant documents or images for this unit
           </p>
           <DocumentUpload 
             entityId={unit?.id || tempId} 

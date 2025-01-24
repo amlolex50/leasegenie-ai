@@ -16,14 +16,17 @@ export const DocumentUpload = ({ entityId, entityType, onFileSelect }: DocumentU
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
-      if (selectedFile.type === "application/pdf" || 
-          selectedFile.type === "application/msword" || 
-          selectedFile.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+      const isDocument = selectedFile.type === "application/pdf" || 
+                        selectedFile.type === "application/msword" || 
+                        selectedFile.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      const isImage = selectedFile.type.startsWith("image/");
+
+      if (isDocument || isImage) {
         onFileSelect(selectedFile);
       } else {
         toast({
           title: "Invalid file type",
-          description: "Please upload a PDF or Word document",
+          description: "Please upload a PDF, Word document, or image file (JPG, PNG, etc.)",
           variant: "destructive",
         });
         onFileSelect(null);
@@ -33,13 +36,16 @@ export const DocumentUpload = ({ entityId, entityType, onFileSelect }: DocumentU
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="document">Upload Document (PDF or Word)</Label>
+      <Label htmlFor="document">Upload Document or Images</Label>
       <Input
         id="document"
         type="file"
-        accept=".pdf,.doc,.docx"
+        accept=".pdf,.doc,.docx,image/*"
         onChange={handleFileChange}
       />
+      <p className="text-sm text-muted-foreground">
+        Accepted formats: PDF, Word documents, and images (JPG, PNG, etc.)
+      </p>
     </div>
   );
 };
