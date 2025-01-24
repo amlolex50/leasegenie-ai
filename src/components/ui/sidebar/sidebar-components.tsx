@@ -117,4 +117,46 @@ export const Sidebar = React.forwardRef<
 )
 Sidebar.displayName = "Sidebar"
 
-// ... Additional component exports will follow
+export const SidebarContent = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div">
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex h-full w-full flex-col", className)}
+    {...props}
+  />
+))
+SidebarContent.displayName = "SidebarContent"
+
+export const SidebarGroup = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div">
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex flex-col gap-4 px-2 py-2", className)}
+    {...props}
+  />
+))
+SidebarGroup.displayName = "SidebarGroup"
+
+export const SidebarGroupContent = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div">
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("flex flex-col gap-1", className)} {...props} />
+))
+SidebarGroupContent.displayName = "SidebarGroupContent"
+
+export const SidebarGroupLabel = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<"div">
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("px-2 text-xs font-medium text-muted-foreground", className)}
+    {...props}
+  />
+))
+SidebarGroupLabel.displayName = "SidebarGroupLabel"
