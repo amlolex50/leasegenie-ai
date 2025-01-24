@@ -31,7 +31,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Parsed request data:", { to, inviterName, invitationId });
 
     const emailData = {
-      from: "LeaseGenie <onboarding@resend.dev>",
+      from: "LeaseGenie <noreply@estate.teachai.io>",
       to: [to],
       subject: `${inviterName} invited you to LeaseGenie`,
       html: `
