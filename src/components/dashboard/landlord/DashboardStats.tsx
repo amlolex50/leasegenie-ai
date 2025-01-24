@@ -2,9 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { StatCard } from "../StatCard";
 import { Building, DollarSign, Home, Wrench } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const DashboardStats = () => {
-  const { data: properties } = useQuery({
+  const { data: properties, isLoading: propertiesLoading } = useQuery({
     queryKey: ['properties'],
     queryFn: async () => {
       const { data, error } = await supabase.from('properties').select('*');
@@ -13,7 +14,7 @@ export const DashboardStats = () => {
     }
   });
 
-  const { data: units } = useQuery({
+  const { data: units, isLoading: unitsLoading } = useQuery({
     queryKey: ['units'],
     queryFn: async () => {
       const { data, error } = await supabase.from('units').select('*');
@@ -22,7 +23,7 @@ export const DashboardStats = () => {
     }
   });
 
-  const { data: leases } = useQuery({
+  const { data: leases, isLoading: leasesLoading } = useQuery({
     queryKey: ['leases'],
     queryFn: async () => {
       const { data, error } = await supabase.from('leases').select('*, units(*)');
@@ -31,7 +32,7 @@ export const DashboardStats = () => {
     }
   });
 
-  const { data: maintenanceRequests } = useQuery({
+  const { data: maintenanceRequests, isLoading: maintenanceLoading } = useQuery({
     queryKey: ['maintenance_requests'],
     queryFn: async () => {
       const { data, error } = await supabase.from('maintenance_requests').select('*');
@@ -39,6 +40,21 @@ export const DashboardStats = () => {
       return data;
     }
   });
+
+  const isLoading = propertiesLoading || unitsLoading || leasesLoading || maintenanceLoading;
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="p-6 rounded-lg border">
+            <Skeleton className="h-4 w-24 mb-4" />
+            <Skeleton className="h-8 w-16" />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   const stats = [
     {
