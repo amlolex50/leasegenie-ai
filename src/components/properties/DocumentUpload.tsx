@@ -40,7 +40,6 @@ export const DocumentUpload = ({ entityId, entityType }: DocumentUploadProps) =>
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const bucketName = entityType === "property" ? "property_documents" : "unit_documents";
-      const tableName = `${entityType}_documents`;
 
       const { error: uploadError } = await supabase.storage
         .from(bucketName)
@@ -48,17 +47,31 @@ export const DocumentUpload = ({ entityId, entityType }: DocumentUploadProps) =>
 
       if (uploadError) throw uploadError;
 
-      const { error: dbError } = await supabase
-        .from(tableName)
-        .insert({
-          [`${entityType}_id`]: entityId,
-          name: file.name,
-          file_path: fileName,
-          document_type: file.type,
-          uploaded_by: (await supabase.auth.getUser()).data.user?.id,
-        });
-
-      if (dbError) throw dbError;
+      const user = await supabase.auth.getUser();
+      
+      if (entityType === "property") {
+        const { error: dbError } = await supabase
+          .from('property_documents')
+          .insert({
+            property_id: entityId,
+            name: file.name,
+            file_path: fileName,
+            document_type: file.type,
+            uploaded_by: user.data.user?.id,
+          });
+        if (dbError) throw dbError;
+      } else {
+        const { error: dbError } = await supabase
+          .from('unit_documents')
+          .insert({
+            unit_id: entityId,
+            name: file.name,
+            file_path: fileName,
+            document_type: file.type,
+            uploaded_by: user.data.user?.id,
+          });
+        if (dbError) throw dbError;
+      }
 
       toast({
         title: "Success",
