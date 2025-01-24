@@ -54,6 +54,7 @@ export const InvitationList = () => {
       <TableHeader>
         <TableRow>
           <TableHead>Email</TableHead>
+          <TableHead>Role</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Sent Date</TableHead>
           <TableHead>Actions</TableHead>
@@ -63,6 +64,11 @@ export const InvitationList = () => {
         {invitations?.map((invitation) => (
           <TableRow key={invitation.id}>
             <TableCell>{invitation.email}</TableCell>
+            <TableCell>
+              <Badge variant="outline">
+                {invitation.role}
+              </Badge>
+            </TableCell>
             <TableCell>
               <Badge variant={invitation.status === 'PENDING' ? 'secondary' : 'default'}>
                 {invitation.status}
