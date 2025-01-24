@@ -65,7 +65,13 @@ export const PropertyForm = ({ property }: PropertyFormProps) => {
       if (isEditing) {
         const { error } = await supabase
           .from("properties")
-          .update(data)
+          .update({
+            name: data.name,
+            address: data.address,
+            city: data.city,
+            state: data.state,
+            country: data.country,
+          })
           .eq("id", property.id);
 
         if (error) throw error;
@@ -76,7 +82,11 @@ export const PropertyForm = ({ property }: PropertyFormProps) => {
         });
       } else {
         const { error } = await supabase.from("properties").insert({
-          ...data,
+          name: data.name,
+          address: data.address,
+          city: data.city,
+          state: data.state,
+          country: data.country,
           owner_id: user.id,
         });
 
