@@ -30,6 +30,10 @@ const handler = async (req: Request): Promise<Response> => {
     const { to, inviterName, invitationId } = await req.json() as EmailRequest;
     console.log("Parsed request data:", { to, inviterName, invitationId });
 
+    // Get the origin from the request headers or use a default production URL
+    const origin = req.headers.get("origin") || "https://leasewizard-ai.vercel.app";
+    const invitationUrl = `${origin}/auth?invitation=${invitationId}`;
+
     const emailData = {
       from: "LeaseGenie <noreply@estate.teachai.io>",
       to: [to],
@@ -38,7 +42,7 @@ const handler = async (req: Request): Promise<Response> => {
         <h2>You've been invited to LeaseGenie!</h2>
         <p>${inviterName} has invited you to join their property management system.</p>
         <p>Click the link below to accept the invitation:</p>
-        <a href="http://localhost:5173/auth?invitation=${invitationId}">Accept Invitation</a>
+        <a href="${invitationUrl}">Accept Invitation</a>
         <p>This invitation will expire in 7 days.</p>
       `,
     };
