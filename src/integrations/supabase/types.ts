@@ -393,6 +393,47 @@ export type Database = {
           },
         ]
       }
+      unit_documents: {
+        Row: {
+          description: string | null
+          document_type: string
+          file_path: string
+          id: string
+          name: string
+          unit_id: string | null
+          uploaded_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          description?: string | null
+          document_type: string
+          file_path: string
+          id?: string
+          name: string
+          unit_id?: string | null
+          uploaded_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          description?: string | null
+          document_type?: string
+          file_path?: string
+          id?: string
+          name?: string
+          unit_id?: string | null
+          uploaded_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unit_documents_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       units: {
         Row: {
           created_at: string
