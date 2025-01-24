@@ -42,13 +42,12 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         </SidebarContent>
       </Sidebar>
       <main className="flex-1 overflow-auto">
-        <div className="h-16 px-8 border-b border-gray-200 bg-white flex items-center justify-between">
+        <div className="h-16 px-8 border-b border-gray-200 bg-white flex items-center justify-between shadow-md rounded-[20px] m-4">
           <div className="flex items-center gap-2">
             <span className="text-blue-500 text-2xl">★</span>
             <span className="font-semibold text-xl">LeaseGenie AI</span>
-            <span className="text-gray-500 ml-2">Dashboard</span>
           </div>
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-12">
             <a href="#" className="text-gray-600 hover:text-gray-900">Dashboard</a>
             <a href="#" className="text-gray-600 hover:text-gray-900">Properties</a>
             <a href="#" className="text-gray-600 hover:text-gray-900">Leases</a>
@@ -60,7 +59,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
               <Input 
                 type="text" 
                 placeholder="Search..." 
-                className="pl-9 w-64 bg-gray-50 border-gray-200 rounded-full"
+                className="pl-9 w-64 bg-gray-50 border-gray-200"
               />
             </div>
             <Button variant="ghost" size="icon">
