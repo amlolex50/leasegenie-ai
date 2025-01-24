@@ -58,7 +58,7 @@ export const useUnitForm = (propertyId: string, unit?: {
 
         toast({
           title: "Success",
-          description: "Unit created successfully",
+          description: "Unit created successfully. You can now add documents to this unit.",
         });
       }
 
