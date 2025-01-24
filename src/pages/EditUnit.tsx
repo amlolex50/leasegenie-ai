@@ -5,6 +5,12 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
+type UnitStatus = "VACANT" | "OCCUPIED";
+
+const isValidStatus = (status: string): status is UnitStatus => {
+  return status === "VACANT" || status === "OCCUPIED";
+};
+
 const EditUnit = () => {
   const { id: propertyId, unitId } = useParams();
   const { toast } = useToast();
@@ -27,7 +33,26 @@ const EditUnit = () => {
         throw error;
       }
 
-      return data;
+      if (!data) {
+        throw new Error("Unit not found");
+      }
+
+      // Validate the status
+      if (!isValidStatus(data.status)) {
+        toast({
+          title: "Error",
+          description: "Invalid unit status",
+          variant: "destructive",
+        });
+        throw new Error("Invalid unit status");
+      }
+
+      return {
+        id: data.id,
+        unit_name: data.unit_name,
+        floor_area: data.floor_area || 0,
+        status: data.status as UnitStatus,
+      };
     },
   });
 
