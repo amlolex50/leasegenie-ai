@@ -4,10 +4,10 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/components/ui/use-toast"
@@ -24,6 +24,9 @@ interface RentData {
 
 interface PaymentResponse {
   id: string
+  due_date: string
+  amount: number
+  status: string
   lease: {
     tenant: {
       full_name: string
@@ -35,9 +38,6 @@ interface PaymentResponse {
       }
     }
   }
-  due_date: string
-  amount: number
-  status: string
 }
 
 export function RentCollection() {
@@ -59,7 +59,7 @@ export function RentCollection() {
           amount,
           status,
           lease:leases (
-            tenant:users (
+            tenant:users!fk_leases_tenant (
               full_name
             ),
             unit:units (
@@ -202,7 +202,7 @@ export function RentCollection() {
                   <TableCell>
                     <Badge
                       variant={
-                        item.status === "PAID" ? "success" : item.status === "OVERDUE" ? "destructive" : "default"
+                        item.status === "PAID" ? "default" : "destructive"
                       }
                     >
                       {item.status}
@@ -225,7 +225,11 @@ export function RentCollection() {
                               <Label htmlFor="amount" className="text-right">
                                 Amount
                               </Label>
-                              <Input id="amount" defaultValue={item.amount} className="col-span-3" />
+                              <Input
+                                id="amount"
+                                defaultValue={item.amount}
+                                className="col-span-3"
+                              />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
                               <Label htmlFor="method" className="text-right">
@@ -243,7 +247,9 @@ export function RentCollection() {
                               </Select>
                             </div>
                           </div>
-                          <Button onClick={() => handlePayment(item.id)}>Confirm Payment</Button>
+                          <Button onClick={() => handlePayment(item.id)}>
+                            Confirm Payment
+                          </Button>
                         </DialogContent>
                       </Dialog>
                     )}
