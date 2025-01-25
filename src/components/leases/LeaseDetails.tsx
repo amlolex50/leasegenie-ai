@@ -60,6 +60,17 @@ interface RawLeaseData extends Omit<LeaseData, 'insights'> {
   insights: Json;
 }
 
+const isValidLeaseInsights = (insights: any): insights is LeaseInsights => {
+  return (
+    insights &&
+    typeof insights === 'object' &&
+    'leaseDuration' in insights &&
+    'financials' in insights &&
+    'property' in insights &&
+    'tenant' in insights
+  );
+};
+
 export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
   const { data: lease, isLoading } = useQuery<LeaseData>({
     queryKey: ['lease', leaseId],
@@ -86,17 +97,20 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
           body: { leaseId },
         });
         
-        if (insightsData?.insights) {
+        if (insightsData?.insights && isValidLeaseInsights(insightsData.insights)) {
           return {
             ...rawData,
-            insights: insightsData.insights as LeaseInsights
+            insights: insightsData.insights
           };
         }
       }
 
+      // Validate existing insights before returning
+      const validatedInsights = isValidLeaseInsights(rawData.insights) ? rawData.insights : null;
+
       return {
         ...rawData,
-        insights: rawData.insights as LeaseInsights | null
+        insights: validatedInsights
       };
     },
   });
