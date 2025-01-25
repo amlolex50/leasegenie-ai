@@ -10,8 +10,51 @@ interface LeaseDetailsProps {
   leaseId: string;
 }
 
+interface LeaseInsights {
+  leaseDuration: {
+    months: number;
+    description: string;
+  };
+  financials: {
+    monthlyRent: number;
+    totalValue: number;
+    description: string;
+  };
+  property: {
+    name: string;
+    unit: string;
+    description: string;
+  };
+  tenant: {
+    name: string;
+    description: string;
+  };
+}
+
+interface LeaseData {
+  id: string;
+  unit_id: string;
+  tenant_id: string;
+  lease_start_date: string;
+  lease_end_date: string;
+  monthly_rent: number;
+  escalation_rate: number | null;
+  deposit_amount: number | null;
+  pdf_url: string | null;
+  insights: LeaseInsights | null;
+  tenant: {
+    full_name: string;
+  };
+  unit: {
+    unit_name: string;
+    property: {
+      name: string;
+    };
+  };
+}
+
 export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
-  const { data: lease, isLoading } = useQuery({
+  const { data: lease, isLoading } = useQuery<LeaseData>({
     queryKey: ['lease', leaseId],
     queryFn: async () => {
       const { data, error } = await supabase
