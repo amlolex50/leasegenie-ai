@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart } from "lucide-react";
-import { LeaseInsights } from "../LeaseDetails";
+import { LeaseInsights } from "../types";
 
 interface LeaseInsightsProps {
   insights: LeaseInsights;
@@ -34,12 +34,26 @@ export const LeaseInsightsSection = ({ insights }: LeaseInsightsProps) => {
             <p className="text-sm text-muted-foreground">
               {insights.property.description}
             </p>
+            <ul className="mt-2 space-y-1">
+              {insights.property.responsibilities.map((resp, index) => (
+                <li key={index} className="text-sm text-muted-foreground">
+                  • {resp}
+                </li>
+              ))}
+            </ul>
           </div>
           <div>
             <h3 className="font-medium mb-2">Tenant Information</h3>
             <p className="text-sm text-muted-foreground">
               {insights.tenant.description}
             </p>
+            <ul className="mt-2 space-y-1">
+              {insights.tenant.responsibilities.map((resp, index) => (
+                <li key={index} className="text-sm text-muted-foreground">
+                  • {resp}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </CardContent>
