@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { maintenanceService } from "@/services/maintenanceService";
+import { MaintenanceRequest } from "@/types/maintenance";
 
 interface MaintenanceRequestFormProps {
   onSuccess?: () => void;
@@ -14,9 +15,9 @@ interface MaintenanceRequestFormProps {
 export function MaintenanceRequestForm({ onSuccess }: MaintenanceRequestFormProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Partial<MaintenanceRequest>>({
     description: "",
-    priority: "",
+    priority: "LOW",
     lease_id: "",
   });
 
@@ -57,7 +58,9 @@ export function MaintenanceRequestForm({ onSuccess }: MaintenanceRequestFormProp
         <Label htmlFor="priority">Priority</Label>
         <Select 
           value={formData.priority}
-          onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value }))}
+          onValueChange={(value: MaintenanceRequest['priority']) => 
+            setFormData(prev => ({ ...prev, priority: value }))
+          }
         >
           <SelectTrigger>
             <SelectValue placeholder="Select priority" />
