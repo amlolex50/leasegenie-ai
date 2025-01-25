@@ -15,11 +15,13 @@ export interface LeaseInsights {
     startDate: string;
     endDate: string;
     totalMonths: number;
+    description: string;
   };
   financials: {
     monthlyRent: number;
     depositAmount: number;
     escalationRate?: number;
+    description: string;
   };
   property: {
     description: string;
@@ -28,6 +30,7 @@ export interface LeaseInsights {
   tenant: {
     responsibilities: string[];
     restrictions: string[];
+    description: string;
   };
 }
 
