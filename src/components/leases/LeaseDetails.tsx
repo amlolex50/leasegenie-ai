@@ -1,16 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, DollarSign, FileText, User, LineChart } from "lucide-react";
-import { format } from "date-fns";
+import { TenantInformation } from "./details/TenantInformation";
+import { LeasePeriod } from "./details/LeasePeriod";
+import { FinancialDetails } from "./details/FinancialDetails";
+import { LeaseDocuments } from "./details/LeaseDocuments";
+import { LeaseInsightsSection } from "./details/LeaseInsights";
+import { PaymentHistory } from "./details/PaymentHistory";
 
 interface LeaseDetailsProps {
   leaseId: string;
 }
 
-interface LeaseInsights {
+export interface LeaseInsights {
   leaseDuration: {
     months: number;
     description: string;
@@ -72,10 +74,8 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
 
       if (error) throw error;
 
-      // Convert the raw data to our LeaseData type, with proper type handling for insights
       const rawData = data as unknown as Omit<LeaseData, 'insights'> & { insights: any };
 
-      // If insights don't exist, generate them
       if (!rawData.insights) {
         const { data: insightsData } = await supabase.functions.invoke('generate-lease-insights', {
           body: { leaseId },
@@ -89,7 +89,6 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
         }
       }
 
-      // Return the data with properly typed insights
       return {
         ...rawData,
         insights: rawData.insights as LeaseInsights
@@ -120,204 +119,39 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
 
   if (!lease) return null;
 
-  const downloadLease = async () => {
-    if (!lease.pdf_url) return;
-    
-    const { data, error } = await supabase.storage
-      .from('lease_documents')
-      .download(lease.pdf_url);
-
-    if (error) {
-      console.error('Error downloading lease:', error);
-      return;
-    }
-
-    const url = URL.createObjectURL(data);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `lease-${lease.id}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  };
-
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Tenant Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <dl className="space-y-2">
-              <dt className="text-sm text-muted-foreground">Name</dt>
-              <dd className="text-lg font-medium">{lease.tenant.full_name}</dd>
-              <dt className="text-sm text-muted-foreground">Property</dt>
-              <dd className="text-lg font-medium">{lease.unit.property.name}</dd>
-              <dt className="text-sm text-muted-foreground">Unit</dt>
-              <dd className="text-lg font-medium">{lease.unit.unit_name}</dd>
-            </dl>
-          </CardContent>
-        </Card>
+        <TenantInformation
+          tenantName={lease.tenant.full_name}
+          propertyName={lease.unit.property.name}
+          unitName={lease.unit.unit_name}
+        />
         
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Lease Period
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <dl className="space-y-2">
-              <dt className="text-sm text-muted-foreground">Start Date</dt>
-              <dd className="text-lg font-medium">
-                {format(new Date(lease.lease_start_date), 'PPP')}
-              </dd>
-              <dt className="text-sm text-muted-foreground">End Date</dt>
-              <dd className="text-lg font-medium">
-                {format(new Date(lease.lease_end_date), 'PPP')}
-              </dd>
-            </dl>
-          </CardContent>
-        </Card>
+        <LeasePeriod
+          startDate={lease.lease_start_date}
+          endDate={lease.lease_end_date}
+        />
         
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Financial Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <dl className="space-y-2">
-              <dt className="text-sm text-muted-foreground">Monthly Rent</dt>
-              <dd className="text-lg font-medium">
-                ${lease.monthly_rent.toLocaleString()}
-              </dd>
-              {lease.deposit_amount && (
-                <>
-                  <dt className="text-sm text-muted-foreground">Security Deposit</dt>
-                  <dd className="text-lg font-medium">
-                    ${lease.deposit_amount.toLocaleString()}
-                  </dd>
-                </>
-              )}
-              {lease.escalation_rate && (
-                <>
-                  <dt className="text-sm text-muted-foreground">Annual Increase</dt>
-                  <dd className="text-lg font-medium">{lease.escalation_rate}%</dd>
-                </>
-              )}
-            </dl>
-          </CardContent>
-        </Card>
+        <FinancialDetails
+          monthlyRent={lease.monthly_rent}
+          depositAmount={lease.deposit_amount}
+          escalationRate={lease.escalation_rate}
+        />
         
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Documents
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {lease.pdf_url ? (
-              <Button onClick={downloadLease} variant="outline" className="w-full">
-                Download Lease Agreement
-              </Button>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No lease document uploaded
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <LeaseDocuments
+          pdfUrl={lease.pdf_url}
+          leaseId={lease.id}
+        />
 
         {lease.insights && (
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <LineChart className="h-5 w-5" />
-                Lease Insights
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-medium mb-2">Duration</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {lease.insights.leaseDuration.description}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Financial Overview</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {lease.insights.financials.description}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Property Details</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {lease.insights.property.description}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Tenant Information</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {lease.insights.tenant.description}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <LeaseInsightsSection insights={lease.insights} />
         )}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Payment History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {payments && payments.length > 0 ? (
-            <div className="space-y-4">
-              {payments.map((payment) => (
-                <div
-                  key={payment.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium">
-                      Due: {format(new Date(payment.due_date), 'PPP')}
-                    </p>
-                    {payment.paid_date && (
-                      <p className="text-sm text-muted-foreground">
-                        Paid: {format(new Date(payment.paid_date), 'PPP')}
-                      </p>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">${payment.amount.toLocaleString()}</p>
-                    <p className={`text-sm ${
-                      payment.status === 'PAID' 
-                        ? 'text-green-600' 
-                        : payment.status === 'PENDING' 
-                          ? 'text-yellow-600' 
-                          : 'text-red-600'
-                    }`}>
-                      {payment.status}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No payment records found</p>
-          )}
-        </CardContent>
-      </Card>
+      {payments && (
+        <PaymentHistory payments={payments} />
+      )}
     </div>
   );
 };
