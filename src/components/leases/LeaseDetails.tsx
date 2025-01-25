@@ -7,6 +7,7 @@ import { FinancialDetails } from "./details/FinancialDetails";
 import { LeaseDocuments } from "./details/LeaseDocuments";
 import { LeaseInsightsSection } from "./details/LeaseInsights";
 import { PaymentHistory } from "./details/PaymentHistory";
+import { Json } from "@/integrations/supabase/types";
 
 interface LeaseDetailsProps {
   leaseId: string;
@@ -55,6 +56,10 @@ interface LeaseData {
   };
 }
 
+interface RawLeaseData extends Omit<LeaseData, 'insights'> {
+  insights: Json;
+}
+
 export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
   const { data: lease, isLoading } = useQuery<LeaseData>({
     queryKey: ['lease', leaseId],
@@ -74,7 +79,7 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
 
       if (error) throw error;
 
-      const rawData = data as unknown as Omit<LeaseData, 'insights'> & { insights: any };
+      const rawData = data as unknown as RawLeaseData;
 
       if (!rawData.insights) {
         const { data: insightsData } = await supabase.functions.invoke('generate-lease-insights', {
@@ -91,7 +96,7 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
 
       return {
         ...rawData,
-        insights: rawData.insights as LeaseInsights
+        insights: rawData.insights as LeaseInsights | null
       };
     },
   });
