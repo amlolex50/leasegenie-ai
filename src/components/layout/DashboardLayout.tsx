@@ -1,29 +1,37 @@
-import React from 'react';
-import { 
+import { useNavigate } from "react-router-dom";
+import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuItem 
 } from "@/components/ui/sidebar";
-import { Building, ClipboardList, Home, Settings, Wrench, Search, Bell } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { LayoutDashboard, Building2, FileText } from "lucide-react";
+
+const menuItems = [
+  {
+    label: "Dashboard",
+    path: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    label: "Properties",
+    path: "/properties",
+    icon: Building2,
+  },
+  {
+    label: "Leases",
+    path: "/leases",
+    icon: FileText,
+  },
+];
 
 export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
-
-  const menuItems = [
-    { icon: Home, label: "Dashboard", path: "/dashboard" },
-    { icon: Building, label: "Properties", path: "/properties" },
-    { icon: ClipboardList, label: "Leases", path: "/leases" },
-    { icon: Wrench, label: "Maintenance", path: "/maintenance" },
-    { icon: Settings, label: "Settings", path: "/settings" },
-  ];
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -60,33 +68,16 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
               <Button
                 key={item.label}
                 variant="ghost"
-                className="text-gray-600 hover:text-gray-900"
+                className="hidden md:flex"
                 onClick={() => navigate(item.path)}
               >
+                <item.icon className="w-4 h-4 mr-2" />
                 {item.label}
               </Button>
             ))}
           </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <Input 
-                type="text" 
-                placeholder="Search..." 
-                className="pl-9 w-64 bg-gray-50 border-gray-200"
-              />
-            </div>
-            <Button variant="ghost" size="icon">
-              <Bell className="w-5 h-5 text-gray-600" />
-            </Button>
-            <div className="w-8 h-8 rounded-full bg-gray-200"></div>
-          </div>
         </div>
-        <div className="p-8">
-          <div className="max-w-7xl mx-auto">
-            {children}
-          </div>
-        </div>
+        <div className="p-4">{children}</div>
       </main>
     </div>
   );

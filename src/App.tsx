@@ -16,6 +16,7 @@ import { supabase } from "./integrations/supabase/client";
 import CreateUnit from "./pages/CreateUnit";
 import EditUnit from "./pages/EditUnit";
 import UnitDetails from "./pages/UnitDetails";
+import Leases from "./pages/Leases";
 
 const queryClient = new QueryClient();
 
@@ -103,6 +104,12 @@ const App = () => {
                 path="/properties/:id/units/:unitId/edit"
                 element={
                   session ? <EditUnit /> : <Navigate to="/auth" replace />
+                }
+              />
+              <Route
+                path="/leases"
+                element={
+                  session ? <Leases /> : <Navigate to="/auth" replace />
                 }
               />
             </Routes>
