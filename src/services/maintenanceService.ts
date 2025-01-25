@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MaintenanceRequest, WorkOrder } from "@/types/maintenance";
 
 export const maintenanceService = {
-  async createMaintenanceRequest(data: Partial<MaintenanceRequest>) {
+  async createMaintenanceRequest(data: Pick<MaintenanceRequest, 'description' | 'priority' | 'lease_id'>) {
     const { data: user, error: userError } = await supabase.auth.getUser();
     if (userError) throw userError;
     if (!user) throw new Error('No user found');
@@ -10,7 +10,9 @@ export const maintenanceService = {
     const { data: request, error } = await supabase
       .from('maintenance_requests')
       .insert({
-        ...data,
+        description: data.description,
+        priority: data.priority,
+        lease_id: data.lease_id,
         submitted_by: user.user.id,
         status: 'OPEN',
       })
