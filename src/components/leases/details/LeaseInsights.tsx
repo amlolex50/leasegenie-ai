@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart } from "lucide-react";
-import { LeaseInsights as LeaseInsightsType } from "../LeaseDetails";
+import { LeaseInsights } from "../LeaseDetails";
 
 interface LeaseInsightsProps {
-  insights: LeaseInsightsType;
+  insights: LeaseInsights;
 }
 
 export const LeaseInsightsSection = ({ insights }: LeaseInsightsProps) => {

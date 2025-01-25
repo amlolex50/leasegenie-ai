@@ -10,7 +10,7 @@ interface LeaseDetailsProps {
   leaseId: string;
 }
 
-interface LeaseInsights {
+export interface LeaseInsights {
   leaseDuration: {
     startDate: string;
     endDate: string;
