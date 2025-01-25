@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Building2, FileText } from "lucide-react";
+import { LayoutDashboard, Building2, FileText, HelpCircle } from "lucide-react";
 
 const menuItems = [
   {
@@ -27,6 +27,11 @@ const menuItems = [
     label: "Leases",
     path: "/leases",
     icon: FileText,
+  },
+  {
+    label: "How it Works",
+    path: "/how-it-works",
+    icon: HelpCircle,
   },
 ];
 
