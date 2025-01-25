@@ -28,7 +28,7 @@ export function PaymentHistory() {
           *,
           lease:leases (
             id,
-            tenant:users!leases_tenant_id_fkey (
+            tenant:users (
               full_name
             ),
             unit:units (
@@ -51,7 +51,7 @@ export function PaymentHistory() {
         tenant: payment.lease.tenant.full_name,
         date: payment.paid_date || payment.due_date,
         amount: payment.amount,
-        method: payment.payment_method || 'N/A',
+        method: 'Bank Transfer',
         status: payment.status
       }))
 

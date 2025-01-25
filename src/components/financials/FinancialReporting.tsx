@@ -34,7 +34,7 @@ export function FinancialReporting() {
       // Fetch expense data (invoices)
       const { data: invoices, error: invoicesError } = await supabase
         .from('invoices')
-        .select('amount, created_at, status')
+        .select('amount, created_at, status, category')
         .eq('status', 'PAID')
 
       if (invoicesError) throw invoicesError
