@@ -1,36 +1,33 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
-import { TenantInformation } from "./details/TenantInformation";
-import { LeasePeriod } from "./details/LeasePeriod";
-import { FinancialDetails } from "./details/FinancialDetails";
-import { LeaseDocuments } from "./details/LeaseDocuments";
-import { LeaseInsightsSection } from "./details/LeaseInsights";
-import { PaymentHistory } from "./details/PaymentHistory";
 import { Json } from "@/integrations/supabase/types";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { FileText, DollarSign, Calendar, User, Building } from "lucide-react";
 
 interface LeaseDetailsProps {
   leaseId: string;
 }
 
-export interface LeaseInsights {
+interface LeaseInsights {
   leaseDuration: {
-    months: number;
-    description: string;
+    startDate: string;
+    endDate: string;
+    totalMonths: number;
   };
   financials: {
     monthlyRent: number;
-    totalValue: number;
-    description: string;
+    depositAmount: number;
+    escalationRate?: number;
   };
   property: {
-    name: string;
-    unit: string;
     description: string;
+    keyFeatures: string[];
   };
   tenant: {
-    name: string;
-    description: string;
+    responsibilities: string[];
+    restrictions: string[];
   };
 }
 
@@ -41,17 +38,17 @@ interface LeaseData {
   lease_start_date: string;
   lease_end_date: string;
   monthly_rent: number;
+  deposit_amount: number;
   escalation_rate: number | null;
-  deposit_amount: number | null;
   pdf_url: string | null;
+  created_at: string;
+  updated_at: string;
   insights: LeaseInsights | null;
-  tenant: {
-    full_name: string;
-  };
   unit: {
     unit_name: string;
     property: {
       name: string;
+      address: string;
     };
   };
 }
@@ -67,109 +64,200 @@ const isValidLeaseInsights = (insights: any): insights is LeaseInsights => {
     'leaseDuration' in insights &&
     'financials' in insights &&
     'property' in insights &&
-    'tenant' in insights
+    'tenant' in insights &&
+    typeof insights.leaseDuration === 'object' &&
+    typeof insights.financials === 'object' &&
+    typeof insights.property === 'object' &&
+    typeof insights.tenant === 'object'
   );
 };
 
 export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
-  const { data: lease, isLoading } = useQuery<LeaseData>({
+  const { data: lease, isLoading, error } = useQuery({
     queryKey: ['lease', leaseId],
-    queryFn: async () => {
-      const { data, error } = await supabase
+    queryFn: async (): Promise<LeaseData> => {
+      const { data: rawData, error } = await supabase
         .from('leases')
         .select(`
           *,
-          tenant:tenant_id(full_name),
-          unit:unit_id(
+          unit:units(
             unit_name,
-            property:property_id(name)
+            property:properties(
+              name,
+              address
+            )
           )
         `)
         .eq('id', leaseId)
         .single();
 
       if (error) throw error;
+      if (!rawData) throw new Error('Lease not found');
 
-      const rawData = data as unknown as RawLeaseData;
+      const typedRawData = rawData as unknown as RawLeaseData;
 
-      if (!rawData.insights) {
-        const { data: insightsData } = await supabase.functions.invoke('generate-lease-insights', {
-          body: { leaseId },
-        });
-        
+      // If no insights exist, generate them
+      if (!typedRawData.insights) {
+        const { data: insightsData, error: insightsError } = await supabase
+          .functions.invoke('generate-lease-insights', {
+            body: { leaseId },
+          });
+
+        if (insightsError) {
+          console.error('Error generating insights:', insightsError);
+          return { ...typedRawData, insights: null };
+        }
+
         if (insightsData?.insights && isValidLeaseInsights(insightsData.insights)) {
           return {
-            ...rawData,
-            insights: insightsData.insights
+            ...typedRawData,
+            insights: insightsData.insights,
           };
         }
       }
 
-      // Validate existing insights before returning
-      const validatedInsights = isValidLeaseInsights(rawData.insights) ? rawData.insights : null;
-
+      // Validate existing insights
       return {
-        ...rawData,
-        insights: validatedInsights
+        ...typedRawData,
+        insights: isValidLeaseInsights(typedRawData.insights) ? typedRawData.insights : null,
       };
     },
   });
 
-  const { data: payments } = useQuery({
-    queryKey: ['lease-payments', leaseId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('payments')
-        .select('*')
-        .eq('lease_id', leaseId)
-        .order('due_date', { ascending: true });
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
   if (isLoading) {
-    return <div className="space-y-4">
-      <Skeleton className="h-48 w-full" />
-      <Skeleton className="h-48 w-full" />
-    </div>;
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-48 w-full" />
+        <Skeleton className="h-48 w-full" />
+      </div>
+    );
   }
 
-  if (!lease) return null;
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>
+          Error loading lease details: {error.message}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (!lease) {
+    return (
+      <Alert>
+        <AlertDescription>No lease details found.</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <TenantInformation
-          tenantName={lease.tenant.full_name}
-          propertyName={lease.unit.property.name}
-          unitName={lease.unit.unit_name}
-        />
-        
-        <LeasePeriod
-          startDate={lease.lease_start_date}
-          endDate={lease.lease_end_date}
-        />
-        
-        <FinancialDetails
-          monthlyRent={lease.monthly_rent}
-          depositAmount={lease.deposit_amount}
-          escalationRate={lease.escalation_rate}
-        />
-        
-        <LeaseDocuments
-          pdfUrl={lease.pdf_url}
-          leaseId={lease.id}
-        />
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Lease Overview
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-semibold mb-2 flex items-center gap-2">
+                <Building className="h-4 w-4" />
+                Property Details
+              </h3>
+              <p className="text-gray-600">{lease.unit.property.name}</p>
+              <p className="text-gray-600">{lease.unit.property.address}</p>
+              <p className="text-gray-600">Unit: {lease.unit.unit_name}</p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2 flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Lease Period
+              </h3>
+              <p className="text-gray-600">
+                From: {new Date(lease.lease_start_date).toLocaleDateString()}
+              </p>
+              <p className="text-gray-600">
+                To: {new Date(lease.lease_end_date).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        {lease.insights && (
-          <LeaseInsightsSection insights={lease.insights} />
-        )}
-      </div>
+      {lease.insights ? (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5" />
+                Financial Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <p className="font-medium">Monthly Rent</p>
+                  <p className="text-gray-600">
+                    ${lease.insights.financials.monthlyRent.toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-medium">Security Deposit</p>
+                  <p className="text-gray-600">
+                    ${lease.insights.financials.depositAmount.toLocaleString()}
+                  </p>
+                </div>
+                {lease.insights.financials.escalationRate && (
+                  <div>
+                    <p className="font-medium">Annual Rent Increase</p>
+                    <p className="text-gray-600">
+                      {lease.insights.financials.escalationRate}%
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
-      {payments && (
-        <PaymentHistory payments={payments} />
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Tenant Guidelines
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold mb-2">Responsibilities</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    {lease.insights.tenant.responsibilities.map((resp, index) => (
+                      <li key={index} className="text-gray-600">{resp}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Restrictions</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    {lease.insights.tenant.restrictions.map((restriction, index) => (
+                      <li key={index} className="text-gray-600">{restriction}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      ) : (
+        <Alert>
+          <AlertDescription>
+            AI-generated insights are not available for this lease yet. They will be generated automatically.
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );
