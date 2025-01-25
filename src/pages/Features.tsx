@@ -123,7 +123,7 @@ const Features = () => {
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-xl font-semibold mb-6">Property Distribution</h3>
-                <div className="h-[300px]">
+                <div className="h-[300px] relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -143,7 +143,7 @@ const Features = () => {
                       <Tooltip />
                     </PieChart>
                   </ResponsiveContainer>
-                  <div className="flex justify-center gap-4 mt-4">
+                  <div className="flex justify-center gap-4 mt-[-40px]">
                     {pieData.map((entry, index) => (
                       <div key={index} className="flex items-center">
                         <div 
