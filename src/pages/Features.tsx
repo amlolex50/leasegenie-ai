@@ -1,56 +1,31 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { ChartBar, ChartPie, Trophy, Star, Award } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import { Brain, BarChart3, Users, Bot, Shield, Cog } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Features = () => {
   const navigate = useNavigate();
   
-  const revenueData = [
-    { month: 'Jan', revenue: 32000 },
-    { month: 'Feb', revenue: 28000 },
-    { month: 'Mar', revenue: 25000 },
-    { month: 'Apr', revenue: 32000 },
-    { month: 'May', revenue: 35000 },
-    { month: 'Jun', revenue: 30000 },
+  const barChartData = [
+    { name: "Manual Process", value: 100 },
+    { name: "With LeaseGenie AI", value: 25 },
   ];
 
-  const pieData = [
-    { name: 'Commercial', value: 45 },
-    { name: 'Residential', value: 30 },
-    { name: 'Mixed Use', value: 25 },
+  const lineChartData = [
+    { date: "Jan", "Maintenance Costs": 4000, "Predicted Costs": 3800 },
+    { date: "Feb", "Maintenance Costs": 3800, "Predicted Costs": 3600 },
+    { date: "Mar", "Maintenance Costs": 3600, "Predicted Costs": 3400 },
+    { date: "Apr", "Maintenance Costs": 3400, "Predicted Costs": 3200 },
+    { date: "May", "Maintenance Costs": 3200, "Predicted Costs": 3000 },
   ];
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
-
-  const features = [
-    {
-      icon: <ChartBar className="w-8 h-8 text-blue-500" />,
-      title: "Advanced Analytics",
-      description: "Comprehensive insights into your property portfolio performance with real-time data visualization."
-    },
-    {
-      icon: <ChartPie className="w-8 h-8 text-green-500" />,
-      title: "Portfolio Management",
-      description: "Efficiently manage diverse property types with our intuitive dashboard."
-    },
-    {
-      icon: <Trophy className="w-8 h-8 text-yellow-500" />,
-      title: "AI-Powered Insights",
-      description: "Leverage machine learning for predictive maintenance and market analysis."
-    },
-    {
-      icon: <Star className="w-8 h-8 text-purple-500" />,
-      title: "Document Management",
-      description: "Centralized storage for all your property-related documents and contracts."
-    },
-    {
-      icon: <Award className="w-8 h-8 text-red-500" />,
-      title: "Automated Reporting",
-      description: "Generate comprehensive reports with just a few clicks."
-    }
+  const pieChartData = [
+    { name: "Occupied", value: 75 },
+    { name: "Vacant", value: 25 },
   ];
+
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -77,104 +52,222 @@ const Features = () => {
         </nav>
 
         <div className="py-16">
-          {/* Feature Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {features.map((feature, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
-                <CardContent className="p-6">
-                  <div className="flex flex-col items-center text-center">
-                    <div className="mb-4 p-3 bg-gray-50 rounded-full">
-                      {feature.icon}
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                    <p className="text-gray-600">{feature.description}</p>
-                  </div>
+          <h1 className="text-4xl font-bold text-center mb-8">LeaseGenie AI Features</h1>
+
+          {/* AI-Driven Lease Management */}
+          <section className="mb-16">
+            <h2 className="text-3xl font-semibold mb-6">AI-Driven Lease Management</h2>
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div>
+                <p className="text-lg mb-4">
+                  LeaseGenie AI revolutionizes lease management with advanced artificial intelligence. Our system automates
+                  lease abstraction, provides smart notifications, and offers valuable negotiation insights.
+                </p>
+                <ul className="list-disc list-inside space-y-2">
+                  <li>Automated lease data extraction</li>
+                  <li>Intelligent clause analysis</li>
+                  <li>Proactive deadline reminders</li>
+                  <li>AI-powered negotiation recommendations</li>
+                </ul>
+              </div>
+              <div className="bg-gray-100 p-6 rounded-lg h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={barChartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="value" fill="#8884d8" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </section>
+
+          {/* Predictive Maintenance */}
+          <section className="mb-16">
+            <h2 className="text-3xl font-semibold mb-6">Predictive Maintenance & Repair</h2>
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div className="bg-gray-100 p-6 rounded-lg h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={lineChartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="Maintenance Costs" stroke="#8884d8" />
+                    <Line type="monotone" dataKey="Predicted Costs" stroke="#82ca9d" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div>
+                <p className="text-lg mb-4">
+                  Stay ahead of maintenance issues with our predictive analytics. LeaseGenie AI uses historical data and
+                  machine learning to forecast potential problems before they occur.
+                </p>
+                <ul className="list-disc list-inside space-y-2">
+                  <li>Predictive maintenance scheduling</li>
+                  <li>Cost-saving recommendations</li>
+                  <li>Automated work order generation</li>
+                  <li>Vendor performance tracking</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          {/* Dedicated Portals */}
+          <section className="mb-16">
+            <h2 className="text-3xl font-semibold mb-6">Dedicated Portals for All Stakeholders</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Landlord Portal</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Users className="w-12 h-12 mb-4 text-blue-600" />
+                  <p>Comprehensive overview of all properties, leases, and financial data.</p>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-            {/* Revenue Chart */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-6">Revenue Overview</h3>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={revenueData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line 
-                        type="monotone" 
-                        dataKey="revenue" 
-                        stroke="#0088FE" 
-                        strokeWidth={2}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Property Distribution Chart */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-6">Property Distribution</h3>
-                <div className="h-[300px] relative">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={pieData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {pieData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="flex justify-center gap-4 mt-[-40px]">
-                    {pieData.map((entry, index) => (
-                      <div key={index} className="flex items-center">
-                        <div 
-                          className="w-3 h-3 rounded-full mr-2" 
-                          style={{ backgroundColor: COLORS[index] }}
-                        />
-                        <span className="text-sm text-gray-600">{entry.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Image Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="rounded-xl overflow-hidden shadow-lg">
-              <img 
-                src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d" 
-                alt="Property Management" 
-                className="w-full h-64 object-cover"
-              />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Tenant Portal</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Users className="w-12 h-12 mb-4 text-green-600" />
+                  <p>Easy access to lease details, maintenance requests, and payment history.</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Vendor Portal</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Users className="w-12 h-12 mb-4 text-orange-600" />
+                  <p>Streamlined work order management and communication tools.</p>
+                </CardContent>
+              </Card>
             </div>
-            <div className="rounded-xl overflow-hidden shadow-lg">
-              <img 
-                src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81" 
-                alt="Team Collaboration" 
-                className="w-full h-64 object-cover"
-              />
+          </section>
+
+          {/* Analytics Dashboard */}
+          <section className="mb-16">
+            <h2 className="text-3xl font-semibold mb-6">Powerful Analytics Dashboard</h2>
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div className="bg-gray-100 p-6 rounded-lg h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieChartData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {pieChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div>
+                <p className="text-lg mb-4">
+                  Gain valuable insights into your property portfolio with our comprehensive analytics dashboard. Visualize
+                  key metrics and make data-driven decisions.
+                </p>
+                <ul className="list-disc list-inside space-y-2">
+                  <li>Real-time occupancy rates</li>
+                  <li>Financial performance tracking</li>
+                  <li>Maintenance cost analysis</li>
+                  <li>Customizable reports and exports</li>
+                </ul>
+              </div>
             </div>
+          </section>
+
+          {/* Feature Summary */}
+          <section>
+            <h2 className="text-3xl font-semibold mb-6">Why Choose LeaseGenie AI?</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              <Card>
+                <CardHeader>
+                  <Brain className="w-8 h-8 mb-2 text-blue-600" />
+                  <CardTitle>AI-Powered Insights</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Leverage artificial intelligence for smarter decision-making in lease management.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <BarChart3 className="w-8 h-8 mb-2 text-green-600" />
+                  <CardTitle>Comprehensive Analytics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Gain a 360-degree view of your property portfolio with advanced analytics and reporting.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <Shield className="w-8 h-8 mb-2 text-red-600" />
+                  <CardTitle>Enhanced Security</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Rest easy knowing your data is protected with state-of-the-art security measures.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <Bot className="w-8 h-8 mb-2 text-purple-600" />
+                  <CardTitle>24/7 AI Support</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>Get instant assistance anytime with our AI-powered chatbot.</CardDescription>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <Users className="w-8 h-8 mb-2 text-orange-600" />
+                  <CardTitle>Stakeholder Portals</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Provide tailored experiences for landlords, tenants, and vendors with dedicated portals.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <Cog className="w-8 h-8 mb-2 text-indigo-600" />
+                  <CardTitle>Customizable & Scalable</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>Adapt LeaseGenie AI to your specific needs and grow with your business.</CardDescription>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          <div className="mt-16 text-center">
+            <Button 
+              size="lg" 
+              className="bg-primary text-white hover:bg-primary/90"
+              onClick={() => navigate('/auth')}
+            >
+              Get Started with LeaseGenie AI
+            </Button>
           </div>
         </div>
       </div>
