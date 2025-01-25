@@ -39,7 +39,11 @@ export const PropertyUnits = ({ property }: { property: Property }) => {
         </TableHeader>
         <TableBody>
           {property.units?.map((unit) => (
-            <TableRow key={unit.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/properties/${property.id}/units/${unit.id}`)}>
+            <TableRow 
+              key={unit.id} 
+              className="cursor-pointer hover:bg-muted/50" 
+              onClick={() => navigate(`/properties/${property.id}/units/${unit.id}`)}
+            >
               <TableCell className="font-medium">{unit.unit_name}</TableCell>
               <TableCell>
                 <Badge variant={unit.status === 'OCCUPIED' ? 'default' : 'secondary'}>
