@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { type Toast } from "@/components/ui/use-toast";
+import { type ToastProps } from "@/components/ui/toast";
 
 interface FileUploadHandlerProps {
   unitId: string;
@@ -7,7 +7,7 @@ interface FileUploadHandlerProps {
     documents: File | null;
     images: File[];
   };
-  toast: (props: Toast) => void;
+  toast: (props: ToastProps) => void;
 }
 
 export const handleFileUploads = async ({ unitId, selectedFiles, toast }: FileUploadHandlerProps) => {
