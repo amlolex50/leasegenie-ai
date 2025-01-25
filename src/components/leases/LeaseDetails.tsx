@@ -1,138 +1,56 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Json } from "@/integrations/supabase/types";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useParams } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, DollarSign, Calendar, User, Building } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { TenantInformation } from "./details/TenantInformation";
+import { FinancialDetails } from "./details/FinancialDetails";
+import { LeasePeriod } from "./details/LeasePeriod";
+import { LeaseDocuments } from "./details/LeaseDocuments";
+import { LeaseInsightsSection } from "./details/LeaseInsightsSection";
+import { LeaseData } from "./types";
 
-interface LeaseDetailsProps {
-  leaseId: string;
-}
+const fetchLeaseDetails = async (leaseId: string): Promise<LeaseData> => {
+  const { data, error } = await supabase
+    .from("leases")
+    .select(`
+      *,
+      tenant:tenant_id (
+        full_name,
+        email
+      ),
+      unit:unit_id (
+        unit_name,
+        property:property_id (
+          name
+        )
+      )
+    `)
+    .eq("id", leaseId)
+    .single();
 
-export interface LeaseInsights {
-  leaseDuration: {
-    startDate: string;
-    endDate: string;
-    totalMonths: number;
-    description: string;
-  };
-  financials: {
-    monthlyRent: number;
-    depositAmount: number;
-    escalationRate?: number;
-    description: string;
-  };
-  property: {
-    description: string;
-    keyFeatures: string[];
-  };
-  tenant: {
-    responsibilities: string[];
-    restrictions: string[];
-    description: string;
-  };
-}
-
-interface LeaseData {
-  id: string;
-  unit_id: string;
-  tenant_id: string;
-  lease_start_date: string;
-  lease_end_date: string;
-  monthly_rent: number;
-  deposit_amount: number;
-  escalation_rate: number | null;
-  pdf_url: string | null;
-  created_at: string;
-  updated_at: string;
-  insights: LeaseInsights | null;
-  unit: {
-    unit_name: string;
-    property: {
-      name: string;
-      address: string;
-    };
-  };
-}
-
-interface RawLeaseData extends Omit<LeaseData, 'insights'> {
-  insights: Json;
-}
-
-const isValidLeaseInsights = (insights: any): insights is LeaseInsights => {
-  return (
-    insights &&
-    typeof insights === 'object' &&
-    'leaseDuration' in insights &&
-    'financials' in insights &&
-    'property' in insights &&
-    'tenant' in insights &&
-    typeof insights.leaseDuration === 'object' &&
-    typeof insights.financials === 'object' &&
-    typeof insights.property === 'object' &&
-    typeof insights.tenant === 'object'
-  );
+  if (error) throw error;
+  return data as LeaseData;
 };
 
-export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
+export const LeaseDetails = () => {
+  const { id } = useParams<{ id: string }>();
   const { data: lease, isLoading, error } = useQuery({
-    queryKey: ['lease', leaseId],
-    queryFn: async (): Promise<LeaseData> => {
-      const { data: rawData, error } = await supabase
-        .from('leases')
-        .select(`
-          *,
-          unit:units(
-            unit_name,
-            property:properties(
-              name,
-              address
-            )
-          )
-        `)
-        .eq('id', leaseId)
-        .single();
-
-      if (error) throw error;
-      if (!rawData) throw new Error('Lease not found');
-
-      const typedRawData = rawData as unknown as RawLeaseData;
-
-      // If no insights exist, generate them
-      if (!typedRawData.insights) {
-        const { data: insightsData, error: insightsError } = await supabase
-          .functions.invoke('generate-lease-insights', {
-            body: { leaseId },
-          });
-
-        if (insightsError) {
-          console.error('Error generating insights:', insightsError);
-          return { ...typedRawData, insights: null };
-        }
-
-        if (insightsData?.insights && isValidLeaseInsights(insightsData.insights)) {
-          return {
-            ...typedRawData,
-            insights: insightsData.insights,
-          };
-        }
-      }
-
-      // Validate existing insights
-      return {
-        ...typedRawData,
-        insights: isValidLeaseInsights(typedRawData.insights) ? typedRawData.insights : null,
-      };
-    },
+    queryKey: ["lease", id],
+    queryFn: () => fetchLeaseDetails(id!),
+    enabled: !!id,
   });
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-48 w-full" />
-        <Skeleton className="h-48 w-full" />
+      <div className="space-y-8">
+        <Skeleton className="h-8 w-64" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Skeleton className="h-48" />
+          <Skeleton className="h-48" />
+          <Skeleton className="h-48" />
+          <Skeleton className="h-48 md:col-span-2" />
+        </div>
       </div>
     );
   }
@@ -141,7 +59,7 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
     return (
       <Alert variant="destructive">
         <AlertDescription>
-          Error loading lease details: {error.message}
+          Failed to load lease details. Please try again later.
         </AlertDescription>
       </Alert>
     );
@@ -150,118 +68,38 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
   if (!lease) {
     return (
       <Alert>
-        <AlertDescription>No lease details found.</AlertDescription>
+        <AlertDescription>Lease not found.</AlertDescription>
       </Alert>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Lease Overview
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold mb-2 flex items-center gap-2">
-                <Building className="h-4 w-4" />
-                Property Details
-              </h3>
-              <p className="text-gray-600">{lease.unit.property.name}</p>
-              <p className="text-gray-600">{lease.unit.property.address}</p>
-              <p className="text-gray-600">Unit: {lease.unit.unit_name}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2 flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Lease Period
-              </h3>
-              <p className="text-gray-600">
-                From: {new Date(lease.lease_start_date).toLocaleDateString()}
-              </p>
-              <p className="text-gray-600">
-                To: {new Date(lease.lease_end_date).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold">Lease Details</h1>
+        <p className="text-muted-foreground mt-2">
+          {lease.unit.property.name} - Unit {lease.unit.unit_name}
+        </p>
+      </div>
 
-      {lease.insights ? (
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5" />
-                Financial Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <p className="font-medium">Monthly Rent</p>
-                  <p className="text-gray-600">
-                    ${lease.insights.financials.monthlyRent.toLocaleString()}
-                  </p>
-                </div>
-                <div>
-                  <p className="font-medium">Security Deposit</p>
-                  <p className="text-gray-600">
-                    ${lease.insights.financials.depositAmount.toLocaleString()}
-                  </p>
-                </div>
-                {lease.insights.financials.escalationRate && (
-                  <div>
-                    <p className="font-medium">Annual Rent Increase</p>
-                    <p className="text-gray-600">
-                      {lease.insights.financials.escalationRate}%
-                    </p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Tenant Guidelines
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold mb-2">Responsibilities</h3>
-                  <ul className="list-disc list-inside space-y-1">
-                    {lease.insights.tenant.responsibilities.map((resp, index) => (
-                      <li key={index} className="text-gray-600">{resp}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Restrictions</h3>
-                  <ul className="list-disc list-inside space-y-1">
-                    {lease.insights.tenant.restrictions.map((restriction, index) => (
-                      <li key={index} className="text-gray-600">{restriction}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </>
-      ) : (
-        <Alert>
-          <AlertDescription>
-            AI-generated insights are not available for this lease yet. They will be generated automatically.
-          </AlertDescription>
-        </Alert>
-      )}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <TenantInformation
+          tenantName={lease.tenant.full_name}
+          propertyName={lease.unit.property.name}
+          unitName={lease.unit.unit_name}
+        />
+        <FinancialDetails
+          monthlyRent={lease.monthly_rent}
+          depositAmount={lease.deposit_amount || 0}
+          escalationRate={lease.escalation_rate || 0}
+        />
+        <LeasePeriod
+          startDate={lease.lease_start_date}
+          endDate={lease.lease_end_date}
+        />
+        {lease.insights && <LeaseInsightsSection insights={lease.insights} />}
+        <LeaseDocuments pdfUrl={lease.pdf_url} leaseId={lease.id} />
+      </div>
     </div>
   );
 };
