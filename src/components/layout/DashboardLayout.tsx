@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Building2, FileText, HelpCircle, Wrench } from "lucide-react";
+import { LayoutDashboard, Building2, FileText, HelpCircle } from "lucide-react";
 
 const menuItems = [
   {
@@ -27,11 +27,6 @@ const menuItems = [
     label: "Leases",
     path: "/leases",
     icon: FileText,
-  },
-  {
-    label: "Maintenance",
-    path: "/maintenance",
-    icon: Wrench,
   },
   {
     label: "How it Works",
@@ -72,13 +67,13 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         </SidebarContent>
       </Sidebar>
       <main className="flex-1 overflow-auto relative bg-background">
-        <div className="flex items-center justify-between px-8 py-4 bg-gradient-to-r from-primary/5 via-accent/5 to-secondary/5 backdrop-blur-sm mx-4 mt-4 rounded-[20px] border border-white/10 shadow-lg">
+        <div className="flex items-center justify-between px-8 py-4 shadow-sm bg-white mx-4 mt-4 rounded-[20px]">
           <div className="flex items-center gap-4">
             {menuItems.map((item) => (
               <Button
                 key={item.label}
                 variant="ghost"
-                className="hidden md:flex hover:bg-white/10 text-primary transition-all duration-200"
+                className="hidden md:flex"
                 onClick={() => navigate(item.path)}
               >
                 <item.icon className="w-4 h-4 mr-2" />
