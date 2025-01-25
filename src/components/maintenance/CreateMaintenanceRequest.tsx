@@ -11,6 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export function CreateMaintenanceRequest() {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     issue: "",
     property: "",
@@ -62,9 +63,60 @@ export function CreateMaintenanceRequest() {
     }
   };
 
+  const validateForm = () => {
+    if (!formData.issue.trim()) {
+      toast({ title: "Error", description: "Please enter an issue", variant: "destructive" });
+      return false;
+    }
+    if (!formData.property) {
+      toast({ title: "Error", description: "Please select a property", variant: "destructive" });
+      return false;
+    }
+    if (!formData.unit) {
+      toast({ title: "Error", description: "Please select a unit", variant: "destructive" });
+      return false;
+    }
+    if (!formData.priority) {
+      toast({ title: "Error", description: "Please select a priority", variant: "destructive" });
+      return false;
+    }
+    if (!formData.description.trim()) {
+      toast({ title: "Error", description: "Please enter a description", variant: "destructive" });
+      return false;
+    }
+    return true;
+  };
+
+  const uploadFiles = async (maintenanceId: string): Promise<string[]> => {
+    if (!formData.attachments?.length) return [];
+
+    const uploadPromises = formData.attachments.map(async (file) => {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${maintenanceId}/${crypto.randomUUID()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('maintenance_documents')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('maintenance_documents')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    });
+
+    return Promise.all(uploadPromises);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
     try {
+      setIsSubmitting(true);
+
       // Get the current user's lease for the selected unit
       const { data: leases, error: leaseError } = await supabase
         .from('leases')
@@ -74,17 +126,37 @@ export function CreateMaintenanceRequest() {
 
       if (leaseError) throw leaseError;
 
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw userError || new Error('User not found');
+
       // Create the maintenance request
-      const { error } = await supabase
+      const { data: maintenanceRequest, error: maintenanceError } = await supabase
         .from('maintenance_requests')
         .insert({
           lease_id: leases.id,
           description: formData.description,
           priority: formData.priority,
           status: 'OPEN',
-        });
+          submitted_by: user.id
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (maintenanceError) throw maintenanceError;
+
+      // Upload files if any
+      if (formData.attachments?.length) {
+        const fileUrls = await uploadFiles(maintenanceRequest.id);
+        
+        // Update maintenance request with document URLs
+        const { error: updateError } = await supabase
+          .from('maintenance_requests')
+          .update({ document_url: fileUrls.join(',') })
+          .eq('id', maintenanceRequest.id);
+
+        if (updateError) throw updateError;
+      }
 
       toast({
         title: "Success",
@@ -107,6 +179,8 @@ export function CreateMaintenanceRequest() {
         description: "Failed to submit maintenance request",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -177,9 +251,21 @@ export function CreateMaintenanceRequest() {
           </div>
           <div>
             <Label htmlFor="attachments">Attachments</Label>
-            <Input id="attachments" name="attachments" type="file" onChange={handleFileChange} multiple />
+            <Input 
+              id="attachments" 
+              name="attachments" 
+              type="file" 
+              onChange={handleFileChange} 
+              multiple 
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+            />
+            <p className="text-sm text-muted-foreground mt-1">
+              Accepted formats: PDF, DOC, DOCX, JPG, PNG
+            </p>
           </div>
-          <Button type="submit">Submit Request</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Submit Request"}
+          </Button>
         </form>
       </CardContent>
     </Card>
