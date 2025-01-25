@@ -44,7 +44,7 @@ export const UnitForm = ({ propertyId, unit }: UnitFormProps) => {
         throw new Error("Failed to create unit");
       }
 
-      // Upload PDF document
+      // Upload PDF document to unit_documents bucket
       const docExt = selectedFiles.documents.name.split('.').pop();
       const docFileName = `${crypto.randomUUID()}.${docExt}`;
 
@@ -54,17 +54,32 @@ export const UnitForm = ({ propertyId, unit }: UnitFormProps) => {
 
       if (docUploadError) throw docUploadError;
 
-      // Upload images
+      // Upload images to unit_images bucket
       const imageUploads = await Promise.all(
         selectedFiles.images.map(async (image) => {
           const imageExt = image.name.split('.').pop();
           const imageFileName = `${crypto.randomUUID()}.${imageExt}`;
 
           const { error: imageUploadError } = await supabase.storage
-            .from("unit_documents")
+            .from("unit_images")
             .upload(imageFileName, image);
 
           if (imageUploadError) throw imageUploadError;
+
+          // Get the public URL for the uploaded image
+          const { data: publicUrl } = supabase.storage
+            .from("unit_images")
+            .getPublicUrl(imageFileName);
+
+          // Insert into unit_images table
+          const { error: imageInsertError } = await supabase
+            .from('unit_images')
+            .insert({
+              unit_id: unitResult.id,
+              image_url: imageFileName // Store just the filename
+            });
+
+          if (imageInsertError) throw imageInsertError;
 
           return { fileName: imageFileName, originalName: image.name, type: image.type };
         })
@@ -85,28 +100,12 @@ export const UnitForm = ({ propertyId, unit }: UnitFormProps) => {
 
       if (docMetaError) throw docMetaError;
 
-      // Save image metadata
-      if (imageUploads.length > 0) {
-        const { error: imageMetaError } = await supabase
-          .from('unit_documents')
-          .insert(
-            imageUploads.map(image => ({
-              unit_id: unitResult.id,
-              name: image.originalName,
-              file_path: image.fileName,
-              document_type: image.type,
-              uploaded_by: user.data.user?.id,
-            }))
-          );
-
-        if (imageMetaError) throw imageMetaError;
-      }
-
       toast({
         title: "Success",
         description: "Unit created and files uploaded successfully",
       });
     } catch (error) {
+      console.error('Error:', error);
       toast({
         title: "Error",
         description: "Failed to create unit or upload files",
