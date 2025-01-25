@@ -118,13 +118,22 @@ export function CreateMaintenanceRequest() {
       setIsSubmitting(true);
 
       // Get the current user's lease for the selected unit
-      const { data: leases, error: leaseError } = await supabase
+      const { data: lease, error: leaseError } = await supabase
         .from('leases')
         .select('id')
         .eq('unit_id', formData.unit)
-        .single();
+        .maybeSingle();
 
       if (leaseError) throw leaseError;
+      
+      if (!lease) {
+        toast({ 
+          title: "Error", 
+          description: "No active lease found for this unit. Please contact your property manager.", 
+          variant: "destructive" 
+        });
+        return;
+      }
 
       // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -134,7 +143,7 @@ export function CreateMaintenanceRequest() {
       const { data: maintenanceRequest, error: maintenanceError } = await supabase
         .from('maintenance_requests')
         .insert({
-          lease_id: leases.id,
+          lease_id: lease.id,
           description: formData.description,
           priority: formData.priority,
           status: 'OPEN',
