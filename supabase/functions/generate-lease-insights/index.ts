@@ -1,4 +1,3 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
@@ -14,14 +13,14 @@ serve(async (req) => {
 
   try {
     const { leaseId } = await req.json();
-    
-    // Initialize Supabase client
+    console.log('Processing lease insights for lease:', leaseId);
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Fetch lease details
+    // Fetch lease details including the PDF URL
     const { data: lease, error: leaseError } = await supabaseClient
       .from('leases')
       .select(`
@@ -35,53 +34,98 @@ serve(async (req) => {
       .eq('id', leaseId)
       .single();
 
-    if (leaseError) throw leaseError;
+    if (leaseError) {
+      console.error('Error fetching lease:', leaseError);
+      throw leaseError;
+    }
 
-    // Calculate insights
-    const leaseStartDate = new Date(lease.lease_start_date);
-    const leaseEndDate = new Date(lease.lease_end_date);
-    const leaseDuration = Math.round((leaseEndDate.getTime() - leaseStartDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
-    
-    const monthlyRent = lease.monthly_rent;
-    const totalValue = monthlyRent * leaseDuration;
-    
+    if (!lease.pdf_url) {
+      throw new Error('No PDF found for this lease');
+    }
+
+    // Get the signed URL for the PDF
+    const { data: { signedUrl }, error: signedUrlError } = await supabaseClient
+      .storage
+      .from('lease_documents')
+      .createSignedUrl(lease.pdf_url, 60); // URL valid for 60 seconds
+
+    if (signedUrlError) {
+      console.error('Error getting signed URL:', signedUrlError);
+      throw signedUrlError;
+    }
+
+    console.log('Got signed URL for PDF, calling deepseek API');
+
+    // Call the deepseek API
+    const deepseekResponse = await fetch('https://us-central1-schoolgpt.cloudfunctions.net/process_file_and_query_deepseek', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url: signedUrl,
+        content: "Please analyze this lease document and provide the following insights: 1) Lease duration and key dates, 2) Financial details including monthly rent and any escalation rates, 3) Property and unit details, 4) Tenant information and key responsibilities. Format the response in a clear, structured way."
+      })
+    });
+
+    if (!deepseekResponse.ok) {
+      console.error('Deepseek API error:', await deepseekResponse.text());
+      throw new Error('Failed to process lease document');
+    }
+
+    const aiResponse = await deepseekResponse.json();
+    console.log('Got AI response:', aiResponse);
+
+    // Structure the insights
     const insights = {
       leaseDuration: {
-        months: leaseDuration,
-        description: `${leaseDuration} month lease term`
+        months: lease.lease_end_date 
+          ? Math.round((new Date(lease.lease_end_date).getTime() - new Date(lease.lease_start_date).getTime()) / (1000 * 60 * 60 * 24 * 30))
+          : 0,
+        description: aiResponse.summary || "Lease duration information not available"
       },
       financials: {
-        monthlyRent: monthlyRent,
-        totalValue: totalValue,
-        description: `Total lease value: $${totalValue.toLocaleString()}`
+        monthlyRent: lease.monthly_rent,
+        totalValue: lease.monthly_rent * (lease.lease_end_date 
+          ? Math.round((new Date(lease.lease_end_date).getTime() - new Date(lease.lease_start_date).getTime()) / (1000 * 60 * 60 * 24 * 30))
+          : 0),
+        description: aiResponse.summary || "Financial details not available"
       },
       property: {
         name: lease.unit.property.name,
         unit: lease.unit.unit_name,
-        description: `${lease.unit.unit_name} at ${lease.unit.property.name}`
+        description: aiResponse.summary || "Property details not available"
       },
       tenant: {
         name: lease.tenant.full_name,
-        description: `Leased to ${lease.tenant.full_name}`
+        description: aiResponse.summary || "Tenant information not available"
       }
     };
 
-    // Update lease with insights
+    // Update the lease with the insights
     const { error: updateError } = await supabaseClient
       .from('leases')
       .update({ insights })
       .eq('id', leaseId);
 
-    if (updateError) throw updateError;
+    if (updateError) {
+      console.error('Error updating lease with insights:', updateError);
+      throw updateError;
+    }
 
-    return new Response(JSON.stringify({ insights }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ insights }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
   } catch (error) {
     console.error('Error generating lease insights:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500
+      }
+    );
   }
 });
