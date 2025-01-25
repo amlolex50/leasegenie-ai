@@ -54,7 +54,10 @@ export function RentCollection() {
       const { data: payments, error } = await supabase
         .from('payments')
         .select(`
-          *,
+          id,
+          due_date,
+          amount,
+          status,
           lease:leases (
             tenant:users (
               full_name
