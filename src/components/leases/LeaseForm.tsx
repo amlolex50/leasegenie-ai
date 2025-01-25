@@ -30,8 +30,24 @@ export const LeaseForm = ({ lease }: LeaseFormProps) => {
   const navigate = useNavigate();
 
   const handleSubmit = async (data: any) => {
+    // Validate file upload if it's a new lease
+    if (!lease && !selectedFile) {
+      toast({
+        title: "Error",
+        description: "Please upload a lease document",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
+      // Show processing toast
+      toast({
+        title: "Processing",
+        description: "Creating lease and uploading document...",
+      });
+
       const leaseResult = await onSubmit(data);
       
       if (!leaseResult?.id) {
@@ -61,7 +77,8 @@ export const LeaseForm = ({ lease }: LeaseFormProps) => {
         description: `Lease ${lease ? 'updated' : 'created'} successfully`,
       });
 
-      navigate(`/leases/${leaseResult.id}`);
+      // Navigate to leases list after successful submission
+      navigate('/leases');
     } catch (error: any) {
       toast({
         title: "Error",
@@ -85,7 +102,7 @@ export const LeaseForm = ({ lease }: LeaseFormProps) => {
             maxSize={5242880} // 5MB
           />
         </div>
-        <Button type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={isLoading} className="w-full">
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
