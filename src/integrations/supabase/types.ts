@@ -32,7 +32,7 @@ export type Database = {
           status?: string
           type: string
           updated_at?: string
-          user_id?: string
+          user_id: string
         }
         Update: {
           created_at?: string
@@ -424,7 +424,7 @@ export type Database = {
           description?: string | null
           document_type?: string
           file_path?: string
-          id: string
+          id?: string
           name?: string
           unit_id?: string | null
           uploaded_at?: string | null
@@ -459,7 +459,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           image_url?: string
-          unit_id: string
+          unit_id?: string
           updated_at?: string | null
         }
         Relationships: [
@@ -627,7 +627,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never,
+    : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
