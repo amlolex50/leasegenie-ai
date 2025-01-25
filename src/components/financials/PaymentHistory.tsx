@@ -144,7 +144,7 @@ export function PaymentHistory() {
                 <TableCell>${payment.amount.toLocaleString()}</TableCell>
                 <TableCell>{payment.method}</TableCell>
                 <TableCell>
-                  <Badge variant={payment.status === "Completed" ? "success" : "default"}>{payment.status}</Badge>
+                  <Badge variant={payment.status === "PAID" ? "default" : "destructive"}>{payment.status}</Badge>
                 </TableCell>
               </TableRow>
             ))}
@@ -153,3 +153,4 @@ export function PaymentHistory() {
       </CardContent>
     </Card>
   )
+}
