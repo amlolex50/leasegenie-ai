@@ -10,73 +10,73 @@ import {
 export default function FeaturesSection() {
   const features = [
     {
-      title: "AI-Driven Lease Management",
-      icon: "🧠",
-      description: "Upload your commercial leases and let AI extract critical data, provide smart notifications, and offer negotiation insights.",
-      bulletPoints: [
-        "Automated Lease Abstraction: Extract critical data from PDFs and documents",
-        "Smart Notifications: Get proactive warnings about important deadlines",
-        "Negotiation Insights: AI-powered market analysis and recommendations"
-      ]
-    },
-    {
-      title: "Predictive Maintenance & Repair",
-      icon: "🔧",
-      description: "Leverage AI to predict and prevent maintenance issues while optimizing costs and contractor management.",
-      bulletPoints: [
-        "Data-Driven Maintenance Forecasting: Spot potential failures before they occur",
-        "Smart Work Orders: Automatic assignment to qualified contractors",
-        "Cost Analysis & Budgeting: AI-powered maintenance cost optimization"
-      ]
-    },
-    {
-      title: "Dedicated Portals for Stakeholders",
-      icon: "👥",
-      description: "Provide tailored access and functionality for landlords, tenants, and contractors.",
-      bulletPoints: [
-        "Landlord Portal: Complete visibility into property operations",
-        "Tenant Portal: Easy access to lease details and maintenance requests",
-        "Contractor Portal: Streamlined task and schedule management"
-      ]
-    },
-    {
-      title: "Conversational AI Agent",
+      title: "AI-Powered Lease Management",
       icon: "🤖",
-      description: "24/7 virtual assistance for all stakeholders with intelligent issue resolution.",
+      description: "Intelligent lease management with AI insights and automation.",
       bulletPoints: [
-        "24/7 Virtual Assistant: AI-powered chat support",
-        "Automated Issue Resolution: Instant categorization and escalation",
-        "Adaptive Learning: Continuous improvement through feedback"
+        "Smart Lease Analysis: AI extracts and summarizes key terms",
+        "Automated Rent Calculations: Precise rent escalations and deposit tracking",
+        "Risk Assessment: AI evaluates lease terms and potential issues"
       ]
     },
     {
-      title: "Commercial-Focused Analytics",
+      title: "Predictive Maintenance",
+      icon: "🔧",
+      description: "AI-driven maintenance management to prevent issues before they occur.",
+      bulletPoints: [
+        "Predictive Analytics: Identify potential maintenance needs early",
+        "Smart Work Order Routing: AI assigns tasks to the right contractors",
+        "Cost Optimization: AI suggests maintenance schedules for cost savings"
+      ]
+    },
+    {
+      title: "AI Tenant Assistant",
+      icon: "💬",
+      description: "24/7 AI support for tenant inquiries and requests.",
+      bulletPoints: [
+        "Instant Response: AI handles common questions and maintenance requests",
+        "Smart Scheduling: Automated maintenance appointment booking",
+        "Document Management: AI helps organize lease documents and records"
+      ]
+    },
+    {
+      title: "Landlord Intelligence Suite",
       icon: "📊",
-      description: "Comprehensive insights into your property portfolio performance.",
+      description: "AI insights for better property management decisions.",
       bulletPoints: [
-        "Real-Time Financial Insights: Detailed performance dashboards",
-        "Tenant Health Tracking: Early warning system for risks",
-        "Market Comparisons: Competitive benchmarking tools"
+        "Market Analysis: AI-powered rent and property value insights",
+        "Tenant Screening: Advanced AI risk assessment for applicants",
+        "Financial Forecasting: Predictive analytics for property performance"
       ]
     },
     {
-      title: "Compliance & Risk Mitigation",
-      icon: "🛡️",
-      description: "Stay compliant and minimize risks with automated tracking and documentation.",
+      title: "Smart Communication Hub",
+      icon: "📱",
+      description: "AI-enhanced communication between tenants and landlords.",
       bulletPoints: [
-        "Regulatory Tracking: Built-in compliance monitoring",
-        "Insurance Documentation: Automated certificate management",
-        "Audit Trails: Complete historical records"
+        "Automated Updates: Smart notifications for important events",
+        "Translation Support: Real-time AI translation for diverse tenants",
+        "Smart Templates: AI-generated responses for common situations"
       ]
     },
     {
-      title: "Customization & Integration",
-      icon: "🔌",
-      description: "Flexible solutions that adapt to your needs and integrate with your existing tools.",
+      title: "Compliance Assistant",
+      icon: "✅",
+      description: "AI-powered compliance monitoring and management.",
       bulletPoints: [
-        "Modular Architecture: Customizable feature set",
-        "API & App Marketplace: Ready-to-use integrations",
-        "White-Label Option: Branded experience available"
+        "Regulatory Tracking: AI monitors changing property laws",
+        "Document Verification: Automated compliance checking",
+        "Smart Reminders: Proactive alerts for compliance deadlines"
+      ]
+    },
+    {
+      title: "Property Performance Analytics",
+      icon: "📈",
+      description: "Advanced AI analytics for property portfolio optimization.",
+      bulletPoints: [
+        "Performance Metrics: AI-driven property performance tracking",
+        "Optimization Suggestions: Smart recommendations for improvements",
+        "Trend Analysis: AI identifies patterns and opportunities"
       ]
     }
   ];
@@ -86,11 +86,11 @@ export default function FeaturesSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Why Choose Us? <span className="text-blue-600">Discover The Advantages</span>
+            AI-Powered Property Management <span className="text-blue-600">Made Simple</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            At LeaseGenie, We Pride Ourselves On Providing Exceptional Property Management Solutions That
-            Drive Your Business Forward. Here's Why Our Clients Trust Us To Meet Their Needs:
+            Experience the future of property management with our advanced AI features that make
+            managing properties, tenants, and maintenance effortless and efficient.
           </p>
         </div>
 
