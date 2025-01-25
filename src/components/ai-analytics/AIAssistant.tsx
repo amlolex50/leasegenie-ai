@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { supabase } from "@/integrations/supabase/client"
+import { useToast } from "@/components/ui/use-toast"
 
 type Message = {
   role: "user" | "assistant"
@@ -15,35 +17,42 @@ export function AIAssistant() {
     { role: "assistant", content: "Hello! I'm your LeaseGenie AI assistant. How can I help you today?" },
   ])
   const [input, setInput] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
 
   const handleSendMessage = async () => {
-    if (input.trim() === "") return
+    if (input.trim() === "" || isLoading) return
 
     const userMessage: Message = { role: "user", content: input }
     setMessages((prevMessages) => [...prevMessages, userMessage])
     setInput("")
+    setIsLoading(true)
 
-    // Simulate AI response (replace with actual AI integration)
-    setTimeout(() => {
-      const aiResponse: Message = { role: "assistant", content: simulateAIResponse(input) }
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error("Not authenticated")
+
+      const { data, error } = await supabase.functions.invoke('ai-assistant', {
+        body: { message: input, userId: user.id }
+      })
+
+      if (error) throw error
+
+      const aiResponse: Message = { 
+        role: "assistant", 
+        content: data.response || "I apologize, but I'm having trouble processing your request right now."
+      }
       setMessages((prevMessages) => [...prevMessages, aiResponse])
-    }, 1000)
-  }
-
-  const simulateAIResponse = (userInput: string): string => {
-    const responses = {
-      lease: "Your lease agreement is valid until December 31, 2023. The next rent payment is due on June 1, 2023.",
-      maintenance: "You have 2 open maintenance tickets: 1) HVAC repair in Unit 101, and 2) Leaky faucet in Unit 205.",
-      payment: "Your last rent payment of $2,500 was received on May 1, 2023. The next payment is due on June 1, 2023.",
-      default:
-        "I'm sorry, I don't have specific information about that. Could you please provide more details or ask another question?",
+    } catch (error) {
+      console.error('Error:', error)
+      toast({
+        title: "Error",
+        description: "Failed to get AI response. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
     }
-
-    const lowercaseInput = userInput.toLowerCase()
-    if (lowercaseInput.includes("lease")) return responses.lease
-    if (lowercaseInput.includes("maintenance")) return responses.maintenance
-    if (lowercaseInput.includes("payment")) return responses.payment
-    return responses.default
   }
 
   return (
@@ -78,9 +87,14 @@ export function AIAssistant() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message here..."
             onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+            disabled={isLoading}
           />
-          <Button onClick={handleSendMessage} className="ml-2">
-            Send
+          <Button 
+            onClick={handleSendMessage} 
+            className="ml-2"
+            disabled={isLoading}
+          >
+            {isLoading ? "Sending..." : "Send"}
           </Button>
         </div>
       </CardContent>
