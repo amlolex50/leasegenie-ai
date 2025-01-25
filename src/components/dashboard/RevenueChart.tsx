@@ -27,13 +27,13 @@ export const RevenueChart = () => {
         <CardTitle className="text-lg font-semibold text-gray-800">Revenue Overview</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="relative w-full" style={{ paddingBottom: '50%' }}>
+        <div className="relative w-full" style={{ paddingBottom: '40%', minHeight: '300px' }}>
           <div className="absolute inset-0">
             <ChartContainer config={{}}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart 
                   data={data}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
                 >
                   <CartesianGrid 
                     strokeDasharray="3 3" 
@@ -44,16 +44,25 @@ export const RevenueChart = () => {
                     dataKey="month" 
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: '#6B7280', fontSize: 12 }}
-                    dy={10}
+                    tick={{ 
+                      fill: '#6B7280', 
+                      fontSize: 12,
+                      dy: 10
+                    }}
+                    interval={0}
+                    padding={{ left: 30, right: 30 }}
                   />
                   <YAxis 
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: '#6B7280', fontSize: 12 }}
+                    tick={{ 
+                      fill: '#6B7280', 
+                      fontSize: 12 
+                    }}
                     tickFormatter={formatCurrency}
+                    width={90}
                     dx={-10}
-                    width={80}
+                    padding={{ top: 20, bottom: 20 }}
                   />
                   <Tooltip 
                     formatter={(value: number) => [formatCurrency(value), 'Revenue']}
@@ -62,8 +71,13 @@ export const RevenueChart = () => {
                       border: '1px solid #E5E7EB',
                       borderRadius: '6px',
                       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                      padding: '8px 12px'
                     }}
-                    labelStyle={{ color: '#374151', fontWeight: 600 }}
+                    labelStyle={{ 
+                      color: '#374151', 
+                      fontWeight: 600,
+                      marginBottom: '4px'
+                    }}
                   />
                   <Line 
                     type="monotone" 
