@@ -17,9 +17,9 @@ export interface LeaseInsights {
     restrictions: string[];
   };
   tenant: {
+    description: string;
     responsibilities: string[];
     restrictions: string[];
-    description: string;
   };
 }
 

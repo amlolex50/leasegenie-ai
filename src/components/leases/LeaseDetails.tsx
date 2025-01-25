@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useParams } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { TenantInformation } from "./details/TenantInformation";
@@ -8,7 +7,11 @@ import { FinancialDetails } from "./details/FinancialDetails";
 import { LeasePeriod } from "./details/LeasePeriod";
 import { LeaseDocuments } from "./details/LeaseDocuments";
 import { LeaseInsightsSection } from "./details/LeaseInsightsSection";
-import { LeaseData } from "./types";
+import { LeaseData, LeaseInsights } from "./types";
+
+interface LeaseDetailsProps {
+  leaseId: string;
+}
 
 const fetchLeaseDetails = async (leaseId: string): Promise<LeaseData> => {
   const { data, error } = await supabase
@@ -30,15 +33,20 @@ const fetchLeaseDetails = async (leaseId: string): Promise<LeaseData> => {
     .single();
 
   if (error) throw error;
-  return data as LeaseData;
+  
+  // Ensure the insights field is properly typed
+  const lease = data as Omit<LeaseData, 'insights'> & { insights: unknown };
+  return {
+    ...lease,
+    insights: lease.insights as LeaseInsights | null,
+  };
 };
 
-export const LeaseDetails = () => {
-  const { id } = useParams<{ id: string }>();
+export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
   const { data: lease, isLoading, error } = useQuery({
-    queryKey: ["lease", id],
-    queryFn: () => fetchLeaseDetails(id!),
-    enabled: !!id,
+    queryKey: ["lease", leaseId],
+    queryFn: () => fetchLeaseDetails(leaseId),
+    enabled: !!leaseId,
   });
 
   if (isLoading) {
