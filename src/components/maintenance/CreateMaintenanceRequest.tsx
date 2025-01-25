@@ -117,11 +117,16 @@ export function CreateMaintenanceRequest() {
     try {
       setIsSubmitting(true);
 
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw userError || new Error('User not found');
+
       // Get the current user's lease for the selected unit
       const { data: lease, error: leaseError } = await supabase
         .from('leases')
         .select('id')
         .eq('unit_id', formData.unit)
+        .eq('tenant_id', user.id)
         .maybeSingle();
 
       if (leaseError) throw leaseError;
@@ -134,10 +139,6 @@ export function CreateMaintenanceRequest() {
         });
         return;
       }
-
-      // Get current user
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) throw userError || new Error('User not found');
 
       // Create the maintenance request
       const { data: maintenanceRequest, error: maintenanceError } = await supabase
