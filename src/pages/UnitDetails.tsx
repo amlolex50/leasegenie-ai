@@ -34,6 +34,23 @@ const UnitDetails = () => {
         throw unitError;
       }
 
+      // Get public URLs for all images
+      if (unitData && unitData.unit_images) {
+        const imagesWithUrls = await Promise.all(
+          unitData.unit_images.map(async (image) => {
+            const { data: publicUrl } = supabase.storage
+              .from('unit_images')
+              .getPublicUrl(image.image_url);
+            
+            return {
+              ...image,
+              image_url: publicUrl.publicUrl
+            };
+          })
+        );
+        unitData.unit_images = imagesWithUrls;
+      }
+
       return unitData;
     },
   });
@@ -109,7 +126,7 @@ const UnitDetails = () => {
           </Card>
         </div>
 
-        <UnitImageGallery unitId={unit.id} images={unit.unit_images} />
+        <UnitImageGallery unitId={unit.id} images={unit.unit_images || []} />
       </div>
     </DashboardLayout>
   );
