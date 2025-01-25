@@ -78,11 +78,14 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
           body: { leaseId },
         });
         if (insightsData?.insights) {
-          data.insights = insightsData.insights;
+          data.insights = insightsData.insights as LeaseInsights;
         }
+      } else {
+        // Cast existing insights to LeaseInsights type
+        data.insights = data.insights as LeaseInsights;
       }
 
-      return data;
+      return data as LeaseData;
     },
   });
 
