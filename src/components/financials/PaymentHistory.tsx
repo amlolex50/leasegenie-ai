@@ -1,73 +1,72 @@
-import { useState } from "react"
+"use client"
+
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
-
-// Mock data for payment history
-const mockPaymentHistory = [
-  {
-    id: 1,
-    lease: "L001",
-    property: "Skyline Tower",
-    unit: "101",
-    tenant: "TechCorp Inc.",
-    date: "2023-05-01",
-    amount: 5000,
-    method: "Bank Transfer",
-    status: "Completed",
-  },
-  {
-    id: 2,
-    lease: "L002",
-    property: "Harbor Point Mall",
-    unit: "201",
-    tenant: "Retail Giants",
-    date: "2023-05-02",
-    amount: 7500,
-    method: "Credit Card",
-    status: "Completed",
-  },
-  {
-    id: 3,
-    lease: "L003",
-    property: "Tech Park One",
-    unit: "301",
-    tenant: "StartUp Hub",
-    date: "2023-05-03",
-    amount: 6000,
-    method: "Check",
-    status: "Pending",
-  },
-  {
-    id: 4,
-    lease: "L001",
-    property: "Skyline Tower",
-    unit: "101",
-    tenant: "TechCorp Inc.",
-    date: "2023-04-01",
-    amount: 5000,
-    method: "Bank Transfer",
-    status: "Completed",
-  },
-  {
-    id: 5,
-    lease: "L002",
-    property: "Harbor Point Mall",
-    unit: "201",
-    tenant: "Retail Giants",
-    date: "2023-04-02",
-    amount: 7500,
-    method: "Credit Card",
-    status: "Completed",
-  },
-]
+import { supabase } from "@/integrations/supabase/client"
+import { useToast } from "@/components/ui/use-toast"
 
 export function PaymentHistory() {
-  const [paymentHistory, setPaymentHistory] = useState(mockPaymentHistory)
+  const [paymentHistory, setPaymentHistory] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState({ lease: "all", property: "all" })
   const [search, setSearch] = useState("")
+  const { toast } = useToast()
+
+  useEffect(() => {
+    fetchPaymentHistory()
+  }, [])
+
+  const fetchPaymentHistory = async () => {
+    try {
+      const { data: payments, error } = await supabase
+        .from('payments')
+        .select(`
+          *,
+          lease:leases (
+            id,
+            tenant:users!leases_tenant_id_fkey (
+              full_name
+            ),
+            unit:units (
+              unit_name,
+              property:properties (
+                name
+              )
+            )
+          )
+        `)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+
+      const formattedData = payments.map(payment => ({
+        id: payment.id,
+        lease: payment.lease.id,
+        property: payment.lease.unit.property.name,
+        unit: payment.lease.unit.unit_name,
+        tenant: payment.lease.tenant.full_name,
+        date: payment.paid_date || payment.due_date,
+        amount: payment.amount,
+        method: payment.payment_method || 'N/A',
+        status: payment.status
+      }))
+
+      setPaymentHistory(formattedData)
+    } catch (error) {
+      console.error('Error fetching payment history:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load payment history",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const filteredPayments = paymentHistory.filter((payment) => {
     const matchesLease = filter.lease === "all" || payment.lease === filter.lease
@@ -77,6 +76,10 @@ export function PaymentHistory() {
       payment.unit.toLowerCase().includes(search.toLowerCase())
     return matchesLease && matchesProperty && matchesSearch
   })
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <Card>
@@ -150,4 +153,3 @@ export function PaymentHistory() {
       </CardContent>
     </Card>
   )
-}

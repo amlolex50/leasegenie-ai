@@ -1,5 +1,7 @@
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -7,47 +9,101 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
-// Mock data for rent collection
-const mockRentData = [
-  {
-    id: 1,
-    property: "Skyline Tower",
-    unit: "101",
-    tenant: "TechCorp Inc.",
-    dueDate: "2023-06-01",
-    amount: 5000,
-    status: "Paid",
-  },
-  {
-    id: 2,
-    property: "Harbor Point Mall",
-    unit: "201",
-    tenant: "Retail Giants",
-    dueDate: "2023-06-01",
-    amount: 7500,
-    status: "Overdue",
-  },
-  {
-    id: 3,
-    property: "Tech Park One",
-    unit: "301",
-    tenant: "StartUp Hub",
-    dueDate: "2023-06-01",
-    amount: 6000,
-    status: "Pending",
-  },
-]
+import { supabase } from "@/integrations/supabase/client"
+import { useToast } from "@/components/ui/use-toast"
 
 export function RentCollection() {
-  const [rentData, setRentData] = useState(mockRentData)
+  const [rentData, setRentData] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    fetchRentData()
+  }, [])
+
+  const fetchRentData = async () => {
+    try {
+      const { data: payments, error } = await supabase
+        .from('payments')
+        .select(`
+          *,
+          lease:leases (
+            tenant:users!leases_tenant_id_fkey (
+              full_name
+            ),
+            unit:units (
+              unit_name,
+              property:properties (
+                name
+              )
+            )
+          )
+        `)
+        .order('due_date', { ascending: false })
+
+      if (error) throw error
+
+      const formattedData = payments.map(payment => ({
+        id: payment.id,
+        property: payment.lease.unit.property.name,
+        unit: payment.lease.unit.unit_name,
+        tenant: payment.lease.tenant.full_name,
+        dueDate: payment.due_date,
+        amount: payment.amount,
+        status: payment.status
+      }))
+
+      setRentData(formattedData)
+    } catch (error) {
+      console.error('Error fetching rent data:', error)
+      toast({
+        title: "Error",
+        description: "Failed to load rent collection data",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handlePayment = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('payments')
+        .update({ 
+          status: 'PAID',
+          paid_date: new Date().toISOString()
+        })
+        .eq('id', id)
+
+      if (error) throw error
+
+      toast({
+        title: "Success",
+        description: "Payment recorded successfully",
+      })
+
+      fetchRentData()
+    } catch (error) {
+      console.error('Error recording payment:', error)
+      toast({
+        title: "Error",
+        description: "Failed to record payment",
+        variant: "destructive",
+      })
+    }
+  }
 
   const totalDue = rentData.reduce((sum, item) => sum + item.amount, 0)
-  const totalCollected = rentData.filter((item) => item.status === "Paid").reduce((sum, item) => sum + item.amount, 0)
-  const totalOverdue = rentData.filter((item) => item.status === "Overdue").reduce((sum, item) => sum + item.amount, 0)
+  const totalCollected = rentData
+    .filter((item) => item.status === "PAID")
+    .reduce((sum, item) => sum + item.amount, 0)
+  const totalOverdue = rentData
+    .filter((item) => item.status === "OVERDUE")
+    .reduce((sum, item) => sum + item.amount, 0)
 
-  const handlePayment = (id: number) => {
-    setRentData(rentData.map((item) => (item.id === id ? { ...item, status: "Paid" } : item)))
+  if (loading) {
+    return <div>Loading...</div>
   }
 
   return (
