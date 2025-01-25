@@ -74,6 +74,11 @@ export function CreateMaintenanceRequest() {
 
       if (leaseError) throw leaseError;
 
+      // Get the current user's ID
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+      if (!user) throw new Error('No user found');
+
       // Create the maintenance request
       const { error } = await supabase
         .from('maintenance_requests')
@@ -82,6 +87,7 @@ export function CreateMaintenanceRequest() {
           description: formData.description,
           priority: formData.priority,
           status: 'OPEN',
+          submitted_by: user.id,
         });
 
       if (error) throw error;
