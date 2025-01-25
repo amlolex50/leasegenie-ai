@@ -23,6 +23,7 @@ import CreateLease from "./pages/CreateLease";
 import LeaseDetails from "./pages/LeaseDetails";
 import Maintenance from "./pages/Maintenance";
 import Financials from "./pages/Financials";
+import AIAnalytics from "./pages/AIAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -142,6 +143,12 @@ const App = () => {
                 path="/financials"
                 element={
                   session ? <Financials /> : <Navigate to="/auth" replace />
+                }
+              />
+              <Route
+                path="/ai-analytics"
+                element={
+                  session ? <AIAnalytics /> : <Navigate to="/auth" replace />
                 }
               />
             </Routes>
