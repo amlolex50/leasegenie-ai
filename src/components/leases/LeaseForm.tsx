@@ -1,13 +1,12 @@
 import { Form } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
 import { useLeaseForm } from "./useLeaseForm";
-import { FileUpload } from "./FileUpload";
 import { LeaseFormFields } from "./LeaseFormFields";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { LeaseDocumentUpload } from "./LeaseDocumentUpload";
+import { SubmitButton } from "./SubmitButton";
 
 interface LeaseFormProps {
   lease?: {
@@ -30,7 +29,6 @@ export const LeaseForm = ({ lease }: LeaseFormProps) => {
   const navigate = useNavigate();
 
   const handleSubmit = async (data: any) => {
-    // Validate file upload if it's a new lease
     if (!lease && !selectedFile) {
       toast({
         title: "Error",
@@ -42,7 +40,6 @@ export const LeaseForm = ({ lease }: LeaseFormProps) => {
 
     setIsLoading(true);
     try {
-      // Show processing toast
       toast({
         title: "Processing",
         description: "Creating lease and uploading document...",
@@ -77,7 +74,6 @@ export const LeaseForm = ({ lease }: LeaseFormProps) => {
         description: `Lease ${lease ? 'updated' : 'created'} successfully`,
       });
 
-      // Navigate to leases list after successful submission
       navigate('/leases');
     } catch (error: any) {
       toast({
@@ -94,24 +90,8 @@ export const LeaseForm = ({ lease }: LeaseFormProps) => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <LeaseFormFields form={form} />
-        <div className="border rounded-lg p-4 space-y-4">
-          <h3 className="text-lg font-medium">Lease Document</h3>
-          <FileUpload 
-            onFileSelect={setSelectedFile}
-            accept=".pdf"
-            maxSize={5242880} // 5MB
-          />
-        </div>
-        <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {lease ? 'Updating' : 'Creating'} Lease...
-            </>
-          ) : (
-            lease ? 'Update Lease' : 'Create Lease'
-          )}
-        </Button>
+        <LeaseDocumentUpload onFileSelect={setSelectedFile} />
+        <SubmitButton isLoading={isLoading} isEdit={!!lease} />
       </form>
     </Form>
   );
