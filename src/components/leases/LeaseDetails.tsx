@@ -72,30 +72,28 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
 
       if (error) throw error;
 
+      // Convert the raw data to our LeaseData type, with proper type handling for insights
+      const rawData = data as unknown as Omit<LeaseData, 'insights'> & { insights: any };
+
       // If insights don't exist, generate them
-      if (!data.insights) {
+      if (!rawData.insights) {
         const { data: insightsData } = await supabase.functions.invoke('generate-lease-insights', {
           body: { leaseId },
         });
         
         if (insightsData?.insights) {
-          // Convert the raw insights data to our LeaseInsights type
-          const typedInsights = insightsData.insights as unknown as LeaseInsights;
           return {
-            ...data,
-            insights: typedInsights
-          } as LeaseData;
+            ...rawData,
+            insights: insightsData.insights as LeaseInsights
+          };
         }
-      } else {
-        // Convert existing insights to our LeaseInsights type
-        const typedInsights = data.insights as unknown as LeaseInsights;
-        return {
-          ...data,
-          insights: typedInsights
-        } as LeaseData;
       }
 
-      return data as LeaseData;
+      // Return the data with properly typed insights
+      return {
+        ...rawData,
+        insights: rawData.insights as LeaseInsights
+      };
     },
   });
 
