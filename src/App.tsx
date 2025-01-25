@@ -11,12 +11,12 @@ import Properties from "./pages/Properties";
 import PropertyDetails from "./pages/PropertyDetails";
 import CreateProperty from "./pages/CreateProperty";
 import EditProperty from "./pages/EditProperty";
-import { useEffect, useState } from "react";
-import { supabase } from "./integrations/supabase/client";
 import CreateUnit from "./pages/CreateUnit";
 import EditUnit from "./pages/EditUnit";
 import UnitDetails from "./pages/UnitDetails";
 import Leases from "./pages/Leases";
+import CreateLease from "./pages/CreateLease";
+import LeaseDetails from "./pages/LeaseDetails";
 
 const queryClient = new QueryClient();
 
@@ -110,6 +110,18 @@ const App = () => {
                 path="/leases"
                 element={
                   session ? <Leases /> : <Navigate to="/auth" replace />
+                }
+              />
+              <Route
+                path="/leases/create"
+                element={
+                  session ? <CreateLease /> : <Navigate to="/auth" replace />
+                }
+              />
+              <Route
+                path="/leases/:id"
+                element={
+                  session ? <LeaseDetails /> : <Navigate to="/auth" replace />
                 }
               />
             </Routes>
