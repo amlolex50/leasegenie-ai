@@ -8,8 +8,32 @@ const HowItWorks = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="container mx-auto px-4 py-8 sm:py-16">
-      <h1 className="text-3xl sm:text-4xl font-bold text-center mb-4 sm:mb-8">How LeaseGenie AI Works</h1>
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="bg-white rounded-2xl overflow-hidden">
+          {/* Navigation */}
+          <nav className="flex items-center justify-between px-8 py-4 shadow-md rounded-[20px] relative z-10">
+            <div className="flex items-center gap-2">
+              <span className="text-blue-500 text-2xl">★</span>
+              <span className="font-semibold text-xl">LeaseGenie AI</span>
+            </div>
+            <div className="hidden md:flex items-center gap-12">
+              <a href="/" className="text-gray-600 hover:text-gray-900">Home</a>
+              <a href="/features" className="text-gray-600 hover:text-gray-900">Features</a>
+              <a href="/how-it-works" className="text-gray-600 hover:text-gray-900">How It Works</a>
+              <a href="#about-us" className="text-gray-600 hover:text-gray-900">About Us</a>
+              <a href="#testimonials" className="text-gray-600 hover:text-gray-900">Testimonials</a>
+            </div>
+            <Button 
+              className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-6"
+              onClick={() => navigate('/auth')}
+            >
+              Get Started
+            </Button>
+          </nav>
+
+          <div className="container mx-auto px-4 py-8 sm:py-16">
+            <h1 className="text-3xl sm:text-4xl font-bold text-center mb-4 sm:mb-8">How LeaseGenie AI Works</h1>
       <p className="text-lg sm:text-xl text-center mb-8 sm:mb-12 max-w-3xl mx-auto">
         Discover how our AI-powered platform revolutionizes commercial lease management, from onboarding to advanced
         analytics.
@@ -173,6 +197,9 @@ const HowItWorks = () => {
           Start Your Free Trial
         </Button>
       </section>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
