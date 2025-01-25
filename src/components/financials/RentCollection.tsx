@@ -12,8 +12,36 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/components/ui/use-toast"
 
+interface RentData {
+  id: string
+  property: string
+  unit: string
+  tenant: string
+  dueDate: string
+  amount: number
+  status: string
+}
+
+interface PaymentResponse {
+  id: string
+  lease: {
+    tenant: {
+      full_name: string
+    }
+    unit: {
+      unit_name: string
+      property: {
+        name: string
+      }
+    }
+  }
+  due_date: string
+  amount: number
+  status: string
+}
+
 export function RentCollection() {
-  const [rentData, setRentData] = useState<any[]>([])
+  const [rentData, setRentData] = useState<RentData[]>([])
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
 
@@ -28,7 +56,7 @@ export function RentCollection() {
         .select(`
           *,
           lease:leases (
-            tenant:users!leases_tenant_id_fkey (
+            tenant:users (
               full_name
             ),
             unit:units (
@@ -43,7 +71,7 @@ export function RentCollection() {
 
       if (error) throw error
 
-      const formattedData = payments.map(payment => ({
+      const formattedData: RentData[] = (payments as PaymentResponse[]).map(payment => ({
         id: payment.id,
         property: payment.lease.unit.property.name,
         unit: payment.lease.unit.unit_name,
@@ -171,14 +199,14 @@ export function RentCollection() {
                   <TableCell>
                     <Badge
                       variant={
-                        item.status === "Paid" ? "success" : item.status === "Overdue" ? "destructive" : "default"
+                        item.status === "PAID" ? "success" : item.status === "OVERDUE" ? "destructive" : "default"
                       }
                     >
                       {item.status}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {item.status !== "Paid" && (
+                    {item.status !== "PAID" && (
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button variant="outline" size="sm">
