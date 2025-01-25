@@ -1,8 +1,8 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Upload, Database, Bot, BarChart, Bell, Shield } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useNavigate } from "react-router-dom"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Upload, Database, Bot, BarChart, Bell, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const HowItWorks = () => {
   const navigate = useNavigate();
@@ -86,7 +86,10 @@ const HowItWorks = () => {
                   <li>Upcoming lease expirations and renewals</li>
                   <li>Financial summaries and projections</li>
                 </ul>
-                <div className="mt-4 relative h-48 sm:h-64 md:h-80 lg:h-96 bg-gray-100 rounded-lg" />
+                <div 
+                  className="mt-4 h-48 sm:h-64 md:h-80 lg:h-96 bg-cover bg-center rounded-lg"
+                  style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&q=80")' }}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -104,7 +107,10 @@ const HowItWorks = () => {
                   <li>Tenant health scoring</li>
                   <li>Customizable reports and visualizations</li>
                 </ul>
-                <div className="mt-4 relative h-48 sm:h-64 md:h-80 lg:h-96 bg-gray-100 rounded-lg" />
+                <div 
+                  className="mt-4 h-48 sm:h-64 md:h-80 lg:h-96 bg-cover bg-center rounded-lg"
+                  style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&q=80")' }}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -122,7 +128,10 @@ const HowItWorks = () => {
                   <li>Maintenance due alerts</li>
                   <li>Compliance deadline warnings</li>
                 </ul>
-                <div className="mt-4 relative h-48 sm:h-64 md:h-80 lg:h-96 bg-gray-100 rounded-lg" />
+                <div 
+                  className="mt-4 h-48 sm:h-64 md:h-80 lg:h-96 bg-cover bg-center rounded-lg"
+                  style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80")' }}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -140,7 +149,10 @@ const HowItWorks = () => {
                   <li>Role-based access control</li>
                   <li>Compliance with industry standards (GDPR, CCPA, etc.)</li>
                 </ul>
-                <div className="mt-4 relative h-48 sm:h-64 md:h-80 lg:h-96 bg-gray-100 rounded-lg" />
+                <div 
+                  className="mt-4 h-48 sm:h-64 md:h-80 lg:h-96 bg-cover bg-center rounded-lg"
+                  style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80")' }}
+                />
               </CardContent>
             </Card>
           </TabsContent>
