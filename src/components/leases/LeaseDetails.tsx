@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, DollarSign, FileText, User } from "lucide-react";
+import { Calendar, DollarSign, FileText, User, LineChart } from "lucide-react";
 import { format } from "date-fns";
 
 interface LeaseDetailsProps {
@@ -28,6 +28,17 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
         .single();
 
       if (error) throw error;
+
+      // Generate insights if they don't exist
+      if (!data.insights) {
+        const { data: insightsData } = await supabase.functions.invoke('generate-lease-insights', {
+          body: { leaseId },
+        });
+        if (insightsData?.insights) {
+          data.insights = insightsData.insights;
+        }
+      }
+
       return data;
     },
   });
@@ -98,7 +109,7 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
             </dl>
           </CardContent>
         </Card>
-
+        
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -119,7 +130,7 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
             </dl>
           </CardContent>
         </Card>
-
+        
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -150,7 +161,7 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
             </dl>
           </CardContent>
         </Card>
-
+        
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -170,6 +181,45 @@ export const LeaseDetails = ({ leaseId }: LeaseDetailsProps) => {
             )}
           </CardContent>
         </Card>
+
+        {lease.insights && (
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <LineChart className="h-5 w-5" />
+                Lease Insights
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-medium mb-2">Duration</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {lease.insights.leaseDuration.description}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-medium mb-2">Financial Overview</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {lease.insights.financials.description}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-medium mb-2">Property Details</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {lease.insights.property.description}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-medium mb-2">Tenant Information</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {lease.insights.tenant.description}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <Card>

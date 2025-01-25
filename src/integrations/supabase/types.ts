@@ -161,6 +161,7 @@ export type Database = {
           deposit_amount: number | null
           escalation_rate: number | null
           id: string
+          insights: Json | null
           lease_end_date: string
           lease_start_date: string
           monthly_rent: number
@@ -174,6 +175,7 @@ export type Database = {
           deposit_amount?: number | null
           escalation_rate?: number | null
           id?: string
+          insights?: Json | null
           lease_end_date: string
           lease_start_date: string
           monthly_rent: number
@@ -187,6 +189,7 @@ export type Database = {
           deposit_amount?: number | null
           escalation_rate?: number | null
           id?: string
+          insights?: Json | null
           lease_end_date?: string
           lease_start_date?: string
           monthly_rent?: number
