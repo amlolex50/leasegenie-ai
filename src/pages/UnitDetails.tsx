@@ -2,10 +2,9 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building, Home, MapPin } from "lucide-react";
+import { UnitInformation } from "@/components/properties/unit-details/UnitInformation";
+import { PropertyInformation } from "@/components/properties/unit-details/PropertyInformation";
 import { UnitImageGallery } from "@/components/properties/UnitImageGallery";
-import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 
 const UnitDetails = () => {
@@ -34,7 +33,6 @@ const UnitDetails = () => {
         throw unitError;
       }
 
-      // Get public URLs for all images
       if (unitData && unitData.unit_images) {
         const imagesWithUrls = await Promise.all(
           unitData.unit_images.map(async (image) => {
@@ -86,44 +84,17 @@ const UnitDetails = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Home className="w-5 h-5 text-blue-600" />
-                Unit Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Status</span>
-                <Badge variant={unit.status === 'OCCUPIED' ? 'default' : 'secondary'}>
-                  {unit.status}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Floor Area</span>
-                <span>{unit.floor_area} sq ft</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building className="w-5 h-5 text-blue-600" />
-                Property Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 mt-1" />
-                <div>
-                  <p>{unit.property.address}</p>
-                  <p>{unit.property.city}, {unit.property.state}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <UnitInformation
+            unitName={unit.unit_name}
+            status={unit.status}
+            floorArea={unit.floor_area}
+          />
+          <PropertyInformation
+            name={unit.property.name}
+            address={unit.property.address}
+            city={unit.property.city}
+            state={unit.property.state}
+          />
         </div>
 
         <UnitImageGallery unitId={unit.id} images={unit.unit_images || []} />
