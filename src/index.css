@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -25,14 +27,14 @@
     --ring: 222.2 84% 4.9%;
     --radius: 0.75rem;
   }
-}
 
-@layer base {
-  * {
-    @apply border-border;
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
   }
+
   body {
     @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
 
@@ -42,4 +44,22 @@
 
 .hover-lift {
   @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-lg;
+}
+
+@layer utilities {
+  .text-heading {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+  
+  .text-subheading {
+    @apply text-xl font-medium;
+  }
+  
+  .text-body {
+    @apply text-base leading-7;
+  }
+  
+  .text-small {
+    @apply text-sm text-muted-foreground;
+  }
 }
