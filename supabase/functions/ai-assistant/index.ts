@@ -21,55 +21,39 @@ serve(async (req) => {
   try {
     const { message, userId } = await req.json();
 
-    // Fetch relevant data from Supabase
-    const { data: leases } = await supabase
-      .from('leases')
-      .select(`
-        *,
-        units:unit_id(
-          unit_name,
-          property:property_id(name)
-        ),
-        tenant:tenant_id(full_name)
-      `)
-      .eq('tenant_id', userId);
+    console.log('Searching vectorstore for relevant context...');
 
-    const { data: maintenanceRequests } = await supabase
-      .from('maintenance_requests')
-      .select(`
-        *,
-        lease:lease_id(
-          units:unit_id(unit_name)
-        )
-      `)
-      .eq('submitted_by', userId);
+    // Query the vectorstore for relevant documents
+    const { data: relevantDocs, error: searchError } = await supabase.rpc('match_documents', {
+      query_embedding: message,  // We'll use the text directly since we don't have an embedding model
+      match_threshold: 0.7,     // Adjust this threshold as needed
+      match_count: 5,          // Get top 5 most relevant documents
+      user_id: userId
+    });
 
-    const { data: payments } = await supabase
-      .from('payments')
-      .select(`
-        *,
-        lease:lease_id(
-          monthly_rent,
-          units:unit_id(unit_name)
-        )
-      `)
-      .order('due_date', { ascending: true })
-      .limit(5);
+    if (searchError) {
+      console.error('Error searching vectorstore:', searchError);
+      throw searchError;
+    }
 
-    // Create context for the AI
-    const context = `
-      You are LeaseGenie, a property management assistant. Here's the current context:
-      
-      Leases: ${JSON.stringify(leases)}
-      Maintenance Requests: ${JSON.stringify(maintenanceRequests)}
-      Recent Payments: ${JSON.stringify(payments)}
-      
-      Please provide accurate information based on this data. If you don't have specific information, say so.
-    `;
+    // Combine relevant documents into context
+    const context = relevantDocs
+      ? relevantDocs.map((doc: any) => doc.content).join('\n\n')
+      : '';
 
-    console.log('Calling DeepSeek API with context:', context);
+    console.log('Retrieved context:', context);
 
-    // Call DeepSeek API
+    // Create the prompt with context
+    const systemPrompt = `You are LeaseGenie, a property management assistant. Use the following context to answer the user's question. If the context doesn't contain relevant information, say so.
+
+Context:
+${context}
+
+Answer the question based on the context above. If you cannot find relevant information in the context, say so clearly.`;
+
+    console.log('Calling DeepSeek API with context...');
+
+    // Call DeepSeek API with the enhanced context
     const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -79,7 +63,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [
-          { role: 'system', content: context },
+          { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
         ],
         temperature: 0.7,
