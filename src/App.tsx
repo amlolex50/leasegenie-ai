@@ -24,6 +24,7 @@ import LeaseDetails from "./pages/LeaseDetails";
 import Maintenance from "./pages/Maintenance";
 import Financials from "./pages/Financials";
 import AIAnalytics from "./pages/AIAnalytics";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,12 @@ const App = () => {
                 path="/dashboard"
                 element={
                   session ? <Index /> : <Navigate to="/auth" replace />
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  session ? <Settings /> : <Navigate to="/auth" replace />
                 }
               />
               <Route
