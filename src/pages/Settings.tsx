@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2, User } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -14,23 +14,26 @@ export default function Settings() {
   const [fullName, setFullName] = useState("");
   const [user, setUser] = useState<any>(null);
 
-  useState(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+  useEffect(() => {
+    // Fetch user and profile data
+    const fetchUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
-      // Fetch user profile from the users table
+      
       if (user) {
-        supabase
+        const { data } = await supabase
           .from('users')
           .select('full_name')
           .eq('id', user.id)
-          .single()
-          .then(({ data }) => {
-            if (data) {
-              setFullName(data.full_name);
-            }
-          });
+          .single();
+          
+        if (data) {
+          setFullName(data.full_name);
+        }
       }
-    });
+    };
+
+    fetchUserData();
   }, []);
 
   const handleUpdateName = async () => {
