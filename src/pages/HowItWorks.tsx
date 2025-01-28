@@ -10,7 +10,7 @@ const HowItWorks = () => {
         <div className="bg-white rounded-2xl overflow-hidden">
           <Navigation />
           <div className="container mx-auto px-4 py-8 sm:py-16">
-            <h1 className="text-3xl sm:text-4xl font-bold text-center mb-4 sm:mb-8">How LeaseGenie AI Works</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold text-center mb-4 sm:mb-8">How ManageLeaseAI Works</h1>
             <p className="text-lg sm:text-xl text-center mb-8 sm:mb-12 max-w-3xl mx-auto">
               Discover how our AI-powered platform revolutionizes commercial lease management, from onboarding to advanced
               analytics.
