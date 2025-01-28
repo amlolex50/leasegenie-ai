@@ -14,7 +14,7 @@ type Message = {
 
 export function AIAssistant() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hello! I'm your LeaseGenie AI assistant. How can I help you today?" },
+    { role: "assistant", content: "Hello! I'm your ManageLeaseAi assistant. How can I help you today?" },
   ])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)

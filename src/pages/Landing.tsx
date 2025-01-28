@@ -16,7 +16,7 @@ export default function Landing() {
             <div className="flex items-center gap-2">
               <Link to="/" className="flex items-center gap-2">
                 <span className="text-blue-500 text-2xl">★</span>
-                <span className="font-semibold text-xl">LeaseGenie AI</span>
+                <span className="font-semibold text-xl">ManageLeaseAi</span>
               </Link>
             </div>
             <div className="hidden md:flex items-center gap-12">
@@ -276,7 +276,7 @@ export default function Landing() {
             <div className="mt-8 border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center">
               <div className="flex items-center">
                 <span className="text-primary text-2xl mr-2">★</span>
-                <span className="text-xl font-semibold">LeaseGenie AI</span>
+                <span className="text-xl font-semibold">ManageLeaseAi</span>
               </div>
               <p className="mt-4 md:mt-0 text-base text-gray-400">
                 &copy; {new Date().getFullYear()} LeaseGenie AI. All rights reserved.
