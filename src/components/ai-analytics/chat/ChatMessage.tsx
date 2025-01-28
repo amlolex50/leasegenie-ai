@@ -7,16 +7,18 @@ interface ChatMessageProps {
 
 export function ChatMessage({ message }: ChatMessageProps) {
   return (
-    <div className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} mb-4`}>
-      <div className={`flex items-start ${message.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
-        <Avatar className="w-8 h-8">
+    <div className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} w-full`}>
+      <div className={`flex items-start max-w-[80%] ${message.role === "user" ? "flex-row-reverse" : "flex-row"} gap-2`}>
+        <Avatar className="w-8 h-8 mt-0.5">
           <AvatarImage src={message.role === "user" ? "/user-avatar.png" : "/ai-avatar.png"} />
           <AvatarFallback>{message.role === "user" ? "U" : "AI"}</AvatarFallback>
         </Avatar>
         <div
-          className={`mx-2 p-3 rounded-lg ${
-            message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
-          }`}
+          className={`px-4 py-2 rounded-lg ${
+            message.role === "user" 
+              ? "bg-primary text-primary-foreground rounded-br-none" 
+              : "bg-muted rounded-bl-none"
+          } break-words`}
         >
           {message.content}
         </div>
