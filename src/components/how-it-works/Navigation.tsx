@@ -17,7 +17,6 @@ export const Navigation = () => {
         <Link to="/how-it-works" className="text-gray-600 hover:text-gray-900">How It Works</Link>
         <Link to="/about" className="text-gray-600 hover:text-gray-900">About Us</Link>
         <Link to="/testimonials" className="text-gray-600 hover:text-gray-900">Testimonials</Link>
-        <Link to="/maintenance" className="text-gray-600 hover:text-gray-900">Maintenance</Link>
       </div>
       <Button 
         className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-6"
