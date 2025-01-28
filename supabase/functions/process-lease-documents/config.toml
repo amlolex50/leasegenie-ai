@@ -1,0 +1,4 @@
+project_id = "ktwzuaqoezafztvinzjm"
+
+[process-lease-documents]
+verify_jwt = true
