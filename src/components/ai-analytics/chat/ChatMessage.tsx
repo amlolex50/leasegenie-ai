@@ -1,5 +1,6 @@
 import { Message } from "./types"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import ReactMarkdown from "react-markdown"
 
 interface ChatMessageProps {
   message: Message
@@ -18,9 +19,30 @@ export function ChatMessage({ message }: ChatMessageProps) {
             message.role === "user" 
               ? "bg-primary text-primary-foreground rounded-br-none" 
               : "bg-muted rounded-bl-none"
-          } break-words`}
+          } prose prose-sm max-w-none break-words`}
         >
-          {message.content}
+          {message.role === "user" ? (
+            message.content
+          ) : (
+            <ReactMarkdown
+              components={{
+                p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                ul: ({ children }) => <ul className="list-disc ml-4 mb-2">{children}</ul>,
+                ol: ({ children }) => <ol className="list-decimal ml-4 mb-2">{children}</ol>,
+                li: ({ children }) => <li className="mb-1">{children}</li>,
+                code: ({ children }) => (
+                  <code className="bg-muted-foreground/20 rounded px-1 py-0.5">{children}</code>
+                ),
+                pre: ({ children }) => (
+                  <pre className="bg-muted-foreground/20 rounded p-2 my-2 overflow-x-auto">
+                    {children}
+                  </pre>
+                ),
+              }}
+            >
+              {message.content}
+            </ReactMarkdown>
+          )}
         </div>
       </div>
     </div>
