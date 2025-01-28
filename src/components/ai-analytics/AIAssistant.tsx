@@ -41,7 +41,7 @@ export function AIAssistant() {
 
         if (error) throw error
 
-        const formattedChats = data.map(chat => ({
+        const formattedChats: Chat[] = data.map(chat => ({
           id: chat.id,
           messages: chat.messages as Message[],
           created_at: chat.created_at
@@ -72,7 +72,10 @@ export function AIAssistant() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error("Not authenticated")
 
-      const initialMessage = { role: "assistant", content: "Hello! I'm your ManageLeaseAI assistant. How can I help you today?" }
+      const initialMessage: Message = { 
+        role: "assistant", 
+        content: "Hello! I'm your ManageLeaseAI assistant. How can I help you today?" 
+      }
       
       const { data, error } = await supabase
         .from('chat_history')
@@ -85,7 +88,7 @@ export function AIAssistant() {
 
       if (error) throw error
 
-      const newChat = {
+      const newChat: Chat = {
         id: data.id,
         messages: [initialMessage],
         created_at: data.created_at
