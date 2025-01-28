@@ -8,7 +8,7 @@ export const GettingStartedCTA = () => {
     <section className="text-center">
       <h2 className="text-2xl sm:text-3xl font-semibold mb-4">Ready to Transform Your Lease Management?</h2>
       <p className="text-lg sm:text-xl mb-6 sm:mb-8">
-        Join thousands of satisfied property managers and experience the power of AI-driven lease management.
+        Join thousands of satisfied property managers and experience the power of intelligent lease management.
       </p>
       <Button 
         size="lg" 

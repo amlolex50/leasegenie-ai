@@ -22,7 +22,7 @@ export const KeyFeatures = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p>The LeaseGenie AI dashboard provides a comprehensive overview of your lease portfolio, including:</p>
+              <p>Our intelligent dashboard provides a comprehensive overview of your lease portfolio, including:</p>
               <ul className="list-disc list-inside space-y-2">
                 <li>Total number of properties and leases</li>
                 <li>Occupancy rates and vacancy insights</li>

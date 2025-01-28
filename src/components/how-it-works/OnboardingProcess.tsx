@@ -5,7 +5,7 @@ export const OnboardingProcess = () => {
   return (
     <section className="mb-12 sm:mb-20">
       <h2 className="text-2xl sm:text-3xl font-semibold mb-6 sm:mb-8 text-center">
-        Getting Started with LeaseGenie AI
+        Getting Started with Smart Lease Management
       </h2>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
         <Card>
@@ -27,7 +27,7 @@ export const OnboardingProcess = () => {
           </CardHeader>
           <CardContent>
             <CardDescription>
-              LeaseGenie AI analyzes your documents, extracting crucial details like rent amounts, important dates,
+              Our AI system analyzes your documents, extracting crucial details like rent amounts, important dates,
               and special clauses.
             </CardDescription>
           </CardContent>
