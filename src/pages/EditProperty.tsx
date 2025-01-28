@@ -12,6 +12,8 @@ const EditProperty = () => {
   const { data: property, isLoading } = useQuery({
     queryKey: ['property', id],
     queryFn: async () => {
+      if (!id) throw new Error("Property ID is required");
+      
       const { data, error } = await supabase
         .from('properties')
         .select('*')
@@ -29,6 +31,7 @@ const EditProperty = () => {
 
       return data;
     },
+    enabled: !!id, // Only run query if we have an ID
   });
 
   if (isLoading) {
