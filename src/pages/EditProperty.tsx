@@ -16,7 +16,7 @@ const EditProperty = () => {
       
       const { data, error } = await supabase
         .from('properties')
-        .select('*')
+        .select()
         .eq('id', id)
         .single();
 
@@ -31,7 +31,7 @@ const EditProperty = () => {
 
       return data;
     },
-    enabled: !!id, // Only run query if we have an ID
+    enabled: !!id,
   });
 
   if (isLoading) {
