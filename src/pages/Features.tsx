@@ -54,7 +54,7 @@ const Features = () => {
         </nav>
 
         <div className="py-16">
-          <h1 className="text-4xl font-bold text-center mb-8">Features</h1>
+          <h1 className="text-4xl font-bold text-center mb-8">LeaseGenie AI Features</h1>
 
           {/* AI-Driven Lease Management */}
           <section className="mb-16">
