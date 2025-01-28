@@ -18,7 +18,7 @@ const EditProperty = () => {
         .from('properties')
         .select()
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         toast({
@@ -27,6 +27,15 @@ const EditProperty = () => {
           variant: "destructive",
         });
         throw error;
+      }
+
+      if (!data) {
+        toast({
+          title: "Error",
+          description: "Property not found",
+          variant: "destructive",
+        });
+        throw new Error("Property not found");
       }
 
       return data;
