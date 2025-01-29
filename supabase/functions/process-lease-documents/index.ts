@@ -6,6 +6,7 @@ import * as pdfjs from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/+esm'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
 async function extractTextFromPDF(url: string): Promise<string> {
@@ -48,9 +49,7 @@ async function processWithDeepseek(text: string, userId: string): Promise<any> {
   })
 
   if (!response.ok) {
-    const errorText = await response.text()
-    console.error('Deepseek API error response:', errorText)
-    throw new Error(`Deepseek API failed with status ${response.status}: ${errorText}`)
+    throw new Error(`Deepseek API failed with status ${response.status}`)
   }
 
   return await response.json()
@@ -67,9 +66,9 @@ async function processWithOpenAI(text: string): Promise<any> {
   })
   const openai = new OpenAIApi(configuration)
 
-  console.log('Processing with OpenAI as fallback...')
+  console.log('Processing with OpenAI...')
   const completion = await openai.createChatCompletion({
-    model: "gpt-4o",
+    model: "gpt-4",
     messages: [
       {
         role: "system",
@@ -82,16 +81,26 @@ async function processWithOpenAI(text: string): Promise<any> {
     ]
   })
 
-  const insights = JSON.parse(completion.data.choices[0].message.content)
-  return { insights }
+  return { insights: JSON.parse(completion.data.choices[0].message.content) }
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { 
+      headers: {
+        ...corsHeaders,
+        'Access-Control-Max-Age': '86400',
+      } 
+    })
   }
 
   try {
+    // Validate request method
+    if (req.method !== 'POST') {
+      throw new Error('Method not allowed')
+    }
+
     const { urls, leaseId } = await req.json()
     console.log('Processing documents for lease:', leaseId, 'URLs:', urls)
 
@@ -100,14 +109,23 @@ serve(async (req) => {
     }
 
     // Initialize Supabase client
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Supabase configuration missing')
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey)
 
     // Authenticate user
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      throw new Error('No authorization header')
+    }
+
     const { data: { user }, error: userError } = await supabase.auth.getUser(
-      req.headers.get('Authorization')?.split(' ')[1] ?? ''
+      authHeader.split(' ')[1]
     )
 
     if (userError || !user) {

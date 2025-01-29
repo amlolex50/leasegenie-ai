@@ -25,6 +25,13 @@ export const DocumentProcessor = ({ leaseId, documentUrl, onProcessingComplete }
     setProgress(10);
 
     try {
+      // Get the current session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        throw new Error('Authentication required');
+      }
+
       console.log('Starting document processing for lease:', leaseId);
       console.log('Document URL:', documentUrl);
       
@@ -35,6 +42,7 @@ export const DocumentProcessor = ({ leaseId, documentUrl, onProcessingComplete }
           leaseId: leaseId,
         },
         headers: {
+          Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         }
       });
@@ -59,6 +67,7 @@ export const DocumentProcessor = ({ leaseId, documentUrl, onProcessingComplete }
           leaseId,
         },
         headers: {
+          Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         }
       });
