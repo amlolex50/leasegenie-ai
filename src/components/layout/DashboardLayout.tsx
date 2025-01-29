@@ -1,179 +1,86 @@
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from "@/components/ui/sidebar";
+import { useNavigate, Link, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  LayoutDashboard, 
-  Building2, 
-  FileText, 
-  Wrench, 
-  HelpCircle, 
-  BrainCircuit,
-  Settings,
-  User
-} from "lucide-react";
-import { useState, useEffect } from "react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+  Bell,
+  Search,
+  Moon,
+  Menu,
+} from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
-const menuItems = [
-  {
-    label: "Dashboard",
-    path: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    label: "Properties",
-    path: "/properties",
-    icon: Building2,
-  },
-  {
-    label: "Leases",
-    path: "/leases",
-    icon: FileText,
-  },
-  {
-    label: "Maintenance",
-    path: "/maintenance",
-    icon: Wrench,
-  },
-  {
-    label: "AI Analytics",
-    path: "/ai-analytics",
-    icon: BrainCircuit,
-  },
-  {
-    label: "How it Works",
-    path: "/how-it-works",
-    icon: HelpCircle,
-  },
-];
-
-export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+export default function DashboardLayout() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
-  const [userName, setUserName] = useState<string>("");
-
-  useEffect(() => {
-    // Fetch user and profile data
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-      if (user) {
-        supabase
-          .from('users')
-          .select('full_name')
-          .eq('id', user.id)
-          .single()
-          .then(({ data }) => {
-            if (data) {
-              setUserName(data.full_name);
-            }
-          });
-      }
-    });
-  }, []);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/auth');
-  };
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <Sidebar collapsible="icon" className="group w-12 hover:w-64 transition-all duration-300">
-        <SidebarContent>
-          <div className="h-16 flex items-center gap-2 px-4">
-            <span className="text-blue-600 text-2xl">★</span>
-            <span className="font-semibold text-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              ManageLeaseAi
-            </span>
-          </div>
-          <SidebarGroup>
-            <SidebarGroupLabel>Menu</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {menuItems.map((item) => (
-                  <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton 
-                      onClick={() => navigate(item.path)}
-                      tooltip={item.label}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        {item.label}
-                      </span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-      </Sidebar>
-      <main className="flex-1 overflow-auto relative bg-background">
-        <div className="flex items-center justify-between px-8 py-4 shadow-sm bg-white mx-4 mt-4 rounded-[20px]">
-          <div className="flex items-center gap-4">
-            {menuItems.map((item) => (
-              <Button
-                key={item.label}
-                variant="ghost"
-                className="hidden md:flex"
-                onClick={() => navigate(item.path)}
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="bg-white rounded-2xl overflow-hidden">
+          {/* Navigation */}
+          <nav className="flex items-center justify-between px-8 py-4 shadow-md rounded-[20px] relative z-10">
+            <div className="flex items-center gap-2">
+              <Link to="/" className="flex items-center gap-2">
+                <span className="text-blue-500 text-2xl">★</span>
+                <span className="font-semibold text-xl">ManageLeaseAi</span>
+              </Link>
+            </div>
+            <div className="hidden md:flex items-center gap-12">
+              <Link to="/" className="text-gray-600 hover:text-gray-900">Home</Link>
+              <Link to="/features" className="text-gray-600 hover:text-gray-900">Features</Link>
+              <Link to="/how-it-works" className="text-gray-600 hover:text-gray-900">How It Works</Link>
+              <Link to="/about" className="text-gray-600 hover:text-gray-900">About Us</Link>
+              <Link to="/testimonials" className="text-gray-600 hover:text-gray-900">Testimonials</Link>
+            </div>
+            <Button 
+              className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-6"
+              onClick={() => navigate('/auth')}
+            >
+              Get Started
+            </Button>
+          </nav>
+
+          {/* Dashboard Header */}
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-4">
+              <span className="text-blue-500 text-2xl">★</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Home / Dashboard</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="pl-8 pr-4 py-2 rounded-lg bg-gray-50 text-sm w-64 border border-gray-200"
+                />
+                <Search className="w-4 h-4 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+              </div>
+              <Button variant="ghost" size="icon" className="hover:bg-gray-50">
+                <Moon className="w-5 h-5 text-gray-600" />
+              </Button>
+              <Button variant="ghost" size="icon" className="hover:bg-gray-50">
+                <Bell className="w-5 h-5 text-gray-600" />
+              </Button>
+              <div className="w-8 h-8 rounded-full bg-gray-200"></div>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="md:hidden"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               >
-                <item.icon className="w-4 h-4 mr-2" />
-                {item.label}
+                <Menu className="w-5 h-5" />
               </Button>
-            ))}
+            </div>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>
-                    {userName ? userName.charAt(0).toUpperCase() : 'U'}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{userName}</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {user?.email}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/settings')}>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleSignOut}>
-                <User className="mr-2 h-4 w-4" />
-                <span>Sign out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+
+          {/* Main Content */}
+          <div className="p-6">
+            <Outlet />
+          </div>
         </div>
-        <div className="p-4">{children}</div>
-      </main>
+      </div>
     </div>
   );
-};
+}
