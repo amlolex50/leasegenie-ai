@@ -3,13 +3,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
-
-interface DocumentProcessorProps {
-  leaseId: string;
-  documentUrl: string | null;
-  onProcessingComplete?: () => void;
-}
+import { ProcessingProgress } from "./ProcessingProgress";
+import { DocumentProcessorProps } from "./types";
 
 export const DocumentProcessor = ({ leaseId, documentUrl, onProcessingComplete }: DocumentProcessorProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -31,7 +26,6 @@ export const DocumentProcessor = ({ leaseId, documentUrl, onProcessingComplete }
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
       setProgress(30);
 
       const response = await fetch('/functions/v1/process-lease-documents', {
@@ -53,7 +47,6 @@ export const DocumentProcessor = ({ leaseId, documentUrl, onProcessingComplete }
       }
 
       await response.json();
-      
       setProgress(90);
 
       toast({
@@ -82,14 +75,7 @@ export const DocumentProcessor = ({ leaseId, documentUrl, onProcessingComplete }
 
   return (
     <div className="space-y-4">
-      {isProcessing && (
-        <div className="space-y-2">
-          <Progress value={progress} className="w-full" />
-          <p className="text-sm text-muted-foreground">
-            Processing document... {progress}%
-          </p>
-        </div>
-      )}
+      {isProcessing && <ProcessingProgress progress={progress} />}
       <Button 
         onClick={processDocument} 
         disabled={isProcessing || !documentUrl}

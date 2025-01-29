@@ -6,19 +6,7 @@ import { LeaseDocumentUpload } from "./LeaseDocumentUpload";
 import { SubmitButton } from "./SubmitButton";
 import { DocumentProcessor } from "./DocumentProcessor";
 import { useLeaseSubmission } from "./useLeaseSubmission";
-
-interface LeaseFormProps {
-  lease?: {
-    id: string;
-    tenant_id: string;
-    unit_id: string;
-    lease_start_date: string;
-    lease_end_date: string;
-    monthly_rent: number;
-    deposit_amount?: number;
-    escalation_rate?: number;
-  };
-}
+import { LeaseFormProps } from "./types";
 
 export const LeaseForm = ({ lease }: LeaseFormProps) => {
   const { form, onSubmit } = useLeaseForm(lease);

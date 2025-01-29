@@ -1,8 +1,5 @@
 import { FileUpload } from "./FileUpload";
-
-interface LeaseDocumentUploadProps {
-  onFileSelect: (file: File | null) => void;
-}
+import { LeaseDocumentUploadProps } from "./types";
 
 export const LeaseDocumentUpload = ({ onFileSelect }: LeaseDocumentUploadProps) => {
   return (

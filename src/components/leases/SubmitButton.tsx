@@ -1,10 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-
-interface SubmitButtonProps {
-  isLoading: boolean;
-  isEdit?: boolean;
-}
+import { SubmitButtonProps } from "./types";
 
 export const SubmitButton = ({ isLoading, isEdit }: SubmitButtonProps) => {
   return (
