@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import DashboardLayout from "@/components/layout/DashboardLayout";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building, ClipboardList, DollarSign, Wrench } from "lucide-react";
 import { PropertyOverview } from "@/components/properties/PropertyOverview";

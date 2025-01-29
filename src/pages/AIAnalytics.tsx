@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AIAssistant } from "@/components/ai-analytics/AIAssistant"
 import { AIInsights } from "@/components/ai-analytics/AIInsights"
-import DashboardLayout from "@/components/layout/DashboardLayout"
+import { DashboardLayout } from "@/components/layout/DashboardLayout"
 
 export default function AIAnalytics() {
   const [activeTab, setActiveTab] = useState("ai-assistant")

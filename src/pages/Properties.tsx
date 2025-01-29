@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import DashboardLayout from "@/components/layout/DashboardLayout";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { PropertyList } from "@/components/properties/PropertyList";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";

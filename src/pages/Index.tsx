@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import DashboardLayout from "@/components/layout/DashboardLayout";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { LandlordDashboard } from "@/components/dashboard/LandlordDashboard";
 import { TenantDashboard } from "@/components/dashboard/TenantDashboard";
 import { ContractorDashboard } from "@/components/dashboard/ContractorDashboard";

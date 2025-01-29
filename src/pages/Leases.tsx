@@ -1,4 +1,4 @@
-import DashboardLayout from "@/components/layout/DashboardLayout";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { LeaseList } from "@/components/leases/LeaseList";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
