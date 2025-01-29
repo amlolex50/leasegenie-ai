@@ -21,79 +21,32 @@ export const useDocumentProcessing = () => {
     setProgress(10);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Not authenticated');
-      }
-      setProgress(30);
-
-      const payload = {
-        urls: [documentUrl],
-        leaseId: leaseId,
-      };
-
-      // Detailed logging of the request
-      console.group('Document Processing Request Details');
-      console.log('Document URL:', documentUrl);
-      console.log('Lease ID:', leaseId);
-      console.log('Full payload:', payload);
-      console.log('Headers:', {
-        Authorization: `Bearer ${session.access_token.substring(0, 10)}...`, // Log partial token for security
-        'Content-Type': 'application/json'
-      });
-      console.groupEnd();
-
-      const processResult = await supabase.functions.invoke('process-lease-documents', {
-        body: JSON.stringify(payload),
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        }
+      console.log('Starting document processing with URL:', documentUrl);
+      
+      // Step 1: Extract text from document
+      const extractResult = await supabase.functions.invoke('extract-lease-text', {
+        body: JSON.stringify({ documentUrl })
       });
 
-      // Log the response details
-      console.group('Document Processing Response');
-      console.log('Status:', processResult.error ? 'Error' : 'Success');
-      console.log('Response data:', processResult.data);
-      if (processResult.error) {
-        console.error('Error details:', processResult.error);
-      }
-      console.groupEnd();
+      console.log('Text extraction result:', extractResult);
 
-      if (processResult.error) {
-        throw processResult.error;
+      if (extractResult.error) {
+        throw new Error(`Text extraction failed: ${extractResult.error.message}`);
       }
 
-      if (!processResult.data) {
-        throw new Error('No data returned from processing');
+      if (!extractResult.data?.text) {
+        throw new Error('No text extracted from document');
       }
 
-      setProgress(60);
-
-      const embeddingResult = await supabase.functions.invoke('store-document-embeddings', {
-        body: JSON.stringify({
-          documentText: processResult.data.text,
-          leaseId,
-        }),
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        }
-      });
-
-      // Log embedding result
-      console.group('Embedding Processing');
-      console.log('Embedding result:', embeddingResult);
-      if (embeddingResult.error) {
-        console.error('Embedding error:', embeddingResult.error);
-      }
-      console.groupEnd();
-
-      setProgress(90);
+      setProgress(50);
+      
+      // Store the extracted text temporarily
+      // We'll use this in Step 2 for OpenAI analysis
+      console.log('Extracted text:', extractResult.data.text);
 
       toast({
         title: "Success",
-        description: "Document processed successfully",
+        description: "Text extracted successfully",
       });
 
       setProgress(100);
