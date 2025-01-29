@@ -80,7 +80,7 @@ async function processWithOpenAI(text: string): Promise<any> {
   console.log('Processing with OpenAI...')
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4",
       messages: [
         {
           role: "system",
@@ -129,21 +129,28 @@ serve(async (req) => {
       throw new Error('Method not allowed')
     }
 
-    // Parse request body
-    const requestBody = await req.json().catch(() => {
+    // Parse request body with error handling
+    let requestBody;
+    try {
+      requestBody = await req.json()
+      console.log('Received request body:', JSON.stringify(requestBody))
+    } catch (error) {
+      console.error('Error parsing request body:', error)
       throw new Error('Invalid JSON in request body')
-    })
+    }
 
+    // Validate required fields
     const { urls, leaseId } = requestBody
-    console.log('Processing documents for lease:', leaseId, 'URLs:', urls)
-
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
-      throw new Error('No URLs provided')
+      throw new Error('No URLs provided in request body')
     }
 
     if (!leaseId) {
-      throw new Error('No lease ID provided')
+      throw new Error('No lease ID provided in request body')
     }
+
+    console.log('Processing documents for lease:', leaseId)
+    console.log('URLs to process:', urls)
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
@@ -162,7 +169,7 @@ serve(async (req) => {
     }
 
     const { data: { user }, error: userError } = await supabase.auth.getUser(
-      authHeader.split(' ')[1]
+      authHeader.replace('Bearer ', '')
     )
 
     if (userError || !user) {
@@ -200,7 +207,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ ...result, text: documentText }),
+      JSON.stringify({ success: true, ...result, text: documentText }),
       { 
         headers: { 
           ...corsHeaders, 
@@ -212,7 +219,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in process-lease-documents function:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        success: false, 
+        error: error.message || 'An unexpected error occurred'
+      }),
       { 
         status: 500,
         headers: { 
