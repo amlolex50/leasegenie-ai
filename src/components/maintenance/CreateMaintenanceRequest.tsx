@@ -168,10 +168,23 @@ export function CreateMaintenanceRequest() {
         if (updateError) throw updateError;
       }
 
-      toast({
-        title: "Success",
-        description: "Maintenance request submitted successfully",
+      // Trigger the auto-assignment process
+      const { error: assignmentError } = await supabase.functions.invoke('auto-assign-maintenance', {
+        body: { maintenanceRequestId: maintenanceRequest.id }
       });
+
+      if (assignmentError) {
+        console.error('Error in auto-assignment:', assignmentError);
+        toast({
+          title: "Note",
+          description: "Request submitted, but automatic assignment is pending. Our team will review it shortly.",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Maintenance request submitted and automatically assigned!",
+        });
+      }
 
       // Reset form
       setFormData({
