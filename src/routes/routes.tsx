@@ -20,6 +20,7 @@ import Financials from "@/pages/Financials";
 import AIAnalytics from "@/pages/AIAnalytics";
 import Settings from "@/pages/Settings";
 import ManageContractors from "@/pages/ManageContractors";
+import ContractorDashboard from "@/pages/ContractorDashboard";
 
 export const createRoutes = (session: any) => [
   {
@@ -105,5 +106,9 @@ export const createRoutes = (session: any) => [
   {
     path: "/contractors",
     element: session ? <ManageContractors /> : <Navigate to="/auth" replace />,
+  },
+  {
+    path: "/contractors/:id",
+    element: session ? <ContractorDashboard /> : <Navigate to="/auth" replace />,
   },
 ];

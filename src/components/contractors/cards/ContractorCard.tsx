@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit, MapPin, Wrench, DollarSign, Star } from "lucide-react";
 import { Contractor } from "../types";
+import { useNavigate } from "react-router-dom";
 
 interface ContractorCardProps {
   contractor: Contractor;
@@ -10,8 +11,14 @@ interface ContractorCardProps {
 }
 
 export const ContractorCard = ({ contractor, onEdit }: ContractorCardProps) => {
+  const navigate = useNavigate();
+
   return (
-    <Card key={contractor.id} className="p-6 space-y-4 animate-fade-in">
+    <Card 
+      key={contractor.id} 
+      className="p-6 space-y-4 animate-fade-in cursor-pointer hover:shadow-lg transition-all"
+      onClick={() => navigate(`/contractors/${contractor.id}`)}
+    >
       <div className="flex justify-between items-start">
         <div>
           <h3 className="font-semibold text-lg">{contractor.full_name}</h3>
@@ -20,7 +27,10 @@ export const ContractorCard = ({ contractor, onEdit }: ContractorCardProps) => {
         <Button 
           variant="ghost" 
           size="icon"
-          onClick={() => onEdit(contractor)}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent card click when editing
+            onEdit(contractor);
+          }}
           className="hover:scale-105 transition-transform"
         >
           <Edit className="h-4 w-4" />
