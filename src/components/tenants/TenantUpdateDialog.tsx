@@ -22,6 +22,9 @@ export const TenantUpdateDialog = ({ open, onOpenChange, tenant }: TenantUpdateD
     email: tenant.email,
     phone: tenant.phone || "",
     location: tenant.location || "",
+    date_of_birth: tenant.date_of_birth || "",
+    nationality: tenant.nationality || "",
+    gender: tenant.gender || "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,13 +69,17 @@ export const TenantUpdateDialog = ({ open, onOpenChange, tenant }: TenantUpdateD
         <DialogHeader>
           <DialogTitle>Update Tenant Details</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in">
           <TenantFormFields formData={formData} setFormData={setFormData} />
           <div className="flex justify-end gap-4 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+              className="hover:scale-105 transition-transform"
+            >
               {isLoading ? "Updating..." : "Update Tenant"}
             </Button>
           </div>
