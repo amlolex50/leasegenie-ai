@@ -27,12 +27,12 @@ export const DocumentProcessor = ({ leaseId, documentUrl, onProcessingComplete }
     }
 
     setIsProcessing(true);
-    setProgress(10); // Start progress
+    setProgress(10);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
-      setProgress(30); // Update progress before API call
+      setProgress(30);
 
       const response = await fetch('/functions/v1/process-lease-documents', {
         method: 'POST',
@@ -46,24 +46,23 @@ export const DocumentProcessor = ({ leaseId, documentUrl, onProcessingComplete }
         }),
       });
 
-      setProgress(60); // Update progress after API call
+      setProgress(60);
 
       if (!response.ok) {
         throw new Error('Failed to process document');
       }
 
-      const result = await response.json();
+      await response.json();
       
-      setProgress(90); // Almost done
+      setProgress(90);
 
       toast({
         title: "Success",
         description: "Document processed successfully",
       });
 
-      setProgress(100); // Complete
+      setProgress(100);
 
-      // Small delay to show completion before navigating
       setTimeout(() => {
         onProcessingComplete?.();
       }, 500);
@@ -75,7 +74,7 @@ export const DocumentProcessor = ({ leaseId, documentUrl, onProcessingComplete }
         description: error.message || "Failed to process document",
         variant: "destructive",
       });
-      setProgress(0); // Reset progress on error
+      setProgress(0);
     } finally {
       setIsProcessing(false);
     }

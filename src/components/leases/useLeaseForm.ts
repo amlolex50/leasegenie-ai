@@ -13,8 +13,10 @@ const leaseFormSchema = z.object({
   escalation_rate: z.string().optional(),
 });
 
+type LeaseFormData = z.infer<typeof leaseFormSchema>;
+
 export const useLeaseForm = (lease?: any) => {
-  const form = useForm({
+  const form = useForm<LeaseFormData>({
     resolver: zodResolver(leaseFormSchema),
     defaultValues: {
       tenant_id: lease?.tenant_id || "",
@@ -27,7 +29,7 @@ export const useLeaseForm = (lease?: any) => {
     },
   });
 
-  const onSubmit = async (values: any) => {
+  const onSubmit = async (values: LeaseFormData) => {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) throw new Error("Not authenticated");
 
