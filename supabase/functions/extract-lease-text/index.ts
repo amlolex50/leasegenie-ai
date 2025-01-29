@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,13 +13,13 @@ serve(async (req) => {
 
   try {
     // Parse the request body
-    const { documentUrl } = await req.json()
+    const { urls } = await req.json()
 
-    if (!documentUrl) {
-      throw new Error('No document URL provided')
+    if (!urls || !Array.isArray(urls) || urls.length === 0) {
+      throw new Error('No document URLs provided')
     }
 
-    console.log('Processing document:', documentUrl)
+    console.log('Processing document:', urls)
 
     // Call the cloud function to extract text
     const response = await fetch('https://us-central1-note-maply-57akxp.cloudfunctions.net/process_images', {
@@ -29,7 +28,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        image_urls: [documentUrl]
+        image_urls: urls
       })
     })
 

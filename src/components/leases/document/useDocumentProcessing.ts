@@ -24,9 +24,9 @@ export const useDocumentProcessing = () => {
       // Step 1: Extract text from document
       console.log('Starting text extraction for document:', documentUrl);
       const extractResult = await supabase.functions.invoke('extract-lease-text', {
-        body: JSON.stringify({
+        body: {
           urls: [documentUrl]
-        })
+        }
       });
 
       if (extractResult.error) {
@@ -34,15 +34,15 @@ export const useDocumentProcessing = () => {
       }
 
       setProgress(50);
-      console.log('Text extracted successfully');
+      console.log('Text extracted successfully:', extractResult.data);
 
       // Step 2: Generate insights using OpenAI
       console.log('Starting insight generation');
       const insightResult = await supabase.functions.invoke('generate-lease-insights', {
-        body: JSON.stringify({
+        body: {
           documentText: extractResult.data.text,
           leaseId
-        })
+        }
       });
 
       if (insightResult.error) {
@@ -50,7 +50,7 @@ export const useDocumentProcessing = () => {
       }
 
       setProgress(90);
-      console.log('Insights generated successfully');
+      console.log('Insights generated successfully:', insightResult.data);
 
       // Step 3: Update lease with insights
       const { error: updateError } = await supabase
