@@ -1,10 +1,10 @@
 import { Form } from "@/components/ui/form";
 import { useLeaseForm } from "./useLeaseForm";
-import { LeaseFormFields } from "./LeaseFormFields";
+import { LeaseFormFields } from "./form/LeaseFormFields";
 import { useState } from "react";
-import { LeaseDocumentUpload } from "./LeaseDocumentUpload";
+import { LeaseDocumentUpload } from "./document/LeaseDocumentUpload";
 import { SubmitButton } from "./SubmitButton";
-import { DocumentProcessor } from "./DocumentProcessor";
+import { DocumentProcessor } from "./document/DocumentProcessor";
 import { useLeaseSubmission } from "./useLeaseSubmission";
 import { LeaseFormProps } from "./types";
 
