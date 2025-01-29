@@ -9,9 +9,9 @@ interface StatCardProps {
 }
 
 export const StatCard = ({ icon: Icon, label, value, trend }: StatCardProps) => (
-  <Card className="hover:shadow-lg transition-shadow bg-white">
+  <Card className="hover:shadow-lg transition-shadow bg-white/50 backdrop-blur-sm border-blue-100">
     <CardHeader className="flex flex-row items-center justify-between pb-2">
-      <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
+      <CardTitle className="text-sm font-medium text-gray-500">{label}</CardTitle>
       <Icon className="h-4 w-4 text-blue-500" />
     </CardHeader>
     <CardContent>
