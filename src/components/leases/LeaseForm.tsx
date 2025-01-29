@@ -43,11 +43,6 @@ export const LeaseForm = ({ lease }: LeaseFormProps) => {
 
     setIsLoading(true);
     try {
-      toast({
-        title: "Processing",
-        description: "Creating lease and uploading document...",
-      });
-
       const leaseResult = await onSubmit(data);
       
       if (!leaseResult?.id) {
@@ -80,15 +75,18 @@ export const LeaseForm = ({ lease }: LeaseFormProps) => {
           .eq('id', leaseResult.id);
 
         if (updateError) throw updateError;
-      }
 
-      toast({
-        title: "Success",
-        description: `Lease ${lease ? 'updated' : 'created'} successfully`,
-      });
-
-      // Don't navigate immediately if we need to process the document
-      if (!selectedFile) {
+        // Show success message but don't navigate yet
+        toast({
+          title: "Success",
+          description: "Lease created successfully. Processing document...",
+        });
+      } else {
+        // If no document to process, navigate immediately
+        toast({
+          title: "Success",
+          description: `Lease ${lease ? 'updated' : 'created'} successfully`,
+        });
         navigate('/leases');
       }
     } catch (error: any) {
@@ -103,6 +101,10 @@ export const LeaseForm = ({ lease }: LeaseFormProps) => {
   };
 
   const handleProcessingComplete = () => {
+    toast({
+      title: "Success",
+      description: "Document processed successfully",
+    });
     navigate('/leases');
   };
 
