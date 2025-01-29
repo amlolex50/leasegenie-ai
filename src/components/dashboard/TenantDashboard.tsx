@@ -5,6 +5,10 @@ import { Home, Wrench, Calendar } from "lucide-react";
 import { TenantHeader } from "./tenant/TenantHeader";
 import { PersonalInfoCard } from "./tenant/PersonalInfoCard";
 import { LeasesTable } from "./tenant/LeasesTable";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { CreateMaintenanceRequest } from "@/components/maintenance/CreateMaintenanceRequest";
+import { MaintenanceRequests } from "@/components/maintenance/MaintenanceRequests";
 
 interface TenantDashboardProps {
   tenantId?: string;
@@ -82,6 +86,24 @@ export const TenantDashboard = ({ tenantId }: TenantDashboardProps) => {
           label="Next Payment"
           value="Mar 1, 2024"
         />
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-semibold tracking-tight">Maintenance Requests</h2>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <Wrench className="mr-2 h-4 w-4" />
+                New Request
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl">
+              <CreateMaintenanceRequest />
+            </DialogContent>
+          </Dialog>
+        </div>
+        <MaintenanceRequests />
       </div>
 
       <LeasesTable leases={leases || []} />
