@@ -21,6 +21,9 @@ export const TenantDialog = ({ open, onOpenChange }: TenantDialogProps) => {
     email: "",
     phone: "",
     location: "",
+    date_of_birth: "",
+    nationality: "",
+    gender: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {

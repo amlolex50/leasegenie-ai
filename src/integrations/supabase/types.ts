@@ -549,12 +549,15 @@ export type Database = {
         Row: {
           availability_status: string | null
           created_at: string
+          date_of_birth: string | null
           email: string
           full_name: string
+          gender: string | null
           hourly_rate: number | null
           id: string
           landlord_id: string | null
           location: string | null
+          nationality: string | null
           phone: string | null
           rating: number | null
           role: string
@@ -565,12 +568,15 @@ export type Database = {
         Insert: {
           availability_status?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email: string
           full_name: string
+          gender?: string | null
           hourly_rate?: number | null
           id?: string
           landlord_id?: string | null
           location?: string | null
+          nationality?: string | null
           phone?: string | null
           rating?: number | null
           role: string
@@ -581,12 +587,15 @@ export type Database = {
         Update: {
           availability_status?: string | null
           created_at?: string
+          date_of_birth?: string | null
           email?: string
           full_name?: string
+          gender?: string | null
           hourly_rate?: number | null
           id?: string
           landlord_id?: string | null
           location?: string | null
+          nationality?: string | null
           phone?: string | null
           rating?: number | null
           role?: string
