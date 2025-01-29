@@ -6,9 +6,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { StatCard } from "./StatCard";
 import { Wrench, Calendar, DollarSign } from "lucide-react";
 
-export const ContractorDashboard = () => {
+interface ContractorDashboardProps {
+  contractorId?: string;
+}
+
+export const ContractorDashboard = ({ contractorId }: ContractorDashboardProps) => {
   const { data: workOrders } = useQuery({
-    queryKey: ['contractor_work_orders'],
+    queryKey: ['contractor_work_orders', contractorId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('work_orders')
@@ -25,10 +29,11 @@ export const ContractorDashboard = () => {
             )
           )
         `)
-        .eq('contractor_id', (await supabase.auth.getUser()).data.user?.id);
+        .eq('contractor_id', contractorId || (await supabase.auth.getUser()).data.user?.id);
       if (error) throw error;
       return data;
-    }
+    },
+    enabled: !!contractorId
   });
 
   return (
