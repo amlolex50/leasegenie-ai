@@ -50,7 +50,7 @@ export default function MaintenancePage() {
               </DialogContent>
             </Dialog>
 
-            {userRole === 'CONTRACTOR' && (
+            {userRole === 'LANDLORD' && (
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="secondary">
