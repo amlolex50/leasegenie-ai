@@ -21,6 +21,7 @@ import AIAnalytics from "@/pages/AIAnalytics";
 import Settings from "@/pages/Settings";
 import ManageContractors from "@/pages/ManageContractors";
 import ContractorDashboard from "@/pages/ContractorDashboard";
+import ManageTenants from "@/pages/ManageTenants";
 
 export const createRoutes = (session: any) => [
   {
@@ -110,5 +111,9 @@ export const createRoutes = (session: any) => [
   {
     path: "/contractors/:id",
     element: session ? <ContractorDashboard /> : <Navigate to="/auth" replace />,
+  },
+  {
+    path: "/tenants",
+    element: session ? <ManageTenants /> : <Navigate to="/auth" replace />,
   },
 ];
