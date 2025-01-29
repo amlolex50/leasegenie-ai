@@ -32,12 +32,17 @@ export const useDocumentProcessing = () => {
         leaseId: leaseId,
       };
 
-      // Log the payload and headers being sent
-      console.log('Sending request to process-lease-documents with payload:', JSON.stringify(payload));
-      console.log('Using auth token:', session.access_token);
+      // Log request details for debugging
+      console.log('Sending request to process-lease-documents:', {
+        payload,
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
       const processResult = await supabase.functions.invoke('process-lease-documents', {
-        body: payload,
+        body: JSON.stringify(payload),
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
@@ -45,10 +50,10 @@ export const useDocumentProcessing = () => {
       });
 
       // Log the response
-      console.log('Received response from process-lease-documents:', processResult);
+      console.log('Process documents response:', processResult);
 
       if (processResult.error) {
-        console.error('Error from process-lease-documents:', processResult.error);
+        console.error('Process documents error:', processResult.error);
         throw processResult.error;
       }
 
@@ -59,10 +64,10 @@ export const useDocumentProcessing = () => {
       setProgress(60);
 
       const embeddingResult = await supabase.functions.invoke('store-document-embeddings', {
-        body: {
+        body: JSON.stringify({
           documentText: processResult.data.text,
           leaseId,
-        },
+        }),
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
@@ -85,6 +90,7 @@ export const useDocumentProcessing = () => {
 
       setProgress(100);
       return true;
+
     } catch (error: any) {
       console.error('Error processing document:', error);
       toast({

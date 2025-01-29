@@ -128,14 +128,16 @@ serve(async (req) => {
     console.log('Request method:', req.method);
     console.log('Request headers:', Object.fromEntries(req.headers.entries()));
     
-    // Get the raw body text
-    const rawBody = await req.text();
-    console.log('Raw request body:', rawBody);
+    // Get and validate content type
+    const contentType = req.headers.get('content-type');
+    if (!contentType?.includes('application/json')) {
+      throw new Error('Content-Type must be application/json');
+    }
 
-    // Try to parse the JSON
+    // Get the raw body text and parse it
     let requestBody;
     try {
-      requestBody = JSON.parse(rawBody);
+      requestBody = await req.json();
       console.log('Parsed request body:', requestBody);
     } catch (error) {
       console.error('Error parsing request body:', error);
@@ -185,8 +187,8 @@ serve(async (req) => {
       throw new Error('No text extracted from document')
     }
     
-    // Try Deepseek first, fallback to OpenAI if it fails
-    let result
+    // Process document
+    let result;
     try {
       result = await processWithDeepseek(documentText, user.id)
     } catch (deepseekError) {
@@ -196,7 +198,7 @@ serve(async (req) => {
 
     console.log('Document processing result:', result)
 
-    // Update the lease with the processed insights
+    // Update lease with insights
     if (result.insights && leaseId) {
       const { error: updateError } = await supabase
         .from('leases')
@@ -210,7 +212,11 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, ...result, text: documentText }),
+      JSON.stringify({ 
+        success: true, 
+        ...result, 
+        text: documentText 
+      }),
       { 
         headers: { 
           ...corsHeaders, 
