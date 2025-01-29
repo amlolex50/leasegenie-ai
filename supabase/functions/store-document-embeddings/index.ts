@@ -49,20 +49,32 @@ serve(async (req) => {
     }
     const documentText = await response.text()
 
+    // Check for OpenAI API key
+    const openAiApiKey = Deno.env.get('OPENAI_API_KEY')
+    if (!openAiApiKey) {
+      throw new Error('OPENAI_API_KEY is not configured')
+    }
+
     // Initialize OpenAI
     const configuration = new Configuration({
-      apiKey: Deno.env.get('OPENAI_API_KEY'),
+      apiKey: openAiApiKey,
     })
     const openai = new OpenAIApi(configuration)
 
+    console.log('Creating embeddings...')
     // Create embeddings
     const embeddingResponse = await openai.createEmbedding({
       model: "text-embedding-ada-002",
       input: documentText,
     })
 
+    if (!embeddingResponse.data.data || embeddingResponse.data.data.length === 0) {
+      throw new Error('Failed to generate embeddings')
+    }
+
     const [{ embedding }] = embeddingResponse.data.data
 
+    console.log('Storing embeddings in vectorstore...')
     // Store in vectorstore with both owner (uploader) and tenant IDs
     const { error: insertError } = await supabase
       .from('vectorstore')

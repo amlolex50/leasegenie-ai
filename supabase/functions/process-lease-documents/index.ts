@@ -36,12 +36,18 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
+    const deepseekApiKey = Deno.env.get('DEEPSEEK_API_KEY')
+    if (!deepseekApiKey) {
+      throw new Error('DEEPSEEK_API_KEY is not configured')
+    }
+
+    console.log('Calling Deepseek API...')
     // Call the document processing endpoint using DEEPSEEK API
     const response = await fetch('https://api.deepseek.com/v1/extract', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${deepseekApiKey}`,
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Deno.env.get('DEEPSEEK_API_KEY')}`,
       },
       body: JSON.stringify({
         urls: urls,
@@ -50,8 +56,9 @@ serve(async (req) => {
     })
 
     if (!response.ok) {
-      console.error('Deepseek API error:', await response.text())
-      throw new Error('Failed to process document with Deepseek API')
+      const errorText = await response.text()
+      console.error('Deepseek API error response:', errorText)
+      throw new Error(`Deepseek API failed with status ${response.status}: ${errorText}`)
     }
 
     const result = await response.json()
