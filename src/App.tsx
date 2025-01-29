@@ -25,6 +25,7 @@ import Maintenance from "./pages/Maintenance";
 import Financials from "./pages/Financials";
 import AIAnalytics from "./pages/AIAnalytics";
 import Settings from "./pages/Settings";
+import ManageContractors from "./pages/ManageContractors";
 
 const queryClient = new QueryClient();
 
@@ -156,6 +157,12 @@ const App = () => {
                 path="/ai-analytics"
                 element={
                   session ? <AIAnalytics /> : <Navigate to="/auth" replace />
+                }
+              />
+              <Route
+                path="/contractors"
+                element={
+                  session ? <ManageContractors /> : <Navigate to="/auth" replace />
                 }
               />
             </Routes>

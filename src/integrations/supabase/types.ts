@@ -547,33 +547,51 @@ export type Database = {
       }
       users: {
         Row: {
+          availability_status: string | null
           created_at: string
           email: string
           full_name: string
+          hourly_rate: number | null
           id: string
           landlord_id: string | null
+          location: string | null
           phone: string | null
+          rating: number | null
           role: string
+          skills: string[] | null
+          speciality: string | null
           updated_at: string
         }
         Insert: {
+          availability_status?: string | null
           created_at?: string
           email: string
           full_name: string
+          hourly_rate?: number | null
           id?: string
           landlord_id?: string | null
+          location?: string | null
           phone?: string | null
+          rating?: number | null
           role: string
+          skills?: string[] | null
+          speciality?: string | null
           updated_at?: string
         }
         Update: {
+          availability_status?: string | null
           created_at?: string
           email?: string
           full_name?: string
+          hourly_rate?: number | null
           id?: string
           landlord_id?: string | null
+          location?: string | null
           phone?: string | null
+          rating?: number | null
           role?: string
+          skills?: string[] | null
+          speciality?: string | null
           updated_at?: string
         }
         Relationships: [
