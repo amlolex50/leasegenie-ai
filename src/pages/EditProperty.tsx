@@ -1,4 +1,4 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import { PropertyForm } from "@/components/properties/PropertyForm";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";

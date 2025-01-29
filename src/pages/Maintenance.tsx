@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MaintenanceRequests } from "@/components/maintenance/MaintenanceRequests";
 import { WorkOrders } from "@/components/maintenance/WorkOrders";
 import { CreateMaintenanceRequest } from "@/components/maintenance/CreateMaintenanceRequest";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 
 export default function MaintenancePage() {
   const [activeTab, setActiveTab] = useState("requests");

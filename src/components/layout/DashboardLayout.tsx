@@ -9,7 +9,11 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-const DashboardLayout = () => {
+interface DashboardLayoutProps {
+  children?: React.ReactNode;
+}
+
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -77,7 +81,7 @@ const DashboardLayout = () => {
 
           {/* Main Content */}
           <div className="p-6">
-            <Outlet />
+            {children || <Outlet />}
           </div>
         </div>
       </div>

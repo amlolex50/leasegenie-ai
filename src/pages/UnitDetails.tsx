@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import { UnitInformation } from "@/components/properties/unit-details/UnitInformation";
 import { PropertyInformation } from "@/components/properties/unit-details/PropertyInformation";
 import { UnitImageGallery } from "@/components/properties/UnitImageGallery";
