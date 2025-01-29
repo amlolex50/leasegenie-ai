@@ -6,9 +6,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { StatCard } from "./StatCard";
 import { Home, Wrench, Calendar } from "lucide-react";
 
-export const TenantDashboard = () => {
+interface TenantDashboardProps {
+  tenantId?: string;
+}
+
+export const TenantDashboard = ({ tenantId }: TenantDashboardProps) => {
   const { data: leases } = useQuery({
-    queryKey: ['tenant_leases'],
+    queryKey: ['tenant_leases', tenantId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('leases')
@@ -19,19 +23,19 @@ export const TenantDashboard = () => {
             properties (*)
           )
         `)
-        .eq('tenant_id', (await supabase.auth.getUser()).data.user?.id);
+        .eq('tenant_id', tenantId || (await supabase.auth.getUser()).data.user?.id);
       if (error) throw error;
       return data;
     }
   });
 
   const { data: maintenanceRequests } = useQuery({
-    queryKey: ['tenant_maintenance'],
+    queryKey: ['tenant_maintenance', tenantId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('maintenance_requests')
         .select('*')
-        .eq('submitted_by', (await supabase.auth.getUser()).data.user?.id);
+        .eq('submitted_by', tenantId || (await supabase.auth.getUser()).data.user?.id);
       if (error) throw error;
       return data;
     }
