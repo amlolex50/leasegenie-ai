@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatCard } from "./StatCard";
-import { Wrench, Calendar, DollarSign, Mail, MapPin, ListChecks } from "lucide-react";
+import { Wrench, Calendar, DollarSign } from "lucide-react";
+import { ContractorInfoCard } from "./contractor/ContractorInfoCard";
+import { WorkOrdersTable } from "./contractor/WorkOrdersTable";
 
 interface ContractorDashboardProps {
   contractorId?: string;
@@ -57,52 +57,7 @@ export const ContractorDashboard = ({ contractorId }: ContractorDashboardProps) 
         <p className="text-muted-foreground mt-2">Manage your work orders and invoices</p>
       </div>
 
-      {contractor && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Contractor Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 gap-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center space-x-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span>{contractor.email}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span>{contractor.location || 'Location not specified'}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Wrench className="h-4 w-4 text-muted-foreground" />
-                  <span>{contractor.speciality || 'Speciality not specified'}</span>
-                </div>
-              </div>
-              
-              <div className="border-t pt-4">
-                <div className="flex items-center space-x-2 mb-2">
-                  <ListChecks className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Skills</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {contractor.skills && contractor.skills.length > 0 ? (
-                    contractor.skills.map((skill, index) => (
-                      <span 
-                        key={index}
-                        className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm"
-                      >
-                        {skill}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-muted-foreground">No skills specified</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {contractor && <ContractorInfoCard contractor={contractor} />}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
@@ -129,32 +84,7 @@ export const ContractorDashboard = ({ contractorId }: ContractorDashboardProps) 
           <CardTitle>Active Work Orders</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Property</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {workOrders?.map((order: any) => (
-                <TableRow key={order.id}>
-                  <TableCell>
-                    {order.maintenance_requests?.leases?.units?.properties?.name} - {order.maintenance_requests?.leases?.units?.unit_name}
-                  </TableCell>
-                  <TableCell>{order.maintenance_requests?.description}</TableCell>
-                  <TableCell>{order.status}</TableCell>
-                  <TableCell>{order.estimated_completion}</TableCell>
-                  <TableCell>
-                    <Button variant="outline" size="sm">Update Status</Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {workOrders && <WorkOrdersTable workOrders={workOrders} />}
         </CardContent>
       </Card>
     </div>
