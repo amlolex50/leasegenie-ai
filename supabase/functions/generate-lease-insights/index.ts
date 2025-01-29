@@ -28,7 +28,7 @@ serve(async (req) => {
     }
 
     const systemPrompt = `You are a lease document analyzer. Extract key insights from the lease document text provided. 
-    Format the response as a JSON object with the following structure:
+    Format the response as a JSON object with the following structure, and ONLY return the JSON object with no markdown formatting or additional text:
     {
       "leaseDuration": {
         "startDate": "YYYY-MM-DD",
@@ -39,7 +39,7 @@ serve(async (req) => {
       "financials": {
         "monthlyRent": number,
         "depositAmount": number,
-        "escalationRate": number (optional),
+        "escalationRate": number,
         "description": "string"
       },
       "property": {
