@@ -33,24 +33,38 @@ export const useDocumentProcessing = () => {
         throw new Error(`Text extraction failed: ${extractResult.error.message}`);
       }
 
-      setProgress(50);
+      setProgress(40);
       console.log('Text extracted successfully:', extractResult.data);
 
-      // Step 2: Generate insights using OpenAI
-      console.log('Starting insight generation');
-      const insightResult = await supabase.functions.invoke('generate-lease-insights', {
-        body: {
-          documentText: extractResult.data.text,
-          leaseId
-        }
-      });
+      // Step 2: Run generate insights and store embeddings in parallel
+      const [insightResult, embeddingResult] = await Promise.all([
+        // Generate insights using OpenAI
+        supabase.functions.invoke('generate-lease-insights', {
+          body: {
+            documentText: extractResult.data.text,
+            leaseId
+          }
+        }),
+        // Store document embeddings
+        supabase.functions.invoke('store-document-embeddings', {
+          body: {
+            documentText: extractResult.data.text,
+            leaseId
+          }
+        })
+      ]);
+
+      setProgress(70);
+      console.log('Parallel processing completed');
 
       if (insightResult.error) {
         throw new Error(`Insight generation failed: ${insightResult.error.message}`);
       }
 
-      setProgress(90);
-      console.log('Insights generated successfully:', insightResult.data);
+      if (embeddingResult.error) {
+        console.error('Embedding storage failed:', embeddingResult.error);
+        // Don't throw here as we still want to continue if insights succeeded
+      }
 
       // Step 3: Update lease with insights
       const { error: updateError } = await supabase
