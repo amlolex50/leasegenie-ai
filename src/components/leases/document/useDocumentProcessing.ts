@@ -27,23 +27,28 @@ export const useDocumentProcessing = () => {
       }
       setProgress(30);
 
-      console.log('Starting document processing with payload:', {
+      const payload = {
         urls: [documentUrl],
         leaseId: leaseId,
-      });
+      };
+
+      // Log the payload and headers being sent
+      console.log('Sending request to process-lease-documents with payload:', JSON.stringify(payload));
+      console.log('Using auth token:', session.access_token);
 
       const processResult = await supabase.functions.invoke('process-lease-documents', {
-        body: JSON.stringify({
-          urls: [documentUrl],
-          leaseId: leaseId,
-        }),
+        body: payload,
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
         }
       });
 
+      // Log the response
+      console.log('Received response from process-lease-documents:', processResult);
+
       if (processResult.error) {
+        console.error('Error from process-lease-documents:', processResult.error);
         throw processResult.error;
       }
 
@@ -54,15 +59,18 @@ export const useDocumentProcessing = () => {
       setProgress(60);
 
       const embeddingResult = await supabase.functions.invoke('store-document-embeddings', {
-        body: JSON.stringify({
+        body: {
           documentText: processResult.data.text,
           leaseId,
-        }),
+        },
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
         }
       });
+
+      // Log embedding result
+      console.log('Embedding result:', embeddingResult);
 
       if (embeddingResult.error) {
         console.error('Error storing embeddings:', embeddingResult.error);

@@ -124,33 +124,36 @@ serve(async (req) => {
   }
 
   try {
-    // Validate request method
-    if (req.method !== 'POST') {
-      throw new Error('Method not allowed')
-    }
+    // Log request details
+    console.log('Request method:', req.method);
+    console.log('Request headers:', Object.fromEntries(req.headers.entries()));
+    
+    // Get the raw body text
+    const rawBody = await req.text();
+    console.log('Raw request body:', rawBody);
 
-    // Parse request body with error handling
+    // Try to parse the JSON
     let requestBody;
     try {
-      requestBody = await req.json()
-      console.log('Received request body:', JSON.stringify(requestBody))
+      requestBody = JSON.parse(rawBody);
+      console.log('Parsed request body:', requestBody);
     } catch (error) {
-      console.error('Error parsing request body:', error)
-      throw new Error('Invalid JSON in request body')
+      console.error('Error parsing request body:', error);
+      throw new Error(`Invalid JSON in request body: ${error.message}`);
     }
 
     // Validate required fields
-    const { urls, leaseId } = requestBody
+    const { urls, leaseId } = requestBody;
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
-      throw new Error('No URLs provided in request body')
+      throw new Error('No URLs provided in request body');
     }
 
     if (!leaseId) {
-      throw new Error('No lease ID provided in request body')
+      throw new Error('No lease ID provided in request body');
     }
 
-    console.log('Processing documents for lease:', leaseId)
-    console.log('URLs to process:', urls)
+    console.log('Processing documents for lease:', leaseId);
+    console.log('URLs to process:', urls);
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
@@ -217,7 +220,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error in process-lease-documents function:', error)
+    console.error('Error in process-lease-documents function:', error);
     return new Response(
       JSON.stringify({ 
         success: false, 
