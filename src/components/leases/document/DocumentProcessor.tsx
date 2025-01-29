@@ -25,62 +25,56 @@ export const DocumentProcessor = ({ leaseId, documentUrl, onProcessingComplete }
     setProgress(10);
 
     try {
-      // Get the current session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
-        throw new Error('Authentication required');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
       }
+      setProgress(30);
 
-      console.log('Starting document processing for lease:', leaseId);
-      console.log('Document URL:', documentUrl);
-      
+      console.log('Starting document processing with payload:', {
+        urls: [documentUrl],
+        leaseId: leaseId,
+      });
+
       // Process document and get extracted text
       const processResult = await supabase.functions.invoke('process-lease-documents', {
-        body: {
+        body: JSON.stringify({
           urls: [documentUrl],
           leaseId: leaseId,
-        },
+        }),
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
         }
       });
 
       console.log('Process result:', processResult);
 
       if (processResult.error) {
-        throw new Error(processResult.error.message || 'Failed to process document');
+        throw processResult.error;
       }
 
-      if (!processResult.data || !processResult.data.text) {
-        throw new Error('No text extracted from document');
+      if (!processResult.data) {
+        throw new Error('No data returned from processing');
       }
 
       setProgress(60);
 
       // Store embeddings using the extracted text
-      console.log('Storing embeddings for lease:', leaseId);
       const embeddingResult = await supabase.functions.invoke('store-document-embeddings', {
-        body: {
+        body: JSON.stringify({
           documentText: processResult.data.text,
           leaseId,
-        },
+        }),
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
         }
       });
 
-      console.log('Embedding result:', embeddingResult);
-
       if (embeddingResult.error) {
         console.error('Error storing embeddings:', embeddingResult.error);
-        toast({
-          title: "Warning",
-          description: "Document processed but failed to store embeddings. Some AI features may be limited.",
-          variant: "destructive",
-        });
+        // Don't throw here, as we still want to continue if the main processing succeeded
       }
 
       setProgress(90);
@@ -100,7 +94,7 @@ export const DocumentProcessor = ({ leaseId, documentUrl, onProcessingComplete }
       console.error('Error processing document:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to process document. Please try again.",
+        description: error.message || "Failed to process document",
         variant: "destructive",
       });
       setProgress(0);
