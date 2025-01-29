@@ -32,14 +32,16 @@ export const useDocumentProcessing = () => {
         leaseId: leaseId,
       };
 
-      // Log request details for debugging
-      console.log('Sending request to process-lease-documents:', {
-        payload,
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json'
-        }
+      // Detailed logging of the request
+      console.group('Document Processing Request Details');
+      console.log('Document URL:', documentUrl);
+      console.log('Lease ID:', leaseId);
+      console.log('Full payload:', payload);
+      console.log('Headers:', {
+        Authorization: `Bearer ${session.access_token.substring(0, 10)}...`, // Log partial token for security
+        'Content-Type': 'application/json'
       });
+      console.groupEnd();
 
       const processResult = await supabase.functions.invoke('process-lease-documents', {
         body: JSON.stringify(payload),
@@ -49,11 +51,16 @@ export const useDocumentProcessing = () => {
         }
       });
 
-      // Log the response
-      console.log('Process documents response:', processResult);
+      // Log the response details
+      console.group('Document Processing Response');
+      console.log('Status:', processResult.error ? 'Error' : 'Success');
+      console.log('Response data:', processResult.data);
+      if (processResult.error) {
+        console.error('Error details:', processResult.error);
+      }
+      console.groupEnd();
 
       if (processResult.error) {
-        console.error('Process documents error:', processResult.error);
         throw processResult.error;
       }
 
@@ -75,11 +82,12 @@ export const useDocumentProcessing = () => {
       });
 
       // Log embedding result
+      console.group('Embedding Processing');
       console.log('Embedding result:', embeddingResult);
-
       if (embeddingResult.error) {
-        console.error('Error storing embeddings:', embeddingResult.error);
+        console.error('Embedding error:', embeddingResult.error);
       }
+      console.groupEnd();
 
       setProgress(90);
 
