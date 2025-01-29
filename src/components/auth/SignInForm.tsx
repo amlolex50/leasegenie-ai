@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -58,6 +58,14 @@ export const SignInForm = () => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+      </div>
+      <div className="flex justify-end">
+        <Link
+          to="/forgot-password"
+          className="text-sm text-muted-foreground hover:text-primary"
+        >
+          Forgot password?
+        </Link>
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? (

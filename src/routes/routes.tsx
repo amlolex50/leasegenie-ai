@@ -4,6 +4,7 @@ import Landing from "@/pages/Landing";
 import Features from "@/pages/Features";
 import HowItWorks from "@/pages/HowItWorks";
 import Auth from "@/pages/Auth";
+import ForgotPassword from "@/pages/ForgotPassword";
 import Properties from "@/pages/Properties";
 import PropertyDetails from "@/pages/PropertyDetails";
 import CreateProperty from "@/pages/CreateProperty";
@@ -36,6 +37,10 @@ export const createRoutes = (session: any) => [
   {
     path: "/auth",
     element: session ? <Navigate to="/dashboard" replace /> : <Auth />,
+  },
+  {
+    path: "/forgot-password",
+    element: session ? <Navigate to="/dashboard" replace /> : <ForgotPassword />,
   },
   {
     path: "/dashboard",
