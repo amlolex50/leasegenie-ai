@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
-import { Configuration, OpenAIApi } from 'https://esm.sh/openai@4.20.1'
+import OpenAI from "https://esm.sh/openai@4.20.1"
 import * as pdfjs from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/+esm'
 
 const corsHeaders = {
@@ -61,14 +61,11 @@ async function processWithOpenAI(text: string): Promise<any> {
     throw new Error('OPENAI_API_KEY is not configured')
   }
 
-  const configuration = new Configuration({
-    apiKey: openAiApiKey,
-  })
-  const openai = new OpenAIApi(configuration)
+  const openai = new OpenAI({ apiKey: openAiApiKey })
 
   console.log('Processing with OpenAI...')
-  const completion = await openai.createChatCompletion({
-    model: "gpt-4",
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4o",
     messages: [
       {
         role: "system",
@@ -81,7 +78,7 @@ async function processWithOpenAI(text: string): Promise<any> {
     ]
   })
 
-  return { insights: JSON.parse(completion.data.choices[0].message.content) }
+  return { insights: JSON.parse(completion.choices[0].message.content) }
 }
 
 serve(async (req) => {
