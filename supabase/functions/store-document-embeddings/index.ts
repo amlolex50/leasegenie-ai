@@ -31,6 +31,17 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
+    // Get lease details to get tenant ID
+    const { data: leaseData, error: leaseError } = await supabase
+      .from('leases')
+      .select('tenant_id')
+      .eq('id', leaseId)
+      .single()
+
+    if (leaseError || !leaseData) {
+      throw new Error('Failed to fetch lease details')
+    }
+
     // Download the document content
     const response = await fetch(documentUrl)
     if (!response.ok) {
@@ -52,7 +63,7 @@ serve(async (req) => {
 
     const [{ embedding }] = embeddingResponse.data.data
 
-    // Store in vectorstore
+    // Store in vectorstore with both owner (uploader) and tenant IDs
     const { error: insertError } = await supabase
       .from('vectorstore')
       .insert({
@@ -62,6 +73,7 @@ serve(async (req) => {
         metadata: {
           type: 'lease_document',
           lease_id: leaseId,
+          tenant_id: leaseData.tenant_id,
           url: documentUrl
         }
       })
