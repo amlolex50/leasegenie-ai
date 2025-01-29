@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ContractorFormFields } from "./forms/ContractorFormFields";
 import { Contractor, ContractorFormData } from "./types";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ContractorUpdateDialogProps {
   open: boolean;
@@ -15,6 +16,7 @@ interface ContractorUpdateDialogProps {
 export const ContractorUpdateDialog = ({ open, onOpenChange, contractor }: ContractorUpdateDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState<ContractorFormData>({
     full_name: contractor.full_name,
     email: contractor.email,
@@ -33,17 +35,6 @@ export const ContractorUpdateDialog = ({ open, onOpenChange, contractor }: Contr
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user found");
 
-      // Verify the contractor belongs to the current landlord
-      const { data: contractorData } = await supabase
-        .from('users')
-        .select('landlord_id')
-        .eq('id', contractor.id)
-        .single();
-
-      if (contractorData?.landlord_id !== user.id) {
-        throw new Error("Unauthorized to update this contractor");
-      }
-
       const { error } = await supabase
         .from('users')
         .update({
@@ -52,7 +43,8 @@ export const ContractorUpdateDialog = ({ open, onOpenChange, contractor }: Contr
           hourly_rate: parseFloat(formData.hourly_rate),
         })
         .eq('id', contractor.id)
-        .eq('landlord_id', user.id);
+        .eq('landlord_id', user.id)
+        .eq('role', 'CONTRACTOR');
 
       if (error) throw error;
 
@@ -61,12 +53,14 @@ export const ContractorUpdateDialog = ({ open, onOpenChange, contractor }: Contr
         description: "Contractor updated successfully",
       });
 
+      // Invalidate and refetch contractors
+      await queryClient.invalidateQueries({ queryKey: ['contractors'] });
       onOpenChange(false);
     } catch (error) {
       console.error('Error updating contractor:', error);
       toast({
         title: "Error",
-        description: "Failed to update contractor. Please try again.",
+        description: "Failed to update contractor. Please ensure you have permission to modify this contractor.",
         variant: "destructive",
       });
     } finally {

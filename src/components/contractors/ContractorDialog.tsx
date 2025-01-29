@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ContractorFormFields } from "./forms/ContractorFormFields";
 import { ContractorFormData } from "./types";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ContractorDialogProps {
   open: boolean;
@@ -14,6 +15,7 @@ interface ContractorDialogProps {
 export const ContractorDialog = ({ open, onOpenChange }: ContractorDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState<ContractorFormData>({
     full_name: "",
     email: "",
@@ -47,6 +49,8 @@ export const ContractorDialog = ({ open, onOpenChange }: ContractorDialogProps) 
         description: "Contractor added successfully",
       });
 
+      // Invalidate and refetch contractors
+      await queryClient.invalidateQueries({ queryKey: ['contractors'] });
       onOpenChange(false);
     } catch (error) {
       console.error('Error adding contractor:', error);

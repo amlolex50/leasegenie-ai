@@ -6,12 +6,14 @@ import { useState } from "react";
 import { Search, MapPin, UserPlus } from "lucide-react";
 import { ContractorList } from "./ContractorList";
 import { ContractorDialog } from "./ContractorDialog";
+import { useToast } from "@/components/ui/use-toast";
 
 export const ContractorManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const { toast } = useToast();
 
-  const { data: contractors, isLoading } = useQuery({
+  const { data: contractors, isLoading, error } = useQuery({
     queryKey: ['contractors'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -23,7 +25,14 @@ export const ContractorManagement = () => {
         .eq('role', 'CONTRACTOR')
         .eq('landlord_id', user.id);
       
-      if (error) throw error;
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load contractors. Please try again.",
+          variant: "destructive",
+        });
+        throw error;
+      }
       return data;
     }
   });
@@ -33,6 +42,14 @@ export const ContractorManagement = () => {
     contractor.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     contractor.speciality?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-red-500">Failed to load contractors. Please try again later.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
