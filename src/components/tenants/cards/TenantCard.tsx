@@ -17,7 +17,7 @@ export const TenantCard = ({ tenant, onEdit }: TenantCardProps) => {
     <Card 
       key={tenant.id} 
       className="p-6 space-y-4 animate-fade-in cursor-pointer hover:shadow-lg transition-all"
-      onClick={() => navigate(`/tenants/${tenant.id}`)}
+      onClick={() => navigate(`/tenants/${tenant.id}/dashboard`)}
     >
       <div className="flex justify-between items-start">
         <div>
