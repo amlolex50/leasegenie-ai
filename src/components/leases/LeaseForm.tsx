@@ -2,12 +2,10 @@ import { Form } from "@/components/ui/form";
 import { useLeaseForm } from "./useLeaseForm";
 import { LeaseFormFields } from "./LeaseFormFields";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 import { LeaseDocumentUpload } from "./LeaseDocumentUpload";
 import { SubmitButton } from "./SubmitButton";
 import { DocumentProcessor } from "./DocumentProcessor";
+import { useLeaseSubmission } from "./useLeaseSubmission";
 
 interface LeaseFormProps {
   lease?: {
@@ -24,93 +22,18 @@ interface LeaseFormProps {
 
 export const LeaseForm = ({ lease }: LeaseFormProps) => {
   const { form, onSubmit } = useLeaseForm(lease);
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadedLeaseId, setUploadedLeaseId] = useState<string | null>(null);
-  const [documentUrl, setDocumentUrl] = useState<string | null>(null);
-  const { toast } = useToast();
-  const navigate = useNavigate();
-
-  const handleSubmit = async (data: any) => {
-    if (!lease && !selectedFile) {
-      toast({
-        title: "Error",
-        description: "Please upload a lease document",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const leaseResult = await onSubmit(data);
-      
-      if (!leaseResult?.id) {
-        throw new Error("Failed to create lease");
-      }
-
-      setUploadedLeaseId(leaseResult.id);
-
-      if (selectedFile) {
-        const fileExt = selectedFile.name.split('.').pop();
-        const fileName = `${crypto.randomUUID()}.${fileExt}`;
-
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('lease_documents')
-          .upload(fileName, selectedFile);
-
-        if (uploadError) throw uploadError;
-
-        const { data: urlData } = await supabase.storage
-          .from('lease_documents')
-          .createSignedUrl(fileName, 60 * 60); // 1 hour expiry
-
-        if (urlData?.signedUrl) {
-          setDocumentUrl(urlData.signedUrl);
-        }
-
-        const { error: updateError } = await supabase
-          .from('leases')
-          .update({ pdf_url: fileName })
-          .eq('id', leaseResult.id);
-
-        if (updateError) throw updateError;
-
-        // Show success message but don't navigate yet
-        toast({
-          title: "Success",
-          description: "Lease created successfully. Processing document...",
-        });
-      } else {
-        // If no document to process, navigate immediately
-        toast({
-          title: "Success",
-          description: `Lease ${lease ? 'updated' : 'created'} successfully`,
-        });
-        navigate('/leases');
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleProcessingComplete = () => {
-    toast({
-      title: "Success",
-      description: "Document processed successfully",
-    });
-    navigate('/leases');
-  };
+  const {
+    isLoading,
+    uploadedLeaseId,
+    documentUrl,
+    handleSubmit,
+    handleProcessingComplete,
+  } = useLeaseSubmission(lease);
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit((data) => handleSubmit(data, selectedFile, onSubmit))} className="space-y-6">
         <LeaseFormFields form={form} />
         <LeaseDocumentUpload onFileSelect={setSelectedFile} />
         <div className="flex gap-4 items-center">
