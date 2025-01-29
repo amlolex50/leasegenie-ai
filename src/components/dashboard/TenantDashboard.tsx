@@ -5,12 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatCard } from "./StatCard";
 import { Home, Wrench, Calendar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface TenantDashboardProps {
   tenantId?: string;
 }
 
 export const TenantDashboard = ({ tenantId }: TenantDashboardProps) => {
+  const navigate = useNavigate();
+
   const { data: leases } = useQuery({
     queryKey: ['tenant_leases', tenantId],
     queryFn: async () => {
@@ -89,7 +92,13 @@ export const TenantDashboard = ({ tenantId }: TenantDashboardProps) => {
                   <TableCell>${lease.monthly_rent}</TableCell>
                   <TableCell>Active</TableCell>
                   <TableCell>
-                    <Button variant="outline" size="sm">View Details</Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => navigate(`/leases/${lease.id}`)}
+                    >
+                      View Details
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
