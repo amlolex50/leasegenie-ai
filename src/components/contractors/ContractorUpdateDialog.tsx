@@ -30,6 +30,20 @@ export const ContractorUpdateDialog = ({ open, onOpenChange, contractor }: Contr
     setIsLoading(true);
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No authenticated user found");
+
+      // Verify the contractor belongs to the current landlord
+      const { data: contractorData } = await supabase
+        .from('users')
+        .select('landlord_id')
+        .eq('id', contractor.id)
+        .single();
+
+      if (contractorData?.landlord_id !== user.id) {
+        throw new Error("Unauthorized to update this contractor");
+      }
+
       const { error } = await supabase
         .from('users')
         .update({
@@ -37,7 +51,8 @@ export const ContractorUpdateDialog = ({ open, onOpenChange, contractor }: Contr
           skills: formData.skills.split(',').map(skill => skill.trim()),
           hourly_rate: parseFloat(formData.hourly_rate),
         })
-        .eq('id', contractor.id);
+        .eq('id', contractor.id)
+        .eq('landlord_id', user.id);
 
       if (error) throw error;
 

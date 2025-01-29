@@ -29,9 +29,13 @@ export const ContractorDialog = ({ open, onOpenChange }: ContractorDialogProps) 
     setIsLoading(true);
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No authenticated user found");
+
       const { error } = await supabase.from('users').insert({
         ...formData,
         role: 'CONTRACTOR',
+        landlord_id: user.id,
         skills: formData.skills.split(',').map(skill => skill.trim()),
         hourly_rate: parseFloat(formData.hourly_rate),
       });

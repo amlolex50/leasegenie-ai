@@ -14,10 +14,14 @@ export const ContractorManagement = () => {
   const { data: contractors, isLoading } = useQuery({
     queryKey: ['contractors'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No authenticated user found");
+
       const { data, error } = await supabase
         .from('users')
         .select('*')
-        .eq('role', 'CONTRACTOR');
+        .eq('role', 'CONTRACTOR')
+        .eq('landlord_id', user.id);
       
       if (error) throw error;
       return data;
