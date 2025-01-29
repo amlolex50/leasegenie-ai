@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MaintenanceRequests } from "@/components/maintenance/MaintenanceRequests";
 import { WorkOrders } from "@/components/maintenance/WorkOrders";
 import { CreateMaintenanceRequest } from "@/components/maintenance/CreateMaintenanceRequest";
+import { CreateWorkOrder } from "@/components/maintenance/CreateWorkOrder";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -62,10 +63,7 @@ export default function MaintenancePage() {
                   <DialogHeader>
                     <DialogTitle>Create Work Order</DialogTitle>
                   </DialogHeader>
-                  {/* We'll implement CreateWorkOrder component later */}
-                  <div className="p-4">
-                    <p>Work order creation form will be implemented here.</p>
-                  </div>
+                  <CreateWorkOrder />
                 </DialogContent>
               </Dialog>
             )}
