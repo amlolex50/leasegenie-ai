@@ -9,7 +9,7 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
-export default function DashboardLayout() {
+const DashboardLayout = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -83,4 +83,6 @@ export default function DashboardLayout() {
       </div>
     </div>
   );
-}
+};
+
+export default DashboardLayout;
