@@ -21,35 +21,54 @@ export const useDocumentProcessing = () => {
     setProgress(10);
 
     try {
-      console.log('Starting document processing with URL:', documentUrl);
-      
       // Step 1: Extract text from document
+      console.log('Starting text extraction for document:', documentUrl);
       const extractResult = await supabase.functions.invoke('extract-lease-text', {
-        body: JSON.stringify({ documentUrl })
+        body: JSON.stringify({
+          urls: [documentUrl]
+        })
       });
-
-      console.log('Text extraction result:', extractResult);
 
       if (extractResult.error) {
         throw new Error(`Text extraction failed: ${extractResult.error.message}`);
       }
 
-      if (!extractResult.data?.text) {
-        throw new Error('No text extracted from document');
-      }
-
       setProgress(50);
-      
-      // Store the extracted text temporarily
-      // We'll use this in Step 2 for OpenAI analysis
-      console.log('Extracted text:', extractResult.data.text);
+      console.log('Text extracted successfully');
 
-      toast({
-        title: "Success",
-        description: "Text extracted successfully",
+      // Step 2: Generate insights using OpenAI
+      console.log('Starting insight generation');
+      const insightResult = await supabase.functions.invoke('generate-lease-insights', {
+        body: JSON.stringify({
+          documentText: extractResult.data.text,
+          leaseId
+        })
       });
 
+      if (insightResult.error) {
+        throw new Error(`Insight generation failed: ${insightResult.error.message}`);
+      }
+
+      setProgress(90);
+      console.log('Insights generated successfully');
+
+      // Step 3: Update lease with insights
+      const { error: updateError } = await supabase
+        .from('leases')
+        .update({ insights: insightResult.data.insights })
+        .eq('id', leaseId);
+
+      if (updateError) {
+        console.error('Error updating lease with insights:', updateError);
+        throw new Error('Failed to save lease insights');
+      }
+
       setProgress(100);
+      toast({
+        title: "Success",
+        description: "Document processed and insights generated successfully",
+      });
+
       return true;
 
     } catch (error: any) {
@@ -59,7 +78,6 @@ export const useDocumentProcessing = () => {
         description: error.message || "Failed to process document",
         variant: "destructive",
       });
-      setProgress(0);
       return false;
     } finally {
       setIsProcessing(false);
