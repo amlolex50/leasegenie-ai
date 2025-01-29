@@ -6,27 +6,34 @@ import * as pdfjs from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/+esm'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
 async function extractTextFromPDF(url: string): Promise<string> {
   console.log('Downloading PDF from URL:', url)
-  const response = await fetch(url)
-  const arrayBuffer = await response.arrayBuffer()
-  
-  console.log('Loading PDF document')
-  const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise
-  
-  let fullText = ''
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i)
-    const textContent = await page.getTextContent()
-    const pageText = textContent.items.map((item: any) => item.str).join(' ')
-    fullText += pageText + '\n'
+  try {
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`)
+    }
+    const arrayBuffer = await response.arrayBuffer()
+    
+    console.log('Loading PDF document')
+    const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise
+    
+    let fullText = ''
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i)
+      const textContent = await page.getTextContent()
+      const pageText = textContent.items.map((item: any) => item.str).join(' ')
+      fullText += pageText + '\n'
+    }
+    
+    console.log('PDF text extraction complete')
+    return fullText
+  } catch (error) {
+    console.error('Error extracting text from PDF:', error)
+    throw new Error(`Failed to extract text from PDF: ${error.message}`)
   }
-  
-  console.log('PDF text extraction complete')
-  return fullText
 }
 
 async function processWithDeepseek(text: string, userId: string): Promise<any> {
@@ -36,23 +43,30 @@ async function processWithDeepseek(text: string, userId: string): Promise<any> {
   }
 
   console.log('Calling Deepseek API...')
-  const response = await fetch('https://api.deepseek.com/v1/extract', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${deepseekApiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      text: text,
-      owner_id: userId
+  try {
+    const response = await fetch('https://api.deepseek.com/v1/extract', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${deepseekApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text: text,
+        owner_id: userId
+      })
     })
-  })
 
-  if (!response.ok) {
-    throw new Error(`Deepseek API failed with status ${response.status}`)
+    if (!response.ok) {
+      throw new Error(`Deepseek API failed with status ${response.status}`)
+    }
+
+    const data = await response.json()
+    console.log('Deepseek processing successful')
+    return data
+  } catch (error) {
+    console.error('Deepseek processing failed:', error)
+    throw error
   }
-
-  return await response.json()
 }
 
 async function processWithOpenAI(text: string): Promise<any> {
@@ -64,21 +78,38 @@ async function processWithOpenAI(text: string): Promise<any> {
   const openai = new OpenAI({ apiKey: openAiApiKey })
 
   console.log('Processing with OpenAI...')
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [
-      {
-        role: "system",
-        content: "You are a lease document analyzer. Extract and structure the following information from the lease document: lease duration (start date, end date, total months), financials (monthly rent, deposit amount, escalation rate), property details (description, responsibilities, restrictions), and tenant information (description, responsibilities, restrictions). Format the response as a JSON object."
-      },
-      {
-        role: "user",
-        content: text
-      }
-    ]
-  })
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "You are a lease document analyzer. Extract and structure the following information from the lease document: lease duration (start date, end date, total months), financials (monthly rent, deposit amount, escalation rate), property details (description, responsibilities, restrictions), and tenant information (description, responsibilities, restrictions). Format the response as a JSON object."
+        },
+        {
+          role: "user",
+          content: text
+        }
+      ]
+    })
 
-  return { insights: JSON.parse(completion.choices[0].message.content) }
+    const content = completion.choices[0].message.content
+    if (!content) {
+      throw new Error('No content in OpenAI response')
+    }
+
+    try {
+      const insights = JSON.parse(content)
+      console.log('OpenAI processing successful')
+      return { insights }
+    } catch (parseError) {
+      console.error('Failed to parse OpenAI response:', parseError)
+      throw new Error('Failed to parse OpenAI response as JSON')
+    }
+  } catch (error) {
+    console.error('OpenAI processing failed:', error)
+    throw error
+  }
 }
 
 serve(async (req) => {
@@ -98,11 +129,20 @@ serve(async (req) => {
       throw new Error('Method not allowed')
     }
 
-    const { urls, leaseId } = await req.json()
+    // Parse request body
+    const requestBody = await req.json().catch(() => {
+      throw new Error('Invalid JSON in request body')
+    })
+
+    const { urls, leaseId } = requestBody
     console.log('Processing documents for lease:', leaseId, 'URLs:', urls)
 
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
       throw new Error('No URLs provided')
+    }
+
+    if (!leaseId) {
+      throw new Error('No lease ID provided')
     }
 
     // Initialize Supabase client
@@ -131,6 +171,9 @@ serve(async (req) => {
 
     // Extract text from PDF
     const documentText = await extractTextFromPDF(urls[0])
+    if (!documentText) {
+      throw new Error('No text extracted from document')
+    }
     
     // Try Deepseek first, fallback to OpenAI if it fails
     let result
