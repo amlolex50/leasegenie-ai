@@ -28,25 +28,17 @@ export const DocumentProcessor = ({ leaseId, documentUrl, onProcessingComplete }
       const { data: { session } } = await supabase.auth.getSession();
       setProgress(30);
 
-      const response = await fetch('/functions/v1/process-lease-documents', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`,
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('process-lease-documents', {
+        body: {
           urls: [documentUrl],
           leaseId: leaseId,
-        }),
+        }
       });
 
-      setProgress(60);
-
-      if (!response.ok) {
-        throw new Error('Failed to process document');
+      if (error) {
+        throw error;
       }
 
-      await response.json();
       setProgress(90);
 
       toast({

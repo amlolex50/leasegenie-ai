@@ -13,18 +13,21 @@ serve(async (req) => {
   }
 
   try {
+    // Get request body
     const { urls, leaseId } = await req.json()
+    console.log('Processing documents for lease:', leaseId, 'URLs:', urls)
 
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
       throw new Error('No URLs provided')
     }
 
-    // Get the authenticated user
+    // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
+    // Authenticate user
     const { data: { user }, error: userError } = await supabase.auth.getUser(
       req.headers.get('Authorization')?.split(' ')[1] ?? ''
     )
@@ -33,45 +36,48 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
-    // Call the document processing endpoint
-    const response = await fetch('https://us-central1-note-maply-57akxp.cloudfunctions.net/extract_text_from_images_or_docs', {
+    // Call the document processing endpoint using DEEPSEEK API
+    const response = await fetch('https://api.deepseek.com/v1/extract', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Deno.env.get('DEEPSEEK_API_KEY')}`,
       },
       body: JSON.stringify({
-        image_urls: urls,
+        urls: urls,
         owner_id: user.id
       })
     })
 
     if (!response.ok) {
-      throw new Error(`Failed to process documents: ${response.statusText}`)
+      console.error('Deepseek API error:', await response.text())
+      throw new Error('Failed to process document with Deepseek API')
     }
 
     const result = await response.json()
+    console.log('Document processing result:', result)
 
-    // Update the lease with the processed text if available
-    if (result.aggregate_text && leaseId) {
+    // Update the lease with the processed insights
+    if (result.insights && leaseId) {
       const { error: updateError } = await supabase
         .from('leases')
-        .update({ 
-          insights: {
-            processed_text: result.aggregate_text,
-            processed_at: new Date().toISOString(),
-            num_chunks: result.num_chunks
-          }
-        })
+        .update({ insights: result.insights })
         .eq('id', leaseId)
 
       if (updateError) {
         console.error('Error updating lease:', updateError)
+        throw new Error('Failed to update lease with insights')
       }
     }
 
     return new Response(
       JSON.stringify(result),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
+      }
     )
 
   } catch (error) {
@@ -80,7 +86,10 @@ serve(async (req) => {
       JSON.stringify({ error: error.message }),
       { 
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        }
       }
     )
   }
