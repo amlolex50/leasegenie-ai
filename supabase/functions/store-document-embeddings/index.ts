@@ -13,8 +13,12 @@ serve(async (req) => {
   }
 
   try {
-    const { documentUrl, leaseId } = await req.json()
-    console.log('Creating embeddings for lease:', leaseId, 'URL:', documentUrl)
+    const { documentText, leaseId } = await req.json()
+    console.log('Creating embeddings for lease:', leaseId)
+
+    if (!documentText) {
+      throw new Error('No document text provided')
+    }
 
     // Initialize Supabase client
     const supabase = createClient(
@@ -41,13 +45,6 @@ serve(async (req) => {
     if (leaseError || !leaseData) {
       throw new Error('Failed to fetch lease details')
     }
-
-    // Download the document content
-    const response = await fetch(documentUrl)
-    if (!response.ok) {
-      throw new Error('Failed to fetch document content')
-    }
-    const documentText = await response.text()
 
     // Check for OpenAI API key
     const openAiApiKey = Deno.env.get('OPENAI_API_KEY')
@@ -86,7 +83,6 @@ serve(async (req) => {
           type: 'lease_document',
           lease_id: leaseId,
           tenant_id: leaseData.tenant_id,
-          url: documentUrl
         }
       })
 

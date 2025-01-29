@@ -28,25 +28,27 @@ export const DocumentProcessor = ({ leaseId, documentUrl, onProcessingComplete }
       const { data: { session } } = await supabase.auth.getSession();
       setProgress(30);
 
-      // Call both functions in parallel
-      const [processResult, embeddingResult] = await Promise.all([
-        supabase.functions.invoke('process-lease-documents', {
-          body: {
-            urls: [documentUrl],
-            leaseId: leaseId,
-          }
-        }),
-        supabase.functions.invoke('store-document-embeddings', {
-          body: {
-            documentUrl,
-            leaseId,
-          }
-        })
-      ]);
+      // Process document and get extracted text
+      const processResult = await supabase.functions.invoke('process-lease-documents', {
+        body: {
+          urls: [documentUrl],
+          leaseId: leaseId,
+        }
+      });
 
       if (processResult.error) {
         throw processResult.error;
       }
+
+      setProgress(60);
+
+      // Store embeddings using the extracted text
+      const embeddingResult = await supabase.functions.invoke('store-document-embeddings', {
+        body: {
+          documentText: processResult.data.text,
+          leaseId,
+        }
+      });
 
       if (embeddingResult.error) {
         console.error('Error storing embeddings:', embeddingResult.error);

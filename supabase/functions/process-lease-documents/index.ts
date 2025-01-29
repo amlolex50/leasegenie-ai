@@ -1,19 +1,97 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
+import { Configuration, OpenAIApi } from 'https://esm.sh/openai@4.20.1'
+import * as pdfjs from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/+esm'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+async function extractTextFromPDF(url: string): Promise<string> {
+  console.log('Downloading PDF from URL:', url)
+  const response = await fetch(url)
+  const arrayBuffer = await response.arrayBuffer()
+  
+  console.log('Loading PDF document')
+  const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise
+  
+  let fullText = ''
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i)
+    const textContent = await page.getTextContent()
+    const pageText = textContent.items.map((item: any) => item.str).join(' ')
+    fullText += pageText + '\n'
+  }
+  
+  console.log('PDF text extraction complete')
+  return fullText
+}
+
+async function processWithDeepseek(text: string, userId: string): Promise<any> {
+  const deepseekApiKey = Deno.env.get('DEEPSEEK_API_KEY')
+  if (!deepseekApiKey) {
+    throw new Error('DEEPSEEK_API_KEY is not configured')
+  }
+
+  console.log('Calling Deepseek API...')
+  const response = await fetch('https://api.deepseek.com/v1/extract', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${deepseekApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      text: text,
+      owner_id: userId
+    })
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    console.error('Deepseek API error response:', errorText)
+    throw new Error(`Deepseek API failed with status ${response.status}: ${errorText}`)
+  }
+
+  return await response.json()
+}
+
+async function processWithOpenAI(text: string): Promise<any> {
+  const openAiApiKey = Deno.env.get('OPENAI_API_KEY')
+  if (!openAiApiKey) {
+    throw new Error('OPENAI_API_KEY is not configured')
+  }
+
+  const configuration = new Configuration({
+    apiKey: openAiApiKey,
+  })
+  const openai = new OpenAIApi(configuration)
+
+  console.log('Processing with OpenAI as fallback...')
+  const completion = await openai.createChatCompletion({
+    model: "gpt-4o",
+    messages: [
+      {
+        role: "system",
+        content: "You are a lease document analyzer. Extract and structure the following information from the lease document: lease duration (start date, end date, total months), financials (monthly rent, deposit amount, escalation rate), property details (description, responsibilities, restrictions), and tenant information (description, responsibilities, restrictions). Format the response as a JSON object."
+      },
+      {
+        role: "user",
+        content: text
+      }
+    ]
+  })
+
+  const insights = JSON.parse(completion.data.choices[0].message.content)
+  return { insights }
+}
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    // Get request body
     const { urls, leaseId } = await req.json()
     console.log('Processing documents for lease:', leaseId, 'URLs:', urls)
 
@@ -36,32 +114,18 @@ serve(async (req) => {
       throw new Error('Unauthorized')
     }
 
-    const deepseekApiKey = Deno.env.get('DEEPSEEK_API_KEY')
-    if (!deepseekApiKey) {
-      throw new Error('DEEPSEEK_API_KEY is not configured')
+    // Extract text from PDF
+    const documentText = await extractTextFromPDF(urls[0])
+    
+    // Try Deepseek first, fallback to OpenAI if it fails
+    let result
+    try {
+      result = await processWithDeepseek(documentText, user.id)
+    } catch (deepseekError) {
+      console.warn('Deepseek processing failed, falling back to OpenAI:', deepseekError)
+      result = await processWithOpenAI(documentText)
     }
 
-    console.log('Calling Deepseek API...')
-    // Call the document processing endpoint using DEEPSEEK API
-    const response = await fetch('https://api.deepseek.com/v1/extract', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${deepseekApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        urls: urls,
-        owner_id: user.id
-      })
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Deepseek API error response:', errorText)
-      throw new Error(`Deepseek API failed with status ${response.status}: ${errorText}`)
-    }
-
-    const result = await response.json()
     console.log('Document processing result:', result)
 
     // Update the lease with the processed insights
@@ -78,7 +142,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify(result),
+      JSON.stringify({ ...result, text: documentText }),
       { 
         headers: { 
           ...corsHeaders, 
