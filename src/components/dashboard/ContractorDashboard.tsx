@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatCard } from "./StatCard";
-import { Wrench, Calendar, DollarSign, Mail, MapPin, Tool } from "lucide-react";
+import { Wrench, Calendar, DollarSign, Mail, MapPin } from "lucide-react";
 
 interface ContractorDashboardProps {
   contractorId?: string;
@@ -73,7 +73,7 @@ export const ContractorDashboard = ({ contractorId }: ContractorDashboardProps) 
                 <span>{contractor.location || 'Location not specified'}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Tool className="h-4 w-4 text-muted-foreground" />
+                <Wrench className="h-4 w-4 text-muted-foreground" />
                 <span>{contractor.speciality || 'Speciality not specified'}</span>
               </div>
             </div>
