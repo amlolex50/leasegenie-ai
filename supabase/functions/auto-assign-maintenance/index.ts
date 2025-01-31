@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/config.ts';
 import { MaintenanceRequest, Contractor } from './types.ts';
 import { analyzeRequest, selectBestContractor } from './services/ai.ts';
-import { sendSMS, createAssignmentMessage } from './services/notifications.ts';
+import { sendSMS, createAssignmentMessage, createLandlordNotificationMessage } from './services/notifications.ts';
 import { createWorkOrder } from './services/workOrders.ts';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
@@ -19,7 +19,7 @@ serve(async (req) => {
   try {
     const { maintenanceRequestId } = await req.json();
 
-    // Fetch maintenance request details with property location
+    // Fetch maintenance request details with property location and owner info
     const { data: request, error: requestError } = await supabase
       .from('maintenance_requests')
       .select(`
@@ -30,7 +30,10 @@ serve(async (req) => {
             property:properties (
               owner_id,
               location,
-              name
+              name,
+              owner:users (
+                phone
+              )
             )
           )
         )
@@ -84,7 +87,7 @@ serve(async (req) => {
 
     // Send SMS notification to the contractor
     if (bestContractor.phone) {
-      const message = createAssignmentMessage(
+      const contractorMessage = createAssignmentMessage(
         bestContractor,
         request.lease.unit.property.name,
         analysis.category,
@@ -92,8 +95,23 @@ serve(async (req) => {
         reasoning
       );
       
-      console.log('Sending SMS notification...');
-      await sendSMS(bestContractor.phone, message);
+      console.log('Sending SMS notification to contractor...');
+      await sendSMS(bestContractor.phone, contractorMessage);
+    }
+
+    // Send SMS notification to the landlord
+    const landlordPhone = request.lease.unit.property.owner.phone;
+    if (landlordPhone) {
+      const landlordMessage = createLandlordNotificationMessage(
+        bestContractor,
+        request.lease.unit.property.name,
+        analysis.category,
+        analysis.urgency,
+        reasoning
+      );
+      
+      console.log('Sending SMS notification to landlord...');
+      await sendSMS(landlordPhone, landlordMessage);
     }
 
     return new Response(
