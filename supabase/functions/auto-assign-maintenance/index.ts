@@ -48,6 +48,8 @@ interface Contractor {
   availability_status: string
   landlord_id: string
   phone: string
+  hourly_rate: number | null
+  rating: number | null
 }
 
 async function analyzeRequest(description: string): Promise<{ 
@@ -62,7 +64,7 @@ async function analyzeRequest(description: string): Promise<{
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4',
+      model: 'gpt-4o',
       messages: [
         {
           role: 'system',
@@ -84,64 +86,84 @@ async function analyzeRequest(description: string): Promise<{
   return JSON.parse(data.choices[0].message.content)
 }
 
-async function findBestContractor(
-  landlordId: string, 
+async function selectBestContractorWithLLM(
+  contractors: Contractor[],
   analysis: { category: string, required_skills: string[], urgency: number },
+  workOrders: any[],
   location: string
-): Promise<Contractor | null> {
-  const { data: contractors, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('role', 'CONTRACTOR')
-    .eq('landlord_id', landlordId)
-    .eq('availability_status', 'AVAILABLE')
-
-  if (error || !contractors) {
-    console.error('Error fetching contractors:', error)
-    return null
-  }
-
-  const { data: workOrders } = await supabase
-    .from('work_orders')
-    .select('contractor_id, status')
-    .in('status', ['ASSIGNED', 'IN_PROGRESS'])
-
-  const scoredContractors = contractors.map(contractor => {
-    let score = 0
-
-    // Skills match
-    const skillsMatch = analysis.required_skills.filter(
-      skill => contractor.skills?.includes(skill)
-    ).length
-    score += skillsMatch * 2
-
-    // Location match (simple string match for now)
-    if (contractor.location === location) {
-      score += 3
+): Promise<{ contractor: Contractor; reasoning: string }> {
+  // Prepare contractor data for LLM analysis
+  const contractorDetails = contractors.map(contractor => {
+    const openOrders = workOrders.filter(wo => wo.contractor_id === contractor.id).length
+    return {
+      id: contractor.id,
+      name: contractor.full_name,
+      skills: contractor.skills,
+      location: contractor.location,
+      rating: contractor.rating || 0,
+      hourly_rate: contractor.hourly_rate || 0,
+      open_orders: openOrders,
     }
-
-    // Workload (fewer open orders = higher score)
-    const openOrders = workOrders?.filter(
-      wo => wo.contractor_id === contractor.id
-    ).length || 0
-    score -= openOrders
-
-    // Urgency factor - prioritize experienced contractors for urgent issues
-    if (analysis.urgency >= 4 && contractor.rating >= 4) {
-      score += 2
-    }
-
-    return { contractor, score }
   })
 
-  const bestMatch = scoredContractors.sort((a, b) => b.score - a.score)[0]
-  return bestMatch?.contractor || null
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${OPENAI_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: `You are an AI assistant that helps select the best contractor for maintenance requests.
+          Consider the following factors in order of importance:
+          1. Required skills match
+          2. Contractor location and proximity to the job
+          3. Current workload (fewer open orders is better)
+          4. Contractor rating (especially important for urgent issues)
+          5. Cost efficiency
+          
+          Analyze the data and return a JSON object with:
+          1. selected_contractor_id: ID of the best contractor
+          2. reasoning: Detailed explanation of why this contractor was chosen`
+        },
+        {
+          role: 'user',
+          content: JSON.stringify({
+            maintenance_request: {
+              category: analysis.category,
+              required_skills: analysis.required_skills,
+              urgency: analysis.urgency,
+              location: location
+            },
+            available_contractors: contractorDetails
+          })
+        }
+      ]
+    })
+  })
+
+  const data = await response.json()
+  const result = JSON.parse(data.choices[0].message.content)
+  
+  const selectedContractor = contractors.find(c => c.id === result.selected_contractor_id)
+  if (!selectedContractor) {
+    throw new Error('Selected contractor not found in contractor list')
+  }
+
+  return {
+    contractor: selectedContractor,
+    reasoning: result.reasoning
+  }
 }
 
 async function createWorkOrder(
   maintenanceRequestId: string,
   contractorId: string,
-  urgency: number
+  urgency: number,
+  reasoning: string
 ): Promise<boolean> {
   const estimatedDays = urgency === 5 ? 1 : urgency === 4 ? 2 : urgency === 3 ? 5 : 7
   const estimatedCompletion = new Date()
@@ -153,7 +175,8 @@ async function createWorkOrder(
       maintenance_request_id: maintenanceRequestId,
       contractor_id: contractorId,
       status: 'ASSIGNED',
-      estimated_completion: estimatedCompletion.toISOString()
+      estimated_completion: estimatedCompletion.toISOString(),
+      notes: `AI Assignment Reasoning: ${reasoning}`
     })
 
   if (workOrderError) {
@@ -208,20 +231,37 @@ serve(async (req) => {
     console.log('Analyzing maintenance request...')
     const analysis = await analyzeRequest(request.description)
     
-    console.log('Finding best contractor...')
-    const landlordId = request.lease.unit.property.owner_id
-    const location = request.lease.unit.property.location
-    const bestContractor = await findBestContractor(landlordId, analysis, location)
+    console.log('Fetching available contractors...')
+    const { data: contractors, error: contractorsError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('role', 'CONTRACTOR')
+      .eq('landlord_id', request.lease.unit.property.owner_id)
+      .eq('availability_status', 'AVAILABLE')
 
-    if (!bestContractor) {
-      throw new Error('No suitable contractor found')
+    if (contractorsError || !contractors) {
+      throw new Error('Failed to fetch contractors')
     }
+
+    const { data: workOrders } = await supabase
+      .from('work_orders')
+      .select('contractor_id, status')
+      .in('status', ['ASSIGNED', 'IN_PROGRESS'])
+
+    console.log('Selecting best contractor using LLM...')
+    const { contractor: bestContractor, reasoning } = await selectBestContractorWithLLM(
+      contractors,
+      analysis,
+      workOrders || [],
+      request.lease.unit.property.location
+    )
 
     console.log('Creating work order...')
     const success = await createWorkOrder(
       maintenanceRequestId,
       bestContractor.id,
-      analysis.urgency
+      analysis.urgency,
+      reasoning
     )
 
     if (!success) {
@@ -231,7 +271,7 @@ serve(async (req) => {
     // Send SMS notification to the contractor
     if (bestContractor.phone) {
       const propertyName = request.lease.unit.property.name
-      const message = `New work order assigned: ${analysis.category} issue at ${propertyName}. Priority: ${analysis.urgency}/5. Please check your dashboard for details.`
+      const message = `New work order assigned: ${analysis.category} issue at ${propertyName}. Priority: ${analysis.urgency}/5. Reason for selection: ${reasoning}. Please check your dashboard for details.`
       
       console.log('Sending SMS notification...')
       await sendSMS(bestContractor.phone, message)
@@ -241,7 +281,8 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         contractor: bestContractor,
-        analysis: analysis
+        analysis: analysis,
+        reasoning: reasoning
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
