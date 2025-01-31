@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import twilio from 'npm:twilio'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,8 +10,27 @@ const corsHeaders = {
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+const TWILIO_ACCOUNT_SID = Deno.env.get('TWILIO_ACCOUNT_SID')
+const TWILIO_AUTH_TOKEN = Deno.env.get('TWILIO_AUTH_TOKEN')
+const TWILIO_PHONE_NUMBER = Deno.env.get('TWILIO_PHONE_NUMBER')
 
 const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!)
+const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+async function sendSMS(phoneNumber: string, message: string) {
+  try {
+    const result = await twilioClient.messages.create({
+      body: message,
+      to: phoneNumber,
+      from: TWILIO_PHONE_NUMBER,
+    })
+    console.log('SMS sent successfully:', result.sid)
+    return true
+  } catch (error) {
+    console.error('Error sending SMS:', error)
+    return false
+  }
+}
 
 interface MaintenanceRequest {
   id: string
@@ -27,6 +47,7 @@ interface Contractor {
   location: string
   availability_status: string
   landlord_id: string
+  phone: string
 }
 
 async function analyzeRequest(description: string): Promise<{ 
@@ -41,7 +62,7 @@ async function analyzeRequest(description: string): Promise<{
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4',
       messages: [
         {
           role: 'system',
@@ -68,7 +89,6 @@ async function findBestContractor(
   analysis: { category: string, required_skills: string[], urgency: number },
   location: string
 ): Promise<Contractor | null> {
-  // Get all available contractors for this landlord
   const { data: contractors, error } = await supabase
     .from('users')
     .select('*')
@@ -81,13 +101,11 @@ async function findBestContractor(
     return null
   }
 
-  // Get current work orders for workload analysis
   const { data: workOrders } = await supabase
     .from('work_orders')
     .select('contractor_id, status')
     .in('status', ['ASSIGNED', 'IN_PROGRESS'])
 
-  // Score each contractor based on multiple factors
   const scoredContractors = contractors.map(contractor => {
     let score = 0
 
@@ -108,10 +126,14 @@ async function findBestContractor(
     ).length || 0
     score -= openOrders
 
+    // Urgency factor - prioritize experienced contractors for urgent issues
+    if (analysis.urgency >= 4 && contractor.rating >= 4) {
+      score += 2
+    }
+
     return { contractor, score }
   })
 
-  // Sort by score and return the best match
   const bestMatch = scoredContractors.sort((a, b) => b.score - a.score)[0]
   return bestMatch?.contractor || null
 }
@@ -139,7 +161,6 @@ async function createWorkOrder(
     return false
   }
 
-  // Update maintenance request status
   const { error: updateError } = await supabase
     .from('maintenance_requests')
     .update({ status: 'IN_PROGRESS' })
@@ -154,7 +175,6 @@ async function createWorkOrder(
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -162,7 +182,7 @@ serve(async (req) => {
   try {
     const { maintenanceRequestId } = await req.json()
 
-    // Fetch maintenance request details
+    // Fetch maintenance request details with property location
     const { data: request, error: requestError } = await supabase
       .from('maintenance_requests')
       .select(`
@@ -172,7 +192,8 @@ serve(async (req) => {
           unit:units (
             property:properties (
               owner_id,
-              location
+              location,
+              name
             )
           )
         )
@@ -184,11 +205,9 @@ serve(async (req) => {
       throw new Error('Failed to fetch maintenance request')
     }
 
-    // Analyze the request using GPT-4
     console.log('Analyzing maintenance request...')
     const analysis = await analyzeRequest(request.description)
     
-    // Find the best contractor
     console.log('Finding best contractor...')
     const landlordId = request.lease.unit.property.owner_id
     const location = request.lease.unit.property.location
@@ -198,7 +217,6 @@ serve(async (req) => {
       throw new Error('No suitable contractor found')
     }
 
-    // Create work order
     console.log('Creating work order...')
     const success = await createWorkOrder(
       maintenanceRequestId,
@@ -208,6 +226,15 @@ serve(async (req) => {
 
     if (!success) {
       throw new Error('Failed to create work order')
+    }
+
+    // Send SMS notification to the contractor
+    if (bestContractor.phone) {
+      const propertyName = request.lease.unit.property.name
+      const message = `New work order assigned: ${analysis.category} issue at ${propertyName}. Priority: ${analysis.urgency}/5. Please check your dashboard for details.`
+      
+      console.log('Sending SMS notification...')
+      await sendSMS(bestContractor.phone, message)
     }
 
     return new Response(
