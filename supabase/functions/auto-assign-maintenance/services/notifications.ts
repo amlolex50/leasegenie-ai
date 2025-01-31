@@ -1,5 +1,5 @@
 import twilio from 'npm:twilio';
-import { Contractor } from '../types';
+import { Contractor } from '../types.ts';
 
 const TWILIO_ACCOUNT_SID = Deno.env.get('TWILIO_ACCOUNT_SID');
 const TWILIO_AUTH_TOKEN = Deno.env.get('TWILIO_AUTH_TOKEN');
