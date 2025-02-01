@@ -5,25 +5,25 @@ export const HeroSection = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="px-4 md:px-8 py-8 md:py-16">
-      <div className="text-center mb-8 md:mb-16">
-        <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold tracking-tight mb-4 md:mb-6">
-          Your Intelligent Partner For{' '}
+    <div className="px-8 py-16">
+      <div className="text-center mb-16">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+          Your Intelligent Partner For<br />
           <span className="text-blue-500">Commercial Lease Management</span>
         </h1>
-        <p className="text-base md:text-lg text-gray-600 mb-6 md:mb-8 max-w-2xl mx-auto">
+        <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
           Empowering commercial landlords and property managers with AI-driven lease management, predictive maintenance, and automated support.
         </p>
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
+        <div className="flex justify-center gap-4">
           <Button 
             variant="outline" 
-            className="rounded-full px-8 w-full sm:w-auto"
+            className="rounded-full px-8"
             onClick={() => navigate('/auth')}
           >
             Learn More
           </Button>
           <Button 
-            className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-8 w-full sm:w-auto"
+            className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-8"
             onClick={() => navigate('/auth')}
           >
             Get Started
@@ -36,8 +36,8 @@ export const HeroSection = () => {
 };
 
 const DashboardPreview = () => (
-  <div className="relative mx-auto max-w-5xl mb-8 md:mb-16">
-    <div className="bg-[#D3E4FD] rounded-xl shadow-sm p-4 md:p-8 text-left">
+  <div className="relative mx-auto max-w-5xl mb-32">
+    <div className="bg-[#D3E4FD] rounded-xl shadow-sm p-8 text-left">
       <div className="bg-white rounded-2xl overflow-hidden">
         <DashboardHeader />
         <DashboardContent />
@@ -47,30 +47,28 @@ const DashboardPreview = () => (
 );
 
 const DashboardHeader = () => (
-  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4">
-    <div className="flex items-center gap-4 mb-4 sm:mb-0">
+  <div className="flex items-center justify-between p-4">
+    <div className="flex items-center gap-4">
       <span className="text-blue-500 text-2xl">★</span>
       <div className="flex items-center gap-2">
         <span className="text-sm text-gray-600">Home / Dashboard</span>
       </div>
     </div>
-    <div className="flex flex-wrap items-center gap-4">
+    <div className="flex items-center gap-4">
       <SearchBar />
-      <div className="flex items-center gap-2">
-        <ThemeToggle />
-        <NotificationBell />
-        <Avatar />
-      </div>
+      <ThemeToggle />
+      <NotificationBell />
+      <Avatar />
     </div>
   </div>
 );
 
 const SearchBar = () => (
-  <div className="relative w-full sm:w-64">
+  <div className="relative">
     <input
       type="text"
       placeholder="Search..."
-      className="pl-8 pr-4 py-2 rounded-lg bg-gray-50 text-sm w-full border border-gray-200"
+      className="pl-8 pr-4 py-2 rounded-lg bg-gray-50 text-sm w-64 border border-gray-200"
     />
     <svg
       className="w-4 h-4 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400"
@@ -109,14 +107,14 @@ const Avatar = () => (
 );
 
 const DashboardContent = () => (
-  <div className="p-4 md:p-6">
+  <div className="p-6">
     <StatisticsGrid />
     <ChartsGrid />
   </div>
 );
 
 const StatisticsGrid = () => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
+  <div className="grid grid-cols-3 gap-6 mb-8">
     <StatCard
       color="blue-600"
       label="Total Compliance"
@@ -156,19 +154,19 @@ const StatCard = ({ color, label, value, trend, isMain }: StatCardProps) => (
 );
 
 const ChartsGrid = () => (
-  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
+  <div className="grid grid-cols-12 gap-6">
     <MonthlyChart />
     <TopProperties />
   </div>
 );
 
 const MonthlyChart = () => (
-  <div className="col-span-12 lg:col-span-8 bg-white rounded-xl border border-gray-200 p-6">
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
-      <h3 className="font-semibold mb-2 sm:mb-0">Selected Properties</h3>
-      <div className="flex items-center gap-2 w-full sm:w-auto">
-        <button className="px-4 py-1 text-sm bg-blue-500 text-white rounded-md w-full sm:w-auto">Monthly View</button>
-        <button className="px-4 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md w-full sm:w-auto">Annual View</button>
+  <div className="col-span-8 bg-white rounded-xl border border-gray-200 p-6">
+    <div className="flex items-center justify-between mb-6">
+      <h3 className="font-semibold">Selected Properties</h3>
+      <div className="flex items-center gap-2">
+        <button className="px-4 py-1 text-sm bg-blue-500 text-white rounded-md">Monthly View</button>
+        <button className="px-4 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md">Annual View</button>
       </div>
     </div>
     <div className="h-64">
@@ -181,9 +179,9 @@ const MonthlyChart = () => (
           ></div>
         ))}
       </div>
-      <div className="flex justify-between mt-4 text-sm text-gray-600 overflow-x-auto">
+      <div className="flex justify-between mt-4 text-sm text-gray-600">
         {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((month) => (
-          <span key={month} className="whitespace-nowrap">{month}</span>
+          <span key={month}>{month}</span>
         ))}
       </div>
     </div>
@@ -191,7 +189,7 @@ const MonthlyChart = () => (
 );
 
 const TopProperties = () => (
-  <div className="col-span-12 lg:col-span-4 bg-white rounded-xl border border-gray-200 p-6">
+  <div className="col-span-4 bg-white rounded-xl border border-gray-200 p-6">
     <h3 className="font-semibold mb-4">Top Properties</h3>
     <div className="space-y-4">
       {[1, 2, 3].map((num) => (
