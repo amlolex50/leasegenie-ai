@@ -96,7 +96,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
 
   return (
     <div className="min-h-screen bg-background flex">
-      <Sidebar collapsible="icon" className="group w-12 hover:w-64 transition-all duration-300">
+      <Sidebar collapsible="icon" className="group w-[17px] hover:w-[254px] transition-all duration-300">
         <SidebarContent>
           <div className="h-16 flex items-center gap-2 px-4">
             <span className="text-blue-600 text-2xl">★</span>
