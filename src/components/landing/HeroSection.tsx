@@ -5,25 +5,25 @@ export const HeroSection = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="px-8 py-16">
-      <div className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-          Your Intelligent Partner For<br />
+    <div className="px-4 md:px-8 py-8 md:py-16">
+      <div className="text-center mb-8 md:mb-16">
+        <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold tracking-tight mb-4 md:mb-6">
+          Your Intelligent Partner For{' '}
           <span className="text-blue-500">Commercial Lease Management</span>
         </h1>
-        <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+        <p className="text-base md:text-lg text-gray-600 mb-6 md:mb-8 max-w-2xl mx-auto px-4">
           Empowering commercial landlords and property managers with AI-driven lease management, predictive maintenance, and automated support.
         </p>
-        <div className="flex justify-center gap-4">
+        <div className="flex flex-col md:flex-row justify-center gap-4">
           <Button 
             variant="outline" 
-            className="rounded-full px-8"
+            className="rounded-full px-8 w-full md:w-auto"
             onClick={() => navigate('/auth')}
           >
             Learn More
           </Button>
           <Button 
-            className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-8"
+            className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-8 w-full md:w-auto"
             onClick={() => navigate('/auth')}
           >
             Get Started
@@ -36,8 +36,8 @@ export const HeroSection = () => {
 };
 
 const DashboardPreview = () => (
-  <div className="relative mx-auto max-w-5xl mb-32">
-    <div className="bg-[#D3E4FD] rounded-xl shadow-sm p-8 text-left">
+  <div className="relative mx-auto max-w-5xl mb-16 md:mb-32">
+    <div className="bg-[#D3E4FD] rounded-xl shadow-sm p-4 md:p-8 text-left">
       <div className="bg-white rounded-2xl overflow-hidden">
         <DashboardHeader />
         <DashboardContent />
@@ -47,28 +47,30 @@ const DashboardPreview = () => (
 );
 
 const DashboardHeader = () => (
-  <div className="flex items-center justify-between p-4">
-    <div className="flex items-center gap-4">
+  <div className="flex flex-col md:flex-row md:items-center justify-between p-4">
+    <div className="flex items-center gap-4 mb-4 md:mb-0">
       <span className="text-blue-500 text-2xl">★</span>
       <div className="flex items-center gap-2">
         <span className="text-sm text-gray-600">Home / Dashboard</span>
       </div>
     </div>
-    <div className="flex items-center gap-4">
+    <div className="flex flex-wrap items-center gap-4">
       <SearchBar />
-      <ThemeToggle />
-      <NotificationBell />
-      <Avatar />
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <NotificationBell />
+        <Avatar />
+      </div>
     </div>
   </div>
 );
 
 const SearchBar = () => (
-  <div className="relative">
+  <div className="relative w-full md:w-64">
     <input
       type="text"
       placeholder="Search..."
-      className="pl-8 pr-4 py-2 rounded-lg bg-gray-50 text-sm w-64 border border-gray-200"
+      className="pl-8 pr-4 py-2 rounded-lg bg-gray-50 text-sm w-full border border-gray-200"
     />
     <svg
       className="w-4 h-4 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400"
@@ -107,14 +109,14 @@ const Avatar = () => (
 );
 
 const DashboardContent = () => (
-  <div className="p-6">
+  <div className="p-4 md:p-6">
     <StatisticsGrid />
     <ChartsGrid />
   </div>
 );
 
 const StatisticsGrid = () => (
-  <div className="grid grid-cols-3 gap-6 mb-8">
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
     <StatCard
       color="blue-600"
       label="Total Compliance"
@@ -154,7 +156,7 @@ const StatCard = ({ color, label, value, trend, isMain }: StatCardProps) => (
 );
 
 const ChartsGrid = () => (
-  <div className="grid grid-cols-12 gap-6">
+  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
     <MonthlyChart />
     <TopProperties />
   </div>
