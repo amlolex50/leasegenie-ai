@@ -10,7 +10,7 @@ export const Navigation = () => {
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2">
             <span className="text-blue-500 text-2xl">★</span>
-            <span className="font-semibold text-xl">LeaseGenie AI</span>
+            <span className="font-semibold text-xl">ManageLeaseAI</span>
           </Link>
         </div>
         <div className="hidden md:flex items-center gap-12">
