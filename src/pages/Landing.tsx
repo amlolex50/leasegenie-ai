@@ -99,7 +99,7 @@ export default function Landing() {
                 <span className="text-xl font-semibold">ManageLeaseAI</span>
               </div>
               <p className="mt-4 md:mt-0 text-base text-gray-400">
-                &copy; {new Date().getFullYear()} LeaseGenie AI. All rights reserved.
+                &copy; {new Date().getFullYear()} ManageLeaseAI. All rights reserved.
               </p>
             </div>
           </footer>
