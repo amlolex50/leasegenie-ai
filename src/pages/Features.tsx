@@ -35,7 +35,7 @@ const Features = () => {
           <div className="flex items-center gap-2">
             <Link to="/" className="flex items-center gap-2">
               <span className="text-blue-500 text-2xl">★</span>
-              <span className="font-semibold text-xl">ManageLeaseAi</span>
+              <span className="font-semibold text-xl">LeaseGenie AI</span>
             </Link>
           </div>
           <div className="hidden md:flex items-center gap-12">
@@ -56,7 +56,7 @@ const Features = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-16">
-          <h1 className="text-4xl font-bold text-center mb-8">ManageLeaseAI Features</h1>
+          <h1 className="text-4xl font-bold text-center mb-8">LeaseGenie AI Features</h1>
 
           {/* AI-Driven Lease Management */}
           <section className="mb-16">
