@@ -18,6 +18,7 @@ export const InvitationList = () => {
       const { data, error } = await supabase
         .from('invitations')
         .select('*, users!invitations_invited_by_fkey(email)')
+        .eq('invited_by', user.id)  // Filter invitations by the current landlord
         .order('created_at', { ascending: false });
       
       if (error) throw error;
