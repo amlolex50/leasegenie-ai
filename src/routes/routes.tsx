@@ -3,6 +3,7 @@ import Index from "@/pages/Index";
 import Landing from "@/pages/Landing";
 import Features from "@/pages/Features";
 import HowItWorks from "@/pages/HowItWorks";
+import Testimonials from "@/pages/Testimonials";
 import Auth from "@/pages/Auth";
 import ForgotPassword from "@/pages/ForgotPassword";
 import Properties from "@/pages/Properties";
@@ -36,6 +37,10 @@ export const createRoutes = (session: any) => [
   {
     path: "/how-it-works",
     element: <HowItWorks />,
+  },
+  {
+    path: "/testimonials",
+    element: <Testimonials />,
   },
   {
     path: "/auth",
