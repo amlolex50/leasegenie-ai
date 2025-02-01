@@ -29,12 +29,13 @@ const Features = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Navigation */}
-        <nav className="flex items-center justify-between px-8 py-4 shadow-md rounded-[20px] bg-white mt-8 relative z-10">
+      {/* Navigation - Moved to top and made sticky */}
+      <nav className="sticky top-0 w-full bg-white/95 backdrop-blur-sm px-8 py-4 shadow-md z-50">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link to="/" className="flex items-center gap-2">
               <span className="text-blue-500 text-2xl">★</span>
+              <span className="font-semibold text-xl">ManageLeaseAi</span>
             </Link>
           </div>
           <div className="hidden md:flex items-center gap-12">
@@ -50,8 +51,10 @@ const Features = () => {
           >
             Get Started
           </Button>
-        </nav>
+        </div>
+      </nav>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-16">
           <h1 className="text-4xl font-bold text-center mb-8">ManageLeaseAI Features</h1>
 
