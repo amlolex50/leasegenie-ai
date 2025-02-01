@@ -127,7 +127,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         </SidebarContent>
       </Sidebar>
       <main className="flex-1 overflow-auto relative bg-background">
-        <div className="flex items-center justify-between px-8 py-4 shadow-sm bg-white mx-4 mt-4 rounded-[20px]">
+        <div className="flex items-center justify-between px-8 py-4 shadow-sm bg-white mx-4 rounded-b-[20px]">
           <div className="flex items-center gap-4">
             {menuItems.map((item) => (
               <Button
