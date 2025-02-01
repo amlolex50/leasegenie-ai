@@ -5,6 +5,8 @@ import {
   Wrench, 
   HelpCircle, 
   BrainCircuit,
+  Users,
+  Tools
 } from "lucide-react";
 
 export const menuItems = [
@@ -22,6 +24,16 @@ export const menuItems = [
     label: "Leases",
     path: "/leases",
     icon: FileText,
+  },
+  {
+    label: "Tenants",
+    path: "/tenants",
+    icon: Users,
+  },
+  {
+    label: "Contractors",
+    path: "/contractors",
+    icon: Tools,
   },
   {
     label: "Maintenance",
