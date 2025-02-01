@@ -6,7 +6,7 @@ import {
   HelpCircle, 
   BrainCircuit,
   Users,
-  Tools
+  Hammer
 } from "lucide-react";
 
 export const menuItems = [
@@ -33,7 +33,7 @@ export const menuItems = [
   {
     label: "Contractors",
     path: "/contractors",
-    icon: Tools,
+    icon: Hammer,
   },
   {
     label: "Maintenance",
