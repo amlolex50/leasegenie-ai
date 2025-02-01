@@ -96,7 +96,7 @@ export default function Landing() {
             <div className="mt-8 border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center">
               <div className="flex items-center">
                 <span className="text-primary text-2xl mr-2">★</span>
-                <span className="text-xl font-semibold">LeaseGenie AI</span>
+                <span className="text-xl font-semibold">ManageLeaseAI</span>
               </div>
               <p className="mt-4 md:mt-0 text-base text-gray-400">
                 &copy; {new Date().getFullYear()} LeaseGenie AI. All rights reserved.
