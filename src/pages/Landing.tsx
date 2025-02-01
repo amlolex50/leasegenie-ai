@@ -9,31 +9,33 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen">
+      {/* Navigation - Moved to top and made sticky */}
+      <nav className="sticky top-0 w-full bg-white/95 backdrop-blur-sm px-8 py-4 shadow-md z-50">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2">
+              <span className="text-blue-500 text-2xl">★</span>
+              <span className="font-semibold text-xl">ManageLeaseAi</span>
+            </Link>
+          </div>
+          <div className="hidden md:flex items-center gap-12">
+            <Link to="/" className="text-gray-600 hover:text-gray-900">Home</Link>
+            <Link to="/features" className="text-gray-600 hover:text-gray-900">Features</Link>
+            <Link to="/how-it-works" className="text-gray-600 hover:text-gray-900">How It Works</Link>
+            <Link to="/about" className="text-gray-600 hover:text-gray-900">About Us</Link>
+            <Link to="/testimonials" className="text-gray-600 hover:text-gray-900">Testimonials</Link>
+          </div>
+          <Button 
+            className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-6"
+            onClick={() => navigate('/auth')}
+          >
+            Get Started
+          </Button>
+        </div>
+      </nav>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="bg-white rounded-2xl overflow-hidden">
-          {/* Navigation */}
-          <nav className="flex items-center justify-between px-8 py-4 shadow-md rounded-[20px] relative z-10">
-            <div className="flex items-center gap-2">
-              <Link to="/" className="flex items-center gap-2">
-                <span className="text-blue-500 text-2xl">★</span>
-                <span className="font-semibold text-xl">ManageLeaseAi</span>
-              </Link>
-            </div>
-            <div className="hidden md:flex items-center gap-12">
-              <Link to="/" className="text-gray-600 hover:text-gray-900">Home</Link>
-              <Link to="/features" className="text-gray-600 hover:text-gray-900">Features</Link>
-              <Link to="/how-it-works" className="text-gray-600 hover:text-gray-900">How It Works</Link>
-              <Link to="/about" className="text-gray-600 hover:text-gray-900">About Us</Link>
-              <Link to="/testimonials" className="text-gray-600 hover:text-gray-900">Testimonials</Link>
-            </div>
-            <Button 
-              className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-6"
-              onClick={() => navigate('/auth')}
-            >
-              Get Started
-            </Button>
-          </nav>
-
           {/* Hero Section */}
           <div className="px-8 py-16">
             <div className="text-center mb-16">
