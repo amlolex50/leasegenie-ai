@@ -11,19 +11,19 @@ export const HeroSection = () => {
           Your Intelligent Partner For{' '}
           <span className="text-blue-500">Commercial Lease Management</span>
         </h1>
-        <p className="text-base md:text-lg text-gray-600 mb-6 md:mb-8 max-w-2xl mx-auto px-4">
+        <p className="text-base md:text-lg text-gray-600 mb-6 md:mb-8 max-w-2xl mx-auto">
           Empowering commercial landlords and property managers with AI-driven lease management, predictive maintenance, and automated support.
         </p>
-        <div className="flex flex-col md:flex-row justify-center gap-4">
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Button 
             variant="outline" 
-            className="rounded-full px-8 w-full md:w-auto"
+            className="rounded-full px-8 w-full sm:w-auto"
             onClick={() => navigate('/auth')}
           >
             Learn More
           </Button>
           <Button 
-            className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-8 w-full md:w-auto"
+            className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-8 w-full sm:w-auto"
             onClick={() => navigate('/auth')}
           >
             Get Started
@@ -36,7 +36,7 @@ export const HeroSection = () => {
 };
 
 const DashboardPreview = () => (
-  <div className="relative mx-auto max-w-5xl mb-16 md:mb-32">
+  <div className="relative mx-auto max-w-5xl mb-8 md:mb-16">
     <div className="bg-[#D3E4FD] rounded-xl shadow-sm p-4 md:p-8 text-left">
       <div className="bg-white rounded-2xl overflow-hidden">
         <DashboardHeader />
@@ -47,8 +47,8 @@ const DashboardPreview = () => (
 );
 
 const DashboardHeader = () => (
-  <div className="flex flex-col md:flex-row md:items-center justify-between p-4">
-    <div className="flex items-center gap-4 mb-4 md:mb-0">
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4">
+    <div className="flex items-center gap-4 mb-4 sm:mb-0">
       <span className="text-blue-500 text-2xl">★</span>
       <div className="flex items-center gap-2">
         <span className="text-sm text-gray-600">Home / Dashboard</span>
@@ -66,7 +66,7 @@ const DashboardHeader = () => (
 );
 
 const SearchBar = () => (
-  <div className="relative w-full md:w-64">
+  <div className="relative w-full sm:w-64">
     <input
       type="text"
       placeholder="Search..."
@@ -116,7 +116,7 @@ const DashboardContent = () => (
 );
 
 const StatisticsGrid = () => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
     <StatCard
       color="blue-600"
       label="Total Compliance"
@@ -163,12 +163,12 @@ const ChartsGrid = () => (
 );
 
 const MonthlyChart = () => (
-  <div className="col-span-8 bg-white rounded-xl border border-gray-200 p-6">
-    <div className="flex items-center justify-between mb-6">
-      <h3 className="font-semibold">Selected Properties</h3>
-      <div className="flex items-center gap-2">
-        <button className="px-4 py-1 text-sm bg-blue-500 text-white rounded-md">Monthly View</button>
-        <button className="px-4 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md">Annual View</button>
+  <div className="col-span-12 lg:col-span-8 bg-white rounded-xl border border-gray-200 p-6">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
+      <h3 className="font-semibold mb-2 sm:mb-0">Selected Properties</h3>
+      <div className="flex items-center gap-2 w-full sm:w-auto">
+        <button className="px-4 py-1 text-sm bg-blue-500 text-white rounded-md w-full sm:w-auto">Monthly View</button>
+        <button className="px-4 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded-md w-full sm:w-auto">Annual View</button>
       </div>
     </div>
     <div className="h-64">
@@ -181,9 +181,9 @@ const MonthlyChart = () => (
           ></div>
         ))}
       </div>
-      <div className="flex justify-between mt-4 text-sm text-gray-600">
+      <div className="flex justify-between mt-4 text-sm text-gray-600 overflow-x-auto">
         {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((month) => (
-          <span key={month}>{month}</span>
+          <span key={month} className="whitespace-nowrap">{month}</span>
         ))}
       </div>
     </div>
@@ -191,7 +191,7 @@ const MonthlyChart = () => (
 );
 
 const TopProperties = () => (
-  <div className="col-span-4 bg-white rounded-xl border border-gray-200 p-6">
+  <div className="col-span-12 lg:col-span-4 bg-white rounded-xl border border-gray-200 p-6">
     <h3 className="font-semibold mb-4">Top Properties</h3>
     <div className="space-y-4">
       {[1, 2, 3].map((num) => (
