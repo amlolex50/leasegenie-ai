@@ -199,6 +199,7 @@ export type Database = {
           insights: Json | null
           lease_end_date: string
           lease_start_date: string
+          maintenance_auth_limit: number | null
           monthly_rent: number
           pdf_url: string | null
           tenant_id: string
@@ -213,6 +214,7 @@ export type Database = {
           insights?: Json | null
           lease_end_date: string
           lease_start_date: string
+          maintenance_auth_limit?: number | null
           monthly_rent: number
           pdf_url?: string | null
           tenant_id: string
@@ -227,6 +229,7 @@ export type Database = {
           insights?: Json | null
           lease_end_date?: string
           lease_start_date?: string
+          maintenance_auth_limit?: number | null
           monthly_rent?: number
           pdf_url?: string | null
           tenant_id?: string
@@ -308,6 +311,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          maintenance_auth_limit: number | null
           phone: string | null
           updated_at: string
         }
@@ -317,6 +321,7 @@ export type Database = {
           email: string
           full_name: string
           id?: string
+          maintenance_auth_limit?: number | null
           phone?: string | null
           updated_at?: string
         }
@@ -326,6 +331,7 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          maintenance_auth_limit?: number | null
           phone?: string | null
           updated_at?: string
         }
@@ -867,6 +873,13 @@ export type Database = {
           metadata: Json
           similarity: number
         }[]
+      }
+      needs_owner_authorization: {
+        Args: {
+          maintenance_cost: number
+          lease_id: string
+        }
+        Returns: boolean
       }
       sparsevec_out: {
         Args: {

@@ -22,26 +22,40 @@ const Index = () => {
           return;
         }
 
-        const { data, error } = await supabase
+        // First try to get the role directly from the users table
+        const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role')
           .eq('id', user.id)
-          .single();
-        
-        if (error) {
-          console.error('Error fetching user role:', error);
-          toast({
-            title: "Error",
-            description: "Failed to load user role. Please try again.",
-            variant: "destructive",
-          });
-          return;
+          .maybeSingle();
+
+        if (userError) {
+          console.error('Error fetching user role:', userError);
+          // If there's an error with the users table query, try the user_roles table
+          const { data: roleData, error: roleError } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+          if (roleError) {
+            console.error('Error fetching from user_roles:', roleError);
+            toast({
+              title: "Error",
+              description: "Failed to load user role. Please try again or contact support.",
+              variant: "destructive",
+            });
+            setIsLoading(false);
+            return;
+          }
+
+          if (roleData) {
+            setUserRole(roleData.role);
+          }
+        } else if (userData) {
+          setUserRole(userData.role);
         }
 
-        if (data) {
-          console.log('User role fetched:', data.role);
-          setUserRole(data.role);
-        }
       } catch (error) {
         console.error('Error in fetchUserRole:', error);
         toast({
@@ -76,7 +90,7 @@ const Index = () => {
       {!userRole && (
         <div className="flex flex-col items-center justify-center min-h-screen">
           <p className="text-gray-600">No dashboard available for your role.</p>
-          <p className="text-sm text-gray-500">Current role: {userRole || 'None'}</p>
+          <p className="text-sm text-gray-500">Please ensure your account has been properly set up.</p>
         </div>
       )}
     </DashboardLayout>
