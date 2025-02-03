@@ -22,12 +22,12 @@ const Index = () => {
           return;
         }
 
-        console.log("Current user ID:", user.id); // Debug log
+        console.log("Current user ID:", user.id);
 
         const { data: userData, error } = await supabase
-          .from("users")
-          .select("role, full_name")
-          .eq("id", user.id)
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
           .single();
 
         if (error) {
@@ -38,10 +38,10 @@ const Index = () => {
             variant: "destructive",
           });
         } else if (userData) {
-          console.log("User data found:", userData); // Debug log
+          console.log("User data found:", userData);
           setUserRole(userData.role);
         } else {
-          console.log("No user data found"); // Debug log
+          console.log("No user data found");
           toast({
             title: "Account Setup Required",
             description: "Your user profile is not properly configured. Please contact support.",
