@@ -1,5 +1,4 @@
-import { BarChart } from "recharts";
-import { ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 const barChartData = [
   { name: "Manual Process", value: 100 },
