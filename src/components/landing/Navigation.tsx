@@ -5,7 +5,7 @@ export const Navigation = () => {
   const navigate = useNavigate();
 
   return (
-    <nav className="sticky top-0 w-full bg-white/95 backdrop-blur-sm shadow-md z-50">
+    <nav className="w-full bg-white/95 backdrop-blur-sm shadow-md z-50">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

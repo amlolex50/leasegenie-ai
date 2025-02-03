@@ -39,46 +39,47 @@ const testimonials: Testimonial[] = [
 
 const Testimonials = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="w-full min-h-screen flex flex-col">
       <Navigation />
-      
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            What Our Clients Say
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Discover how our property management platform is helping landlords and property managers streamline their operations.
-          </p>
-        </div>
+      <main className="flex-1 w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center mb-16">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              What Our Clients Say
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Discover how our property management platform is helping landlords and property managers streamline their operations.
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map((testimonial) => (
-            <Card key={testimonial.id} className="hover-lift">
-              <CardContent className="p-6">
-                <div className="flex items-center mb-6">
-                  <img
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    className="w-16 h-16 rounded-full object-cover mr-4"
-                  />
-                  <div>
-                    <h3 className="font-semibold text-lg text-gray-900">
-                      {testimonial.name}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {testimonial.role} at {testimonial.company}
-                    </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {testimonials.map((testimonial) => (
+              <Card key={testimonial.id} className="hover-lift">
+                <CardContent className="p-6">
+                  <div className="flex items-center mb-6">
+                    <img
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      className="w-16 h-16 rounded-full object-cover mr-4"
+                    />
+                    <div>
+                      <h3 className="font-semibold text-lg text-gray-900">
+                        {testimonial.name}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {testimonial.role} at {testimonial.company}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <p className="text-gray-700 leading-relaxed">
-                  "{testimonial.content}"
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+                  <p className="text-gray-700 leading-relaxed">
+                    "{testimonial.content}"
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
