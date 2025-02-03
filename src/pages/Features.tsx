@@ -56,35 +56,46 @@ const Features = () => {
         </div>
       </nav>
 
-      {/* Main Content */}
+      {/* Main Content Container */}
       <div className="w-full">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <h1 className="text-4xl font-bold text-center mb-8">LeaseGenie AI Features</h1>
+          <h1 className="text-4xl font-bold text-center mb-16">LeaseGenie AI Features</h1>
 
           {/* AI-Driven Lease Management */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-semibold mb-6 text-center">AI-Driven Lease Management</h2>
-            <div className="grid md:grid-cols-2 gap-8 items-center">
+          <section className="mb-24">
+            <h2 className="text-3xl font-semibold mb-12 text-center">AI-Driven Lease Management</h2>
+            <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="text-center md:text-left">
-                <p className="text-lg mb-4">
+                <p className="text-lg mb-6 text-gray-700">
                   LeaseGenie AI revolutionizes lease management with advanced artificial intelligence. Our system automates
                   lease abstraction, provides smart notifications, and offers valuable negotiation insights.
                 </p>
-                <ul className="list-disc list-inside space-y-2">
-                  <li>Automated lease data extraction</li>
-                  <li>Intelligent clause analysis</li>
-                  <li>Proactive deadline reminders</li>
-                  <li>AI-powered negotiation recommendations</li>
+                <ul className="space-y-3 text-gray-600">
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                    <span>Automated lease data extraction</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                    <span>Intelligent clause analysis</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                    <span>Proactive deadline reminders</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                    <span>AI-powered negotiation recommendations</span>
+                  </li>
                 </ul>
               </div>
-              <div className="glass-card p-6 rounded-lg h-64">
-                <ResponsiveContainer width="100%" height="100%">
+              <div className="glass-card p-8 rounded-xl shadow-lg">
+                <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={barChartData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip />
-                    <Legend />
                     <Bar dataKey="value" fill="#8884d8" />
                   </BarChart>
                 </ResponsiveContainer>
@@ -93,11 +104,11 @@ const Features = () => {
           </section>
 
           {/* Predictive Maintenance */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-semibold mb-6 text-center">Predictive Maintenance & Repair</h2>
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div className="glass-card p-6 rounded-lg h-64">
-                <ResponsiveContainer width="100%" height="100%">
+          <section className="mb-24">
+            <h2 className="text-3xl font-semibold mb-12 text-center">Predictive Maintenance & Repair</h2>
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="glass-card p-8 rounded-xl shadow-lg order-2 md:order-1">
+                <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={lineChartData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
@@ -109,50 +120,68 @@ const Features = () => {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              <div className="text-center md:text-left">
-                <p className="text-lg mb-4">
+              <div className="text-center md:text-left order-1 md:order-2">
+                <p className="text-lg mb-6 text-gray-700">
                   Stay ahead of maintenance issues with our predictive analytics. LeaseGenie AI uses historical data and
                   machine learning to forecast potential problems before they occur.
                 </p>
-                <ul className="list-disc list-inside space-y-2">
-                  <li>Predictive maintenance scheduling</li>
-                  <li>Cost-saving recommendations</li>
-                  <li>Automated work order generation</li>
-                  <li>Vendor performance tracking</li>
+                <ul className="space-y-3 text-gray-600">
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    <span>Predictive maintenance scheduling</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    <span>Cost-saving recommendations</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    <span>Automated work order generation</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    <span>Vendor performance tracking</span>
+                  </li>
                 </ul>
               </div>
             </div>
           </section>
 
           {/* Feature Cards */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-semibold mb-6 text-center">Dedicated Portals for All Stakeholders</h2>
+          <section className="mb-24">
+            <h2 className="text-3xl font-semibold mb-12 text-center">Dedicated Portals for All Stakeholders</h2>
             <div className="grid md:grid-cols-3 gap-8">
-              <Card className="text-center">
+              <Card className="glass-card hover:shadow-lg transition-all duration-300">
                 <CardHeader>
-                  <CardTitle>Landlord Portal</CardTitle>
+                  <CardTitle className="flex flex-col items-center gap-4">
+                    <Users className="w-12 h-12 text-blue-600" />
+                    Landlord Portal
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-col items-center">
-                  <Users className="w-12 h-12 mb-4 text-blue-600" />
-                  <p>Comprehensive overview of all properties, leases, and financial data.</p>
+                <CardContent>
+                  <p className="text-center text-gray-600">Comprehensive overview of all properties, leases, and financial data.</p>
                 </CardContent>
               </Card>
-              <Card className="text-center">
+              <Card className="glass-card hover:shadow-lg transition-all duration-300">
                 <CardHeader>
-                  <CardTitle>Tenant Portal</CardTitle>
+                  <CardTitle className="flex flex-col items-center gap-4">
+                    <Users className="w-12 h-12 text-green-600" />
+                    Tenant Portal
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-col items-center">
-                  <Users className="w-12 h-12 mb-4 text-green-600" />
-                  <p>Easy access to lease details, maintenance requests, and payment history.</p>
+                <CardContent>
+                  <p className="text-center text-gray-600">Easy access to lease details, maintenance requests, and payment history.</p>
                 </CardContent>
               </Card>
-              <Card className="text-center">
+              <Card className="glass-card hover:shadow-lg transition-all duration-300">
                 <CardHeader>
-                  <CardTitle>Vendor Portal</CardTitle>
+                  <CardTitle className="flex flex-col items-center gap-4">
+                    <Users className="w-12 h-12 text-orange-600" />
+                    Vendor Portal
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="flex flex-col items-center">
-                  <Users className="w-12 h-12 mb-4 text-orange-600" />
-                  <p>Streamlined work order management and communication tools.</p>
+                <CardContent>
+                  <p className="text-center text-gray-600">Streamlined work order management and communication tools.</p>
                 </CardContent>
               </Card>
             </div>
