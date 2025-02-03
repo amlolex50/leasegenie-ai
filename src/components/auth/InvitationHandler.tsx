@@ -49,24 +49,6 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
         if (signUpError) throw signUpError;
 
         if (signUpData.user) {
-          // If the invited user is an owner, create an owner record first
-          let ownerId = null;
-          if (invitation.role === 'OWNER') {
-            const { data: ownerData, error: ownerError } = await supabase
-              .from('owners')
-              .insert([
-                {
-                  full_name: invitation.email.split('@')[0],
-                  email: invitation.email,
-                }
-              ])
-              .select()
-              .single();
-
-            if (ownerError) throw ownerError;
-            ownerId = ownerData.id;
-          }
-
           // Create user profile
           const { error: profileError } = await supabase
             .from('users')
@@ -76,8 +58,7 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
                 email: invitation.email,
                 role: invitation.role,
                 landlord_id: invitation.landlord_id,
-                full_name: invitation.email.split('@')[0],
-                owner_id: ownerId
+                full_name: invitation.email.split('@')[0] // Temporary name
               }
             ]);
 

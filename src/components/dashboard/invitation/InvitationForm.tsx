@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Mail } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
-type InvitationRole = 'TENANT' | 'CONTRACTOR' | 'OWNER';
+type InvitationRole = 'TENANT' | 'CONTRACTOR';
 
 export const InvitationForm = () => {
   const [email, setEmail] = useState("");
@@ -120,7 +120,6 @@ export const InvitationForm = () => {
           <SelectContent>
             <SelectItem value="TENANT">Tenant</SelectItem>
             <SelectItem value="CONTRACTOR">Contractor</SelectItem>
-            <SelectItem value="OWNER">Property Owner</SelectItem>
           </SelectContent>
         </Select>
       </div>
