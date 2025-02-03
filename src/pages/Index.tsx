@@ -5,7 +5,7 @@ import { LandlordDashboard } from "@/components/dashboard/LandlordDashboard";
 import { TenantDashboard } from "@/components/dashboard/TenantDashboard";
 import { ContractorDashboard } from "@/components/dashboard/ContractorDashboard";
 import { OwnerDashboard } from "@/components/dashboard/OwnerDashboard";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -22,36 +22,19 @@ const Index = () => {
           return;
         }
 
-        // First try to get the role directly from the users table
-        const { data: userData, error: userError } = await supabase
+        const { data: userData, error } = await supabase
           .from('users')
           .select('role')
           .eq('id', user.id)
           .maybeSingle();
 
-        if (userError) {
-          console.error('Error fetching user role:', userError);
-          // If there's an error with the users table query, try the user_roles table
-          const { data: roleData, error: roleError } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', user.id)
-            .maybeSingle();
-
-          if (roleError) {
-            console.error('Error fetching from user_roles:', roleError);
-            toast({
-              title: "Error",
-              description: "Failed to load user role. Please try again or contact support.",
-              variant: "destructive",
-            });
-            setIsLoading(false);
-            return;
-          }
-
-          if (roleData) {
-            setUserRole(roleData.role);
-          }
+        if (error) {
+          console.error('Error fetching user role:', error);
+          toast({
+            title: "Error",
+            description: "Failed to load user role. Please try again or contact support.",
+            variant: "destructive",
+          });
         } else if (userData) {
           setUserRole(userData.role);
         }
