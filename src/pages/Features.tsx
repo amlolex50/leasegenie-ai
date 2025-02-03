@@ -1,7 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { Brain, BarChart3, Users, Bot, Shield, Cog } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { Brain, BarChart3, Shield } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 
 const Features = () => {
@@ -20,25 +20,16 @@ const Features = () => {
     { date: "May", "Maintenance Costs": 3200, "Predicted Costs": 3000 },
   ];
 
-  const pieChartData = [
-    { name: "Occupied", value: 75 },
-    { name: "Vacant", value: 25 },
-  ];
-
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white w-full">
       {/* Navigation */}
-      <nav className="sticky top-0 w-full bg-white/95 backdrop-blur-sm shadow-md z-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="w-full bg-white/95 backdrop-blur-sm shadow-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Link to="/" className="flex items-center gap-2">
-                <span className="text-blue-500 text-2xl">★</span>
-                <span className="font-semibold text-xl">LeaseGenie AI</span>
-              </Link>
-            </div>
+            <Link to="/" className="flex items-center gap-2">
+              <span className="text-blue-500 text-2xl">★</span>
+              <span className="font-semibold text-xl">LeaseGenie AI</span>
+            </Link>
             <div className="hidden md:flex items-center gap-12">
               <Link to="/" className="text-gray-600 hover:text-gray-900">Home</Link>
               <Link to="/features" className="text-gray-600 hover:text-gray-900">Features</Link>
@@ -54,10 +45,10 @@ const Features = () => {
             </Button>
           </div>
         </div>
-      </nav>
+      </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <section className="py-16 text-center">
           <h1 className="text-4xl font-bold mb-6">LeaseGenie AI Features</h1>
