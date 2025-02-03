@@ -9,14 +9,14 @@ export const HeroSection = () => {
     <div className="min-h-screen w-full bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-screen">
         <div className="w-full max-w-[1280px] mx-auto">
-          <div className="text-center space-y-6">
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight">
+          <div className="text-center space-y-8 mb-12">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mt-16">
               Your Intelligent Partner For
               <br />
-              <span className="text-blue-500">
-                Commercial Lease
+              <span className="text-blue-500 mt-4 block">
+                Commercial & Residential
                 <br />
-                Management
+                Lease Management
               </span>
             </h1>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto">
