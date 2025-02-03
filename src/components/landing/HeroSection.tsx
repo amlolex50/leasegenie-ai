@@ -5,34 +5,36 @@ export const HeroSection = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="py-12 sm:py-16 lg:py-20">
-        <div className="text-center max-w-4xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold tracking-tight mb-4 sm:mb-6">
-            Your Intelligent Partner For<br />
-            <span className="text-blue-500">Commercial Lease Management</span>
-          </h1>
-          <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto">
-            Empowering commercial landlords and property managers with AI-driven lease management, predictive maintenance, and automated support.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button 
-              variant="outline" 
-              className="rounded-full px-8 py-2 sm:py-3"
-              onClick={() => navigate('/auth')}
-            >
-              Learn More
-            </Button>
-            <Button 
-              className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-8 py-2 sm:py-3"
-              onClick={() => navigate('/auth')}
-            >
-              Get Started
-            </Button>
+    <div className="w-full min-h-screen">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <div className="py-12 sm:py-16 lg:py-20">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold tracking-tight mb-4 sm:mb-6">
+              Your Intelligent Partner For<br />
+              <span className="text-blue-500">Commercial Lease Management</span>
+            </h1>
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto">
+              Empowering commercial landlords and property managers with AI-driven lease management, predictive maintenance, and automated support.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button 
+                variant="outline" 
+                className="rounded-full px-8 py-2 sm:py-3"
+                onClick={() => navigate('/auth')}
+              >
+                Learn More
+              </Button>
+              <Button 
+                className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-8 py-2 sm:py-3"
+                onClick={() => navigate('/auth')}
+              >
+                Get Started
+              </Button>
+            </div>
           </div>
         </div>
+        <DashboardPreview />
       </div>
-      <DashboardPreview />
     </div>
   );
 };
