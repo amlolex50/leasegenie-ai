@@ -31,7 +31,7 @@ const Features = () => {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Navigation */}
       <nav className="sticky top-0 w-full bg-white/95 backdrop-blur-sm shadow-md z-50">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Link to="/" className="flex items-center gap-2">
@@ -56,256 +56,152 @@ const Features = () => {
         </div>
       </nav>
 
-      {/* Main Content Container */}
-      <div className="w-full">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <h1 className="text-4xl font-bold text-center mb-16">LeaseGenie AI Features</h1>
+      {/* Main Content */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Hero Section */}
+        <section className="py-16 text-center">
+          <h1 className="text-4xl font-bold mb-6">LeaseGenie AI Features</h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Experience the future of property management with our advanced AI-powered features
+          </p>
+        </section>
 
-          {/* AI-Driven Lease Management */}
-          <section className="mb-24">
-            <h2 className="text-3xl font-semibold mb-12 text-center">AI-Driven Lease Management</h2>
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="text-center md:text-left">
-                <p className="text-lg mb-6 text-gray-700">
-                  LeaseGenie AI revolutionizes lease management with advanced artificial intelligence. Our system automates
-                  lease abstraction, provides smart notifications, and offers valuable negotiation insights.
-                </p>
-                <ul className="space-y-3 text-gray-600">
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                    <span>Automated lease data extraction</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                    <span>Intelligent clause analysis</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                    <span>Proactive deadline reminders</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                    <span>AI-powered negotiation recommendations</span>
-                  </li>
-                </ul>
-              </div>
-              <div className="glass-card p-8 rounded-xl shadow-lg">
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={barChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="#8884d8" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+        {/* AI-Driven Lease Management */}
+        <section className="mb-24">
+          <h2 className="text-3xl font-semibold mb-12 text-center">AI-Driven Lease Management</h2>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <p className="text-lg mb-6 text-gray-700">
+                LeaseGenie AI revolutionizes lease management with advanced artificial intelligence. Our system automates
+                lease abstraction, provides smart notifications, and offers valuable negotiation insights.
+              </p>
+              <ul className="space-y-3 text-gray-600">
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  <span>Automated lease data extraction</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  <span>Intelligent clause analysis</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  <span>Proactive deadline reminders</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  <span>AI-powered negotiation recommendations</span>
+                </li>
+              </ul>
             </div>
-          </section>
-
-          {/* Predictive Maintenance */}
-          <section className="mb-24">
-            <h2 className="text-3xl font-semibold mb-12 text-center">Predictive Maintenance & Repair</h2>
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="glass-card p-8 rounded-xl shadow-lg order-2 md:order-1">
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={lineChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="Maintenance Costs" stroke="#8884d8" />
-                    <Line type="monotone" dataKey="Predicted Costs" stroke="#82ca9d" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="text-center md:text-left order-1 md:order-2">
-                <p className="text-lg mb-6 text-gray-700">
-                  Stay ahead of maintenance issues with our predictive analytics. LeaseGenie AI uses historical data and
-                  machine learning to forecast potential problems before they occur.
-                </p>
-                <ul className="space-y-3 text-gray-600">
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                    <span>Predictive maintenance scheduling</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                    <span>Cost-saving recommendations</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                    <span>Automated work order generation</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                    <span>Vendor performance tracking</span>
-                  </li>
-                </ul>
-              </div>
+            <div className="glass-card p-8 rounded-xl">
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={barChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-          </section>
-
-          {/* Feature Cards */}
-          <section className="mb-24">
-            <h2 className="text-3xl font-semibold mb-12 text-center">Dedicated Portals for All Stakeholders</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <Card className="glass-card hover:shadow-lg transition-all duration-300">
-                <CardHeader>
-                  <CardTitle className="flex flex-col items-center gap-4">
-                    <Users className="w-12 h-12 text-blue-600" />
-                    Landlord Portal
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-center text-gray-600">Comprehensive overview of all properties, leases, and financial data.</p>
-                </CardContent>
-              </Card>
-              <Card className="glass-card hover:shadow-lg transition-all duration-300">
-                <CardHeader>
-                  <CardTitle className="flex flex-col items-center gap-4">
-                    <Users className="w-12 h-12 text-green-600" />
-                    Tenant Portal
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-center text-gray-600">Easy access to lease details, maintenance requests, and payment history.</p>
-                </CardContent>
-              </Card>
-              <Card className="glass-card hover:shadow-lg transition-all duration-300">
-                <CardHeader>
-                  <CardTitle className="flex flex-col items-center gap-4">
-                    <Users className="w-12 h-12 text-orange-600" />
-                    Vendor Portal
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-center text-gray-600">Streamlined work order management and communication tools.</p>
-                </CardContent>
-              </Card>
-            </div>
-          </section>
-
-          {/* Analytics Dashboard */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-semibold mb-6 text-center">Powerful Analytics Dashboard</h2>
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div className="glass-card p-6 rounded-lg h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieChartData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    >
-                      {pieChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="text-center md:text-left">
-                <p className="text-lg mb-4">
-                  Gain valuable insights into your property portfolio with our comprehensive analytics dashboard. Visualize
-                  key metrics and make data-driven decisions.
-                </p>
-                <ul className="list-disc list-inside space-y-2">
-                  <li>Real-time occupancy rates</li>
-                  <li>Financial performance tracking</li>
-                  <li>Maintenance cost analysis</li>
-                  <li>Customizable reports and exports</li>
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          {/* Feature Summary */}
-          <section>
-            <h2 className="text-3xl font-semibold mb-6 text-center">Why Choose LeaseGenie AI?</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <Card className="text-center">
-                <CardHeader>
-                  <Brain className="w-8 h-8 mb-2 text-blue-600 mx-auto" />
-                  <CardTitle>AI-Powered Insights</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    Leverage artificial intelligence for smarter decision-making in lease management.
-                  </CardDescription>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <BarChart3 className="w-8 h-8 mb-2 text-green-600" />
-                  <CardTitle>Comprehensive Analytics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    Gain a 360-degree view of your property portfolio with advanced analytics and reporting.
-                  </CardDescription>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <Shield className="w-8 h-8 mb-2 text-red-600" />
-                  <CardTitle>Enhanced Security</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    Rest easy knowing your data is protected with state-of-the-art security measures.
-                  </CardDescription>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <Bot className="w-8 h-8 mb-2 text-purple-600" />
-                  <CardTitle>24/7 AI Support</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>Get instant assistance anytime with our AI-powered chatbot.</CardDescription>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <Users className="w-8 h-8 mb-2 text-orange-600" />
-                  <CardTitle>Stakeholder Portals</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    Provide tailored experiences for landlords, tenants, and vendors with dedicated portals.
-                  </CardDescription>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <Cog className="w-8 h-8 mb-2 text-indigo-600" />
-                  <CardTitle>Customizable & Scalable</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>Adapt LeaseGenie AI to your specific needs and grow with your business.</CardDescription>
-                </CardContent>
-              </Card>
-            </div>
-          </section>
-
-          <div className="mt-16 text-center">
-            <Button 
-              size="lg" 
-              className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-8 py-3"
-              onClick={() => navigate('/auth')}
-            >
-              Get Started with LeaseGenie AI
-            </Button>
           </div>
-        </div>
+        </section>
+
+        {/* Predictive Maintenance */}
+        <section className="mb-24">
+          <h2 className="text-3xl font-semibold mb-12 text-center">Predictive Maintenance & Repair</h2>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="glass-card p-8 rounded-xl">
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={lineChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="Maintenance Costs" stroke="#8884d8" />
+                  <Line type="monotone" dataKey="Predicted Costs" stroke="#82ca9d" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div>
+              <p className="text-lg mb-6 text-gray-700">
+                Stay ahead of maintenance issues with our predictive analytics. LeaseGenie AI uses historical data and
+                machine learning to forecast potential problems before they occur.
+              </p>
+              <ul className="space-y-3 text-gray-600">
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  <span>Predictive maintenance scheduling</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  <span>Cost-saving recommendations</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  <span>Automated work order generation</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  <span>Vendor performance tracking</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* Feature Cards */}
+        <section className="mb-24">
+          <h2 className="text-3xl font-semibold mb-12 text-center">Key Features</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: <Brain className="w-12 h-12 text-blue-600" />,
+                title: "AI-Powered Insights",
+                description: "Leverage artificial intelligence for smarter decision-making in lease management."
+              },
+              {
+                icon: <BarChart3 className="w-12 h-12 text-green-600" />,
+                title: "Comprehensive Analytics",
+                description: "Gain a 360-degree view of your property portfolio with advanced analytics."
+              },
+              {
+                icon: <Shield className="w-12 h-12 text-red-600" />,
+                title: "Enhanced Security",
+                description: "Rest easy knowing your data is protected with state-of-the-art security."
+              }
+            ].map((feature, index) => (
+              <Card key={index} className="glass-card hover:shadow-lg transition-all duration-300">
+                <CardHeader>
+                  <div className="flex flex-col items-center gap-4">
+                    {feature.icon}
+                    <CardTitle>{feature.title}</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-center text-gray-600">{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-16 text-center">
+          <h2 className="text-3xl font-bold mb-6">Ready to Transform Your Property Management?</h2>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Join thousands of property managers who are already using LeaseGenie AI to streamline their operations.
+          </p>
+          <Button 
+            size="lg"
+            className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-8 py-6"
+            onClick={() => navigate('/auth')}
+          >
+            Get Started Now
+          </Button>
+        </section>
       </div>
     </div>
   );
