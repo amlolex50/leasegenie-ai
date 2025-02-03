@@ -30,37 +30,39 @@ const Features = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Navigation - Moved to top and made sticky */}
-      <nav className="sticky top-0 w-full bg-white/95 backdrop-blur-sm px-8 py-4 shadow-md z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Link to="/" className="flex items-center gap-2">
-              <span className="text-blue-500 text-2xl">★</span>
-              <span className="font-semibold text-xl">LeaseGenie AI</span>
-            </Link>
+      <nav className="sticky top-0 w-full bg-white/95 backdrop-blur-sm shadow-md z-50">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Link to="/" className="flex items-center gap-2">
+                <span className="text-blue-500 text-2xl">★</span>
+                <span className="font-semibold text-xl">LeaseGenie AI</span>
+              </Link>
+            </div>
+            <div className="hidden md:flex items-center gap-12">
+              <Link to="/" className="text-gray-600 hover:text-gray-900">Home</Link>
+              <Link to="/features" className="text-gray-600 hover:text-gray-900">Features</Link>
+              <Link to="/how-it-works" className="text-gray-600 hover:text-gray-900">How It Works</Link>
+              <Link to="/about" className="text-gray-600 hover:text-gray-900">About Us</Link>
+              <Link to="/testimonials" className="text-gray-600 hover:text-gray-900">Testimonials</Link>
+            </div>
+            <Button 
+              className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-6"
+              onClick={() => navigate('/auth')}
+            >
+              Get Started
+            </Button>
           </div>
-          <div className="hidden md:flex items-center gap-12">
-            <Link to="/" className="text-gray-600 hover:text-gray-900">Home</Link>
-            <Link to="/features" className="text-gray-600 hover:text-gray-900">Features</Link>
-            <Link to="/how-it-works" className="text-gray-600 hover:text-gray-900">How It Works</Link>
-            <Link to="/about" className="text-gray-600 hover:text-gray-900">About Us</Link>
-            <Link to="/testimonials" className="text-gray-600 hover:text-gray-900">Testimonials</Link>
-          </div>
-          <Button 
-            className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-6"
-            onClick={() => navigate('/auth')}
-          >
-            Get Started
-          </Button>
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-16">
           <h1 className="text-4xl font-bold text-center mb-8">LeaseGenie AI Features</h1>
 
           {/* AI-Driven Lease Management */}
           <section className="mb-16">
-            <h2 className="text-3xl font-semibold mb-6">AI-Driven Lease Management</h2>
+            <h2 className="text-3xl font-semibold mb-6 text-center">AI-Driven Lease Management</h2>
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
                 <p className="text-lg mb-4">
@@ -123,31 +125,31 @@ const Features = () => {
 
           {/* Dedicated Portals */}
           <section className="mb-16">
-            <h2 className="text-3xl font-semibold mb-6">Dedicated Portals for All Stakeholders</h2>
+            <h2 className="text-3xl font-semibold mb-6 text-center">Dedicated Portals for All Stakeholders</h2>
             <div className="grid md:grid-cols-3 gap-8">
-              <Card>
+              <Card className="text-center">
                 <CardHeader>
                   <CardTitle>Landlord Portal</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex flex-col items-center">
                   <Users className="w-12 h-12 mb-4 text-blue-600" />
                   <p>Comprehensive overview of all properties, leases, and financial data.</p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="text-center">
                 <CardHeader>
                   <CardTitle>Tenant Portal</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex flex-col items-center">
                   <Users className="w-12 h-12 mb-4 text-green-600" />
                   <p>Easy access to lease details, maintenance requests, and payment history.</p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="text-center">
                 <CardHeader>
                   <CardTitle>Vendor Portal</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex flex-col items-center">
                   <Users className="w-12 h-12 mb-4 text-orange-600" />
                   <p>Streamlined work order management and communication tools.</p>
                 </CardContent>
@@ -197,11 +199,11 @@ const Features = () => {
 
           {/* Feature Summary */}
           <section>
-            <h2 className="text-3xl font-semibold mb-6">Why Choose LeaseGenie AI?</h2>
+            <h2 className="text-3xl font-semibold mb-6 text-center">Why Choose LeaseGenie AI?</h2>
             <div className="grid md:grid-cols-3 gap-8">
-              <Card>
+              <Card className="text-center">
                 <CardHeader>
-                  <Brain className="w-8 h-8 mb-2 text-blue-600" />
+                  <Brain className="w-8 h-8 mb-2 text-blue-600 mx-auto" />
                   <CardTitle>AI-Powered Insights</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -267,7 +269,7 @@ const Features = () => {
           <div className="mt-16 text-center">
             <Button 
               size="lg" 
-              className="bg-primary text-white hover:bg-primary/90"
+              className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-8 py-3"
               onClick={() => navigate('/auth')}
             >
               Get Started with LeaseGenie AI
