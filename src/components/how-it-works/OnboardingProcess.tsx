@@ -7,8 +7,8 @@ export const OnboardingProcess = () => {
       <h2 className="text-2xl sm:text-3xl font-semibold mb-6 sm:mb-8 text-center">
         Getting Started with Smart Lease Management
       </h2>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="bg-white/50 backdrop-blur-sm border border-gray-100">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <Card>
           <CardHeader>
             <Upload className="w-12 h-12 mb-4 text-blue-600" />
             <CardTitle>1. Upload Your Leases</CardTitle>
@@ -20,7 +20,7 @@ export const OnboardingProcess = () => {
             </CardDescription>
           </CardContent>
         </Card>
-        <Card className="bg-white/50 backdrop-blur-sm border border-gray-100">
+        <Card>
           <CardHeader>
             <Database className="w-12 h-12 mb-4 text-green-600" />
             <CardTitle>2. AI Data Extraction</CardTitle>
@@ -32,7 +32,7 @@ export const OnboardingProcess = () => {
             </CardDescription>
           </CardContent>
         </Card>
-        <Card className="sm:col-span-2 lg:col-span-1 bg-white/50 backdrop-blur-sm border border-gray-100">
+        <Card className="sm:col-span-2 lg:col-span-1">
           <CardHeader>
             <Bot className="w-12 h-12 mb-4 text-purple-600" />
             <CardTitle>3. Verify and Customize</CardTitle>
