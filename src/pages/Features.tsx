@@ -64,7 +64,7 @@ const Features = () => {
           <section className="mb-16">
             <h2 className="text-3xl font-semibold mb-6 text-center">AI-Driven Lease Management</h2>
             <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div>
+              <div className="text-center md:text-left">
                 <p className="text-lg mb-4">
                   LeaseGenie AI revolutionizes lease management with advanced artificial intelligence. Our system automates
                   lease abstraction, provides smart notifications, and offers valuable negotiation insights.
@@ -76,7 +76,7 @@ const Features = () => {
                   <li>AI-powered negotiation recommendations</li>
                 </ul>
               </div>
-              <div className="bg-gray-100 p-6 rounded-lg h-64">
+              <div className="glass-card p-6 rounded-lg h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={barChartData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -93,9 +93,9 @@ const Features = () => {
 
           {/* Predictive Maintenance */}
           <section className="mb-16">
-            <h2 className="text-3xl font-semibold mb-6">Predictive Maintenance & Repair</h2>
+            <h2 className="text-3xl font-semibold mb-6 text-center">Predictive Maintenance & Repair</h2>
             <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div className="bg-gray-100 p-6 rounded-lg h-64">
+              <div className="glass-card p-6 rounded-lg h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={lineChartData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -108,7 +108,7 @@ const Features = () => {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              <div>
+              <div className="text-center md:text-left">
                 <p className="text-lg mb-4">
                   Stay ahead of maintenance issues with our predictive analytics. LeaseGenie AI uses historical data and
                   machine learning to forecast potential problems before they occur.
