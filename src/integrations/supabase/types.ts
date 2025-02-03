@@ -598,6 +598,7 @@ export type Database = {
           landlord_id: string | null
           location: string | null
           nationality: string | null
+          owner_id: string | null
           phone: string | null
           rating: number | null
           role: string
@@ -617,6 +618,7 @@ export type Database = {
           landlord_id?: string | null
           location?: string | null
           nationality?: string | null
+          owner_id?: string | null
           phone?: string | null
           rating?: number | null
           role: string
@@ -636,6 +638,7 @@ export type Database = {
           landlord_id?: string | null
           location?: string | null
           nationality?: string | null
+          owner_id?: string | null
           phone?: string | null
           rating?: number | null
           role?: string
@@ -649,6 +652,13 @@ export type Database = {
             columns: ["landlord_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "users_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "owners"
             referencedColumns: ["id"]
           },
         ]
@@ -937,7 +947,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "LANDLORD" | "TENANT" | "CONTRACTOR" | "OWNER"
     }
     CompositeTypes: {
       [_ in never]: never
