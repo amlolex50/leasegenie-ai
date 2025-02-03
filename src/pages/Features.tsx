@@ -29,7 +29,7 @@ const Features = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Navigation - Moved to top and made sticky */}
+      {/* Navigation */}
       <nav className="sticky top-0 w-full bg-white/95 backdrop-blur-sm shadow-md z-50">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -56,8 +56,9 @@ const Features = () => {
         </div>
       </nav>
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-16">
+      {/* Main Content */}
+      <div className="w-full">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <h1 className="text-4xl font-bold text-center mb-8">LeaseGenie AI Features</h1>
 
           {/* AI-Driven Lease Management */}
@@ -123,7 +124,7 @@ const Features = () => {
             </div>
           </section>
 
-          {/* Dedicated Portals */}
+          {/* Feature Cards */}
           <section className="mb-16">
             <h2 className="text-3xl font-semibold mb-6 text-center">Dedicated Portals for All Stakeholders</h2>
             <div className="grid md:grid-cols-3 gap-8">
@@ -159,9 +160,9 @@ const Features = () => {
 
           {/* Analytics Dashboard */}
           <section className="mb-16">
-            <h2 className="text-3xl font-semibold mb-6">Powerful Analytics Dashboard</h2>
+            <h2 className="text-3xl font-semibold mb-6 text-center">Powerful Analytics Dashboard</h2>
             <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div className="bg-gray-100 p-6 rounded-lg h-64">
+              <div className="glass-card p-6 rounded-lg h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -182,7 +183,7 @@ const Features = () => {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div>
+              <div className="text-center md:text-left">
                 <p className="text-lg mb-4">
                   Gain valuable insights into your property portfolio with our comprehensive analytics dashboard. Visualize
                   key metrics and make data-driven decisions.
