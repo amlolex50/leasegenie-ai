@@ -4,6 +4,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { LandlordDashboard } from "@/components/dashboard/LandlordDashboard";
 import { TenantDashboard } from "@/components/dashboard/TenantDashboard";
 import { ContractorDashboard } from "@/components/dashboard/ContractorDashboard";
+import { OwnerDashboard } from "@/components/dashboard/OwnerDashboard";
 import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
@@ -38,7 +39,7 @@ const Index = () => {
         }
 
         if (data) {
-          console.log('User role fetched:', data.role); // Debug log
+          console.log('User role fetched:', data.role);
           setUserRole(data.role);
         }
       } catch (error) {
@@ -71,6 +72,7 @@ const Index = () => {
       {userRole === 'LANDLORD' && <LandlordDashboard />}
       {userRole === 'TENANT' && <TenantDashboard />}
       {userRole === 'CONTRACTOR' && <ContractorDashboard />}
+      {userRole === 'OWNER' && <OwnerDashboard />}
       {!userRole && (
         <div className="flex flex-col items-center justify-center min-h-screen">
           <p className="text-gray-600">No dashboard available for your role.</p>
