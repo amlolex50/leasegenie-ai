@@ -5,29 +5,31 @@ export const HeroSection = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="px-8 py-16">
-      <div className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-          Your Intelligent Partner For<br />
-          <span className="text-blue-500">Commercial Lease Management</span>
-        </h1>
-        <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-          Empowering commercial landlords and property managers with AI-driven lease management, predictive maintenance, and automated support.
-        </p>
-        <div className="flex justify-center gap-4">
-          <Button 
-            variant="outline" 
-            className="rounded-full px-8"
-            onClick={() => navigate('/auth')}
-          >
-            Learn More
-          </Button>
-          <Button 
-            className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-8"
-            onClick={() => navigate('/auth')}
-          >
-            Get Started
-          </Button>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="py-12 sm:py-16 lg:py-20">
+        <div className="text-center max-w-4xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold tracking-tight mb-4 sm:mb-6">
+            Your Intelligent Partner For<br />
+            <span className="text-blue-500">Commercial Lease Management</span>
+          </h1>
+          <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto">
+            Empowering commercial landlords and property managers with AI-driven lease management, predictive maintenance, and automated support.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Button 
+              variant="outline" 
+              className="rounded-full px-8 py-2 sm:py-3"
+              onClick={() => navigate('/auth')}
+            >
+              Learn More
+            </Button>
+            <Button 
+              className="bg-blue-500 text-white hover:bg-blue-600 rounded-full px-8 py-2 sm:py-3"
+              onClick={() => navigate('/auth')}
+            >
+              Get Started
+            </Button>
+          </div>
         </div>
       </div>
       <DashboardPreview />
@@ -36,8 +38,8 @@ export const HeroSection = () => {
 };
 
 const DashboardPreview = () => (
-  <div className="relative mx-auto max-w-5xl mb-32">
-    <div className="bg-[#D3E4FD] rounded-xl shadow-sm p-8 text-left">
+  <div className="relative mx-auto max-w-7xl mb-16 sm:mb-24 lg:mb-32">
+    <div className="bg-[#D3E4FD] rounded-xl shadow-sm p-4 sm:p-6 lg:p-8">
       <div className="bg-white rounded-2xl overflow-hidden">
         <DashboardHeader />
         <DashboardContent />
@@ -47,14 +49,14 @@ const DashboardPreview = () => (
 );
 
 const DashboardHeader = () => (
-  <div className="flex items-center justify-between p-4">
-    <div className="flex items-center gap-4">
+  <div className="flex flex-col sm:flex-row items-center justify-between p-4 sm:p-6">
+    <div className="flex items-center gap-4 mb-4 sm:mb-0">
       <span className="text-blue-500 text-2xl">★</span>
       <div className="flex items-center gap-2">
         <span className="text-sm text-gray-600">Home / Dashboard</span>
       </div>
     </div>
-    <div className="flex items-center gap-4">
+    <div className="flex flex-wrap justify-center sm:justify-end items-center gap-4">
       <SearchBar />
       <ThemeToggle />
       <NotificationBell />
@@ -64,11 +66,11 @@ const DashboardHeader = () => (
 );
 
 const SearchBar = () => (
-  <div className="relative">
+  <div className="relative w-full sm:w-64">
     <input
       type="text"
       placeholder="Search..."
-      className="pl-8 pr-4 py-2 rounded-lg bg-gray-50 text-sm w-64 border border-gray-200"
+      className="pl-8 pr-4 py-2 rounded-lg bg-gray-50 text-sm w-full border border-gray-200"
     />
     <svg
       className="w-4 h-4 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400"
@@ -107,14 +109,14 @@ const Avatar = () => (
 );
 
 const DashboardContent = () => (
-  <div className="p-6">
+  <div className="p-4 sm:p-6 lg:p-8">
     <StatisticsGrid />
     <ChartsGrid />
   </div>
 );
 
 const StatisticsGrid = () => (
-  <div className="grid grid-cols-3 gap-6 mb-8">
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
     <StatCard
       color="blue-600"
       label="Total Compliance"
@@ -144,17 +146,17 @@ interface StatCardProps {
 }
 
 const StatCard = ({ color, label, value, trend, isMain }: StatCardProps) => (
-  <div className={`${isMain ? `bg-${color}` : 'bg-white border border-gray-200'} rounded-xl p-6 ${isMain ? 'text-white' : ''}`}>
+  <div className={`${isMain ? `bg-${color}` : 'bg-white border border-gray-200'} rounded-xl p-4 sm:p-6 ${isMain ? 'text-white' : ''}`}>
     <div className="mb-2">
       <div className={`text-sm ${isMain ? 'opacity-80' : 'text-gray-600'}`}>{label}</div>
-      <div className="text-3xl font-bold">{value}</div>
+      <div className="text-2xl sm:text-3xl font-bold">{value}</div>
     </div>
     <div className={`text-xs ${isMain ? 'opacity-70' : 'text-green-500'}`}>{trend}</div>
   </div>
 );
 
 const ChartsGrid = () => (
-  <div className="grid grid-cols-12 gap-6">
+  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
     <MonthlyChart />
     <TopProperties />
   </div>
