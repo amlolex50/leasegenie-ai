@@ -13,7 +13,11 @@ interface OwnerWithInvitation {
   email: string;
   phone: string | null;
   company_name: string | null;
-  invitations: { status: string }[] | null;
+  users: {
+    invitations: {
+      status: string;
+    }[] | null;
+  }[] | null;
 }
 
 const ManageOwners = () => {
@@ -26,7 +30,14 @@ const ManageOwners = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('owners')
-        .select('*, invitations(status)')
+        .select(`
+          *,
+          users (
+            invitations (
+              status
+            )
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -82,11 +93,11 @@ const ManageOwners = () => {
                 )}
                 <div className="mt-2">
                   <span className={`text-sm px-2 py-1 rounded-full ${
-                    owner.invitations?.[0]?.status === 'ACCEPTED' 
+                    owner.users?.[0]?.invitations?.[0]?.status === 'ACCEPTED' 
                       ? 'bg-green-100 text-green-800'
                       : 'bg-yellow-100 text-yellow-800'
                   }`}>
-                    {owner.invitations?.[0]?.status === 'ACCEPTED' ? 'Active' : 'Pending'}
+                    {owner.users?.[0]?.invitations?.[0]?.status === 'ACCEPTED' ? 'Active' : 'Pending'}
                   </span>
                 </div>
               </div>
