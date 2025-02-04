@@ -25,7 +25,7 @@ const ManageOwners = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { data: owners, error } = useQuery<OwnerWithInvitation[]>({
+  const { data: owners } = useQuery<OwnerWithInvitation[]>({
     queryKey: ['owners'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -41,19 +41,16 @@ const ManageOwners = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load owners. Please try again.",
+          variant: "destructive",
+        });
         throw error;
       }
-      return data;
+      return data || [];
     }
   });
-
-  if (error) {
-    toast({
-      title: "Error",
-      description: "Failed to load owners. Please try again.",
-      variant: "destructive",
-    });
-  }
 
   return (
     <DashboardLayout>
