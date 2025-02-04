@@ -16,8 +16,8 @@ interface OwnerWithInvitation {
   users: {
     invitations: {
       status: string;
-    }[] | null;
-  }[] | null;
+    }[];
+  }[];
 }
 
 const ManageOwners = () => {
@@ -33,7 +33,7 @@ const ManageOwners = () => {
         .select(`
           *,
           users (
-            invitations (
+            invitations!invitations_invited_by_fkey (
               status
             )
           )
