@@ -51,6 +51,14 @@ export const OwnerInvitationList = () => {
     }
   };
 
+  if (!invitations?.length) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        No pending owner invitations
+      </div>
+    );
+  }
+
   return (
     <Table>
       <TableHeader>
@@ -62,7 +70,7 @@ export const OwnerInvitationList = () => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invitations?.map((invitation) => (
+        {invitations.map((invitation) => (
           <TableRow key={invitation.id}>
             <TableCell>{invitation.email}</TableCell>
             <TableCell>

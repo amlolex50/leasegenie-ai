@@ -51,7 +51,8 @@ export const OwnerInvitationForm = () => {
             role: 'OWNER',
             invited_by: user.id,
             landlord_id: user.id,
-            temporary_password: temporaryPassword
+            temporary_password: temporaryPassword,
+            status: 'PENDING'
           }
         ])
         .select()
@@ -77,7 +78,7 @@ export const OwnerInvitationForm = () => {
       });
 
       setEmail("");
-      queryClient.invalidateQueries({ queryKey: ['invitations'] });
+      queryClient.invalidateQueries({ queryKey: ['owner-invitations'] });
     } catch (error: any) {
       console.error('Error creating invitation:', error);
       toast({
