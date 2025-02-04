@@ -2,26 +2,12 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { PropertyFormValues } from "./types";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 interface PropertyFormFieldsProps {
   form: UseFormReturn<PropertyFormValues>;
 }
 
 export const PropertyFormFields = ({ form }: PropertyFormFieldsProps) => {
-  const { data: owners } = useQuery({
-    queryKey: ['owners'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('owners')
-        .select('*');
-      if (error) throw error;
-      return data;
-    },
-  });
-
   return (
     <>
       <FormField
@@ -33,31 +19,6 @@ export const PropertyFormFields = ({ form }: PropertyFormFieldsProps) => {
             <FormControl>
               <Input placeholder="Enter property name" {...field} />
             </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="owner_reference_id"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Property Owner</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select owner" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {owners?.map((owner) => (
-                  <SelectItem key={owner.id} value={owner.id}>
-                    {owner.full_name} {owner.company_name ? `(${owner.company_name})` : ''}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             <FormMessage />
           </FormItem>
         )}

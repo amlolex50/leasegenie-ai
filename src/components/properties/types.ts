@@ -6,7 +6,6 @@ export const propertyFormSchema = z.object({
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
   country: z.string().min(1, "Country is required"),
-  owner_reference_id: z.string().optional(),
 });
 
 export const unitFormSchema = z.object({
@@ -25,7 +24,6 @@ export interface Property {
   city: string;
   state: string;
   country: string;
-  owner_reference_id?: string;
 }
 
 export interface Unit {
@@ -33,12 +31,4 @@ export interface Unit {
   unit_name: string;
   floor_area: number;
   status: "VACANT" | "OCCUPIED";
-}
-
-export interface Owner {
-  id: string;
-  full_name: string;
-  email: string;
-  phone: string | null;
-  company_name: string | null;
 }

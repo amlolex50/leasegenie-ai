@@ -1,7 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building, MapPin } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 interface Property {
   id: string;
@@ -9,7 +7,6 @@ interface Property {
   address: string;
   city: string;
   state: string;
-  owner_reference_id: string;
   units: Unit[];
 }
 
@@ -21,22 +18,6 @@ interface Unit {
 }
 
 export const PropertyOverview = ({ property }: { property: Property }) => {
-  const { data: owner } = useQuery({
-    queryKey: ['owner', property.owner_reference_id],
-    queryFn: async () => {
-      if (!property.owner_reference_id) return null;
-      const { data, error } = await supabase
-        .from('owners')
-        .select('*')
-        .eq('id', property.owner_reference_id)
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!property.owner_reference_id,
-  });
-
   const totalUnits = property.units?.length || 0;
   const occupiedUnits = property.units?.filter(u => u.status === 'OCCUPIED').length || 0;
   const occupancyRate = totalUnits ? Math.round((occupiedUnits / totalUnits) * 100) : 0;
@@ -64,21 +45,6 @@ export const PropertyOverview = ({ property }: { property: Property }) => {
                 <p className="text-sm text-muted-foreground">Address</p>
               </div>
             </div>
-            {owner && (
-              <div className="border-t pt-4 mt-4">
-                <h4 className="font-semibold mb-2">Owner Information</h4>
-                <div className="space-y-2">
-                  <p><span className="font-medium">Name:</span> {owner.full_name}</p>
-                  {owner.company_name && (
-                    <p><span className="font-medium">Company:</span> {owner.company_name}</p>
-                  )}
-                  <p><span className="font-medium">Email:</span> {owner.email}</p>
-                  {owner.phone && (
-                    <p><span className="font-medium">Phone:</span> {owner.phone}</p>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>

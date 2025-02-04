@@ -3,6 +3,7 @@ import {
   Building2, 
   FileText, 
   Wrench, 
+  HelpCircle, 
   BrainCircuit,
   Users,
   Hammer
@@ -43,5 +44,10 @@ export const menuItems = [
     label: "AI Analytics",
     path: "/ai-analytics",
     icon: BrainCircuit,
+  },
+  {
+    label: "How it Works",
+    path: "/how-it-works",
+    icon: HelpCircle,
   },
 ];
