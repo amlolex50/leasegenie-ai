@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ const CreateOwner = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -19,11 +20,45 @@ const CreateOwner = () => {
     maintenance_auth_limit: "",
   });
 
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // Get the user's role from the users table
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+        if (userError) {
+          console.error('Error fetching user role:', userError);
+          return;
+        }
+
+        setCurrentUser({ ...user, role: userData?.role });
+      }
+    };
+
+    checkUser();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
+      // Log current user info for debugging
+      console.log('Current user:', currentUser);
+
+      if (!currentUser) {
+        throw new Error('You must be logged in to create an owner');
+      }
+
+      if (!['LANDLORD', 'PROPERTY_MANAGER'].includes(currentUser.role)) {
+        throw new Error(`Unauthorized role: ${currentUser.role}. Must be LANDLORD or PROPERTY_MANAGER`);
+      }
+
       // Create owner record
       const { data: ownerData, error: ownerError } = await supabase
         .from("owners")
@@ -39,11 +74,14 @@ const CreateOwner = () => {
         .select()
         .single();
 
-      if (ownerError) throw ownerError;
+      if (ownerError) {
+        console.error('Detailed error:', ownerError);
+        throw ownerError;
+      }
 
       toast({
         title: "Success",
-        description: "Owner has been created and invited successfully.",
+        description: "Owner has been created successfully.",
       });
 
       navigate("/owners");
@@ -76,6 +114,12 @@ const CreateOwner = () => {
         </div>
 
         <div className="max-w-2xl bg-white rounded-lg shadow p-6">
+          {currentUser?.role && !['LANDLORD', 'PROPERTY_MANAGER'].includes(currentUser.role) && (
+            <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-md">
+              Warning: You don't have the required role (LANDLORD or PROPERTY_MANAGER) to create owners.
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <OwnerFormFields formData={formData} setFormData={setFormData} />
             
@@ -88,7 +132,10 @@ const CreateOwner = () => {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting || !currentUser?.role || !['LANDLORD', 'PROPERTY_MANAGER'].includes(currentUser?.role)}
+              >
                 {isSubmitting ? "Creating..." : "Create Owner"}
               </Button>
             </div>
