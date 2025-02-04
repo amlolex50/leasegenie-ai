@@ -115,9 +115,9 @@ export const LeaseList = () => {
             ) : (
               leases?.map((lease) => (
                 <TableRow key={lease.id}>
-                  <TableCell>{lease.tenant.full_name}</TableCell>
-                  <TableCell>{lease.unit.property.name}</TableCell>
-                  <TableCell>{lease.unit.unit_name}</TableCell>
+                  <TableCell>{lease.tenant?.full_name || 'N/A'}</TableCell>
+                  <TableCell>{lease.unit?.property?.name || 'N/A'}</TableCell>
+                  <TableCell>{lease.unit?.unit_name || 'N/A'}</TableCell>
                   <TableCell>{format(new Date(lease.lease_start_date), "MMM d, yyyy")}</TableCell>
                   <TableCell>{format(new Date(lease.lease_end_date), "MMM d, yyyy")}</TableCell>
                   <TableCell>${lease.monthly_rent.toLocaleString()}</TableCell>
