@@ -24,29 +24,34 @@ const CreateOwner = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from("owners").insert([
-        {
-          full_name: formData.full_name,
-          email: formData.email,
-          phone: formData.phone || null,
-          company_name: formData.company_name || null,
-          maintenance_auth_limit: formData.maintenance_auth_limit ? parseFloat(formData.maintenance_auth_limit) : null,
-        },
-      ]);
+      // Create owner record
+      const { data: ownerData, error: ownerError } = await supabase
+        .from("owners")
+        .insert([
+          {
+            full_name: formData.full_name,
+            email: formData.email,
+            phone: formData.phone || null,
+            company_name: formData.company_name || null,
+            maintenance_auth_limit: formData.maintenance_auth_limit ? parseFloat(formData.maintenance_auth_limit) : null,
+          },
+        ])
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (ownerError) throw ownerError;
 
       toast({
         title: "Success",
-        description: "Owner has been created successfully.",
+        description: "Owner has been created and invited successfully.",
       });
 
       navigate("/owners");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating owner:", error);
       toast({
         title: "Error",
-        description: "Failed to create owner. Please try again.",
+        description: error.message,
         variant: "destructive",
       });
     } finally {

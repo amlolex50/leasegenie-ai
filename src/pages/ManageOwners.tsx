@@ -5,7 +5,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const ManageOwners = () => {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ const ManageOwners = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('owners')
-        .select('*')
+        .select('*, invitations(status)')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -71,6 +71,15 @@ const ManageOwners = () => {
                 {owner.company_name && (
                   <p className="text-gray-500 text-sm mt-1">{owner.company_name}</p>
                 )}
+                <div className="mt-2">
+                  <span className={`text-sm px-2 py-1 rounded-full ${
+                    owner.invitations?.[0]?.status === 'ACCEPTED' 
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {owner.invitations?.[0]?.status === 'ACCEPTED' ? 'Active' : 'Pending'}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
