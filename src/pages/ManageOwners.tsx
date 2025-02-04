@@ -7,12 +7,21 @@ import { PlusCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
+interface OwnerWithInvitation {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  company_name: string | null;
+  invitations: { status: string }[] | null;
+}
+
 const ManageOwners = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { data: owners, error } = useQuery({
+  const { data: owners, error } = useQuery<OwnerWithInvitation[]>({
     queryKey: ['owners'],
     queryFn: async () => {
       const { data, error } = await supabase
