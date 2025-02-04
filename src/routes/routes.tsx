@@ -24,6 +24,7 @@ import ManageContractors from "@/pages/ManageContractors";
 import ContractorDashboard from "@/pages/ContractorDashboard";
 import ManageTenants from "@/pages/ManageTenants";
 import TenantDashboard from "@/pages/TenantDashboard";
+import ManageOwners from "@/pages/ManageOwners";
 
 export const createRoutes = (session: any) => [
   {
@@ -125,5 +126,9 @@ export const createRoutes = (session: any) => [
   {
     path: "/tenants/:id/dashboard",
     element: session ? <TenantDashboard /> : <Navigate to="/auth" replace />,
+  },
+  {
+    path: "/owners",
+    element: session ? <ManageOwners /> : <Navigate to="/auth" replace />,
   },
 ];

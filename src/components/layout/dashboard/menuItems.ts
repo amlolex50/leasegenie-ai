@@ -5,7 +5,8 @@ import {
   Wrench, 
   BrainCircuit,
   Users,
-  Hammer
+  Hammer,
+  UserRound
 } from "lucide-react";
 
 export const menuItems = [
@@ -18,6 +19,11 @@ export const menuItems = [
     label: "Properties",
     path: "/properties",
     icon: Building2,
+  },
+  {
+    label: "Owners",
+    path: "/owners",
+    icon: UserRound,
   },
   {
     label: "Leases",

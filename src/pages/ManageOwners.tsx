@@ -1,0 +1,87 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+
+const ManageOwners = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { data: owners, error } = useQuery({
+    queryKey: ['owners'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('owners')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+      return data;
+    }
+  });
+
+  if (error) {
+    toast({
+      title: "Error",
+      description: "Failed to load owners. Please try again.",
+      variant: "destructive",
+    });
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Manage Owners</h1>
+            <p className="text-gray-500">View and manage property owners</p>
+          </div>
+          <Button
+            onClick={() => navigate('/owners/create')}
+            className="flex items-center gap-2"
+          >
+            <PlusCircle className="w-4 h-4" />
+            Add Owner
+          </Button>
+        </div>
+
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        ) : owners && owners.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {owners.map((owner) => (
+              <div
+                key={owner.id}
+                className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow"
+              >
+                <h3 className="font-semibold text-lg">{owner.full_name}</h3>
+                <p className="text-gray-600">{owner.email}</p>
+                {owner.phone && (
+                  <p className="text-gray-500 text-sm">{owner.phone}</p>
+                )}
+                {owner.company_name && (
+                  <p className="text-gray-500 text-sm mt-1">{owner.company_name}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No owners found. Add your first owner to get started.</p>
+          </div>
+        )}
+      </div>
+    </DashboardLayout>
+  );
+};
+
+export default ManageOwners;
