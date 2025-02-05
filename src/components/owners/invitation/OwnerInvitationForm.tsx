@@ -70,7 +70,8 @@ export const OwnerInvitationForm = () => {
           to: email, 
           invitationId: invitation.id, 
           inviterName: userData.full_name,
-          temporaryPassword
+          temporaryPassword,
+          role
         },
       });
 
