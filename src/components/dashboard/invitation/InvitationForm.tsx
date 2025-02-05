@@ -57,18 +57,26 @@ export const InvitationForm = () => {
 
       console.log('Created invitation:', invitation);
 
+      // Prepare data for email sending
+      const emailData = {
+        to: email,
+        invitationId: invitation.id,
+        inviterId: user.id,
+        temporaryPassword,
+        role
+      };
+
+      console.log('Sending email with data:', emailData);
+
       // Send invitation email
       const { error: emailError } = await supabase.functions.invoke('send-invitation-email', {
-        body: { 
-          to: email, 
-          invitationId: invitation.id,
-          inviterId: user.id,
-          temporaryPassword,
-          role
-        },
+        body: emailData,
       });
 
-      if (emailError) throw emailError;
+      if (emailError) {
+        console.error('Email sending error:', emailError);
+        throw emailError;
+      }
 
       toast({
         title: "Invitation sent",
