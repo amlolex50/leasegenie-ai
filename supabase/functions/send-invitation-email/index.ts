@@ -7,6 +7,7 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -19,6 +20,8 @@ serve(async (req) => {
 
     const { to, invitationId, inviterName, temporaryPassword, role } = await req.json()
 
+    console.log('Received invitation request:', { to, invitationId, role }) // Debug log
+
     // Create the user in auth.users
     const { data: authUser, error: authError } = await supabaseClient.auth.admin.createUser({
       email: to,
@@ -26,7 +29,12 @@ serve(async (req) => {
       email_confirm: true
     })
 
-    if (authError) throw authError
+    if (authError) {
+      console.error('Auth user creation error:', authError)
+      throw authError
+    }
+
+    console.log('Auth user created:', authUser.user.id) // Debug log
 
     // Create the user profile
     const { error: profileError } = await supabaseClient
@@ -36,11 +44,14 @@ serve(async (req) => {
           id: authUser.user.id,
           email: to,
           role: role,
-          landlord_id: inviterName // This should be the landlord's ID
+          landlord_id: inviterName // This should be the landlord's ID, not the name
         }
       ])
 
-    if (profileError) throw profileError
+    if (profileError) {
+      console.error('Profile creation error:', profileError)
+      throw profileError
+    }
 
     // Update invitation status
     const { error: inviteUpdateError } = await supabaseClient
@@ -48,10 +59,11 @@ serve(async (req) => {
       .update({ status: 'ACCEPTED' })
       .eq('id', invitationId)
 
-    if (inviteUpdateError) throw inviteUpdateError
+    if (inviteUpdateError) {
+      console.error('Invitation update error:', inviteUpdateError)
+      throw inviteUpdateError
+    }
 
-    // Here you would typically send an email with the temporary password
-    // For now, we'll just return success
     return new Response(
       JSON.stringify({ message: 'Invitation processed successfully' }),
       {
@@ -60,6 +72,7 @@ serve(async (req) => {
       }
     )
   } catch (error) {
+    console.error('Error processing invitation:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {

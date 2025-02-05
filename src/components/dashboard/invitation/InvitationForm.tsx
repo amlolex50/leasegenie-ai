@@ -55,7 +55,8 @@ export const InvitationForm = () => {
             role,
             invited_by: user.id,
             landlord_id: user.id,
-            temporary_password: temporaryPassword
+            temporary_password: temporaryPassword,
+            status: 'PENDING'
           }
         ])
         .select()
@@ -68,8 +69,9 @@ export const InvitationForm = () => {
         body: { 
           to: email, 
           invitationId: invitation.id, 
-          inviterName: userData.full_name,
-          temporaryPassword
+          inviterName: user.id, // Pass the actual ID instead of the name
+          temporaryPassword,
+          role
         },
       });
 
