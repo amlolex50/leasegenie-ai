@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
+import { Resend } from 'npm:resend@2.0.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,6 +18,8 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
+
+    const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
     const { to, invitationId, inviterName, temporaryPassword, role } = await req.json()
 
@@ -36,6 +39,18 @@ serve(async (req) => {
 
     console.log('Auth user created:', authUser.user.id) // Debug log
 
+    // Get inviter's name for the email
+    const { data: inviterData, error: inviterError } = await supabaseClient
+      .from('users')
+      .select('full_name')
+      .eq('id', inviterName)
+      .single()
+
+    if (inviterError) {
+      console.error('Error fetching inviter data:', inviterError)
+      throw inviterError
+    }
+
     // Create the user profile
     const { error: profileError } = await supabaseClient
       .from('users')
@@ -44,7 +59,8 @@ serve(async (req) => {
           id: authUser.user.id,
           email: to,
           role: role,
-          landlord_id: inviterName // This should be the landlord's ID, not the name
+          landlord_id: inviterName,
+          full_name: to.split('@')[0] // Temporary name
         }
       ])
 
@@ -64,10 +80,26 @@ serve(async (req) => {
       throw inviteUpdateError
     }
 
+    // Send email using Resend
+    const emailResponse = await resend.emails.send({
+      from: 'Property Management <onboarding@resend.dev>',
+      to: [to],
+      subject: `You've been invited as a ${role.toLowerCase()}`,
+      html: `
+        <h1>Welcome to Property Management!</h1>
+        <p>You've been invited by ${inviterData.full_name} to join as a ${role.toLowerCase()}.</p>
+        <p>Your temporary password is: <strong>${temporaryPassword}</strong></p>
+        <p>Please login and change your password as soon as possible.</p>
+        <p>Best regards,<br>The Property Management Team</p>
+      `,
+    });
+
+    console.log('Email sent successfully:', emailResponse);
+
     return new Response(
       JSON.stringify({ message: 'Invitation processed successfully' }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
         status: 200,
       }
     )
@@ -76,7 +108,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ error: error.message }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
         status: 400,
       }
     )
