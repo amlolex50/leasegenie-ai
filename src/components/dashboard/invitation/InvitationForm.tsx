@@ -35,15 +35,6 @@ export const InvitationForm = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Get user's full name
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('full_name')
-        .eq('id', user.id)
-        .single();
-
-      if (userError) throw userError;
-
       const temporaryPassword = generateTemporaryPassword();
 
       // Create invitation
@@ -68,8 +59,8 @@ export const InvitationForm = () => {
       const { error: emailError } = await supabase.functions.invoke('send-invitation-email', {
         body: { 
           to: email, 
-          invitationId: invitation.id, 
-          inviterName: user.id, // Pass the actual ID instead of the name
+          invitationId: invitation.id,
+          inviterId: user.id, // Changed from inviterName to inviterId
           temporaryPassword,
           role
         },

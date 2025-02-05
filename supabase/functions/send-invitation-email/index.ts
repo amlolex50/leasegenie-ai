@@ -21,9 +21,9 @@ serve(async (req) => {
 
     const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
-    const { to, invitationId, inviterName, temporaryPassword, role } = await req.json()
+    const { to, invitationId, inviterId, temporaryPassword, role } = await req.json()
 
-    console.log('Received invitation request:', { to, invitationId, role }) // Debug log
+    console.log('Received invitation request:', { to, invitationId, inviterId, role }) // Debug log
 
     // Create the user in auth.users
     const { data: authUser, error: authError } = await supabaseClient.auth.admin.createUser({
@@ -43,7 +43,7 @@ serve(async (req) => {
     const { data: inviterData, error: inviterError } = await supabaseClient
       .from('users')
       .select('full_name')
-      .eq('id', inviterName)
+      .eq('id', inviterId)
       .maybeSingle()
 
     if (inviterError) {
@@ -52,7 +52,7 @@ serve(async (req) => {
     }
 
     if (!inviterData) {
-      console.error('Inviter not found:', inviterName)
+      console.error('Inviter not found:', inviterId)
       throw new Error('Inviter not found')
     }
 
@@ -64,7 +64,7 @@ serve(async (req) => {
           id: authUser.user.id,
           email: to,
           role: role,
-          landlord_id: inviterName,
+          landlord_id: inviterId,
           full_name: to.split('@')[0] // Temporary name
         }
       ])
