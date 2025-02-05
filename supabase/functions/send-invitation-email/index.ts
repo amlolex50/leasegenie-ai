@@ -21,11 +21,12 @@ serve(async (req) => {
 
     const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
-    const { to, invitationId, inviterId, temporaryPassword, role } = await req.json();
+    const body = await req.text();
+    const { to, invitationId, inviterId, temporaryPassword, role } = JSON.parse(body);
 
     // Validate required fields
     if (!to || !invitationId || !inviterId || !temporaryPassword || !role) {
-      console.error('Missing required fields:', { to, invitationId, inviterId, role });
+      console.error('Missing required fields:', { to, invitationId, inviterId, temporaryPassword, role });
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
         { 
@@ -35,7 +36,7 @@ serve(async (req) => {
       );
     }
 
-    // Validate UUID format
+    // Validate UUID format for inviterId
     if (!inviterId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
       console.error('Invalid UUID format for inviterId:', inviterId);
       return new Response(
@@ -47,9 +48,7 @@ serve(async (req) => {
       );
     }
 
-    console.log('Processing invitation request:', { to, invitationId, inviterId, role });
-
-    // Get inviter's name for the email
+    // Get inviter's name
     const { data: inviterData, error: inviterError } = await supabaseClient
       .from('users')
       .select('full_name')
@@ -61,16 +60,7 @@ serve(async (req) => {
       throw inviterError;
     }
 
-    if (!inviterData) {
-      console.error('Inviter not found:', inviterId);
-      return new Response(
-        JSON.stringify({ error: 'Inviter not found' }),
-        { 
-          status: 404,
-          headers: { 'Content-Type': 'application/json', ...corsHeaders }
-        }
-      );
-    }
+    const inviterName = inviterData?.full_name || 'Property Manager';
 
     // Send email using Resend
     const emailResponse = await resend.emails.send({
@@ -79,7 +69,7 @@ serve(async (req) => {
       subject: `You've been invited as a ${role.toLowerCase()}`,
       html: `
         <h1>Welcome to Property Management!</h1>
-        <p>You've been invited by ${inviterData.full_name} to join as a ${role.toLowerCase()}.</p>
+        <p>You've been invited by ${inviterName} to join as a ${role.toLowerCase()}.</p>
         <p>Your temporary password is: <strong>${temporaryPassword}</strong></p>
         <p>Please login and change your password as soon as possible.</p>
         <p>Best regards,<br>The Property Management Team</p>
@@ -89,19 +79,19 @@ serve(async (req) => {
     console.log('Email sent successfully:', emailResponse);
 
     return new Response(
-      JSON.stringify({ message: 'Invitation processed successfully' }),
+      JSON.stringify({ message: 'Invitation email sent successfully' }),
       {
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
         status: 200,
       }
     );
   } catch (error) {
-    console.error('Error processing invitation:', error);
+    console.error('Error in send-invitation-email function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
-        status: 400,
+        status: 500,
       }
     );
   }

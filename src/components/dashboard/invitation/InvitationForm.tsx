@@ -100,7 +100,7 @@ export const InvitationForm = () => {
 
       // Send invitation email
       const { error: emailError } = await supabase.functions.invoke('send-invitation-email', {
-        body: emailData,
+        body: JSON.stringify(emailData),
       });
 
       if (emailError) {
