@@ -44,11 +44,16 @@ serve(async (req) => {
       .from('users')
       .select('full_name')
       .eq('id', inviterName)
-      .single()
+      .maybeSingle()
 
     if (inviterError) {
       console.error('Error fetching inviter data:', inviterError)
       throw inviterError
+    }
+
+    if (!inviterData) {
+      console.error('Inviter not found:', inviterName)
+      throw new Error('Inviter not found')
     }
 
     // Create the user profile
