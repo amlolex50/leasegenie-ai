@@ -1,6 +1,6 @@
 import { DashboardStats } from "./landlord/DashboardStats";
 import { DashboardCharts } from "./landlord/DashboardCharts";
-import { InvitationSection } from "./invitation/InvitationSection";
+import { OwnerInvitationManagement } from "../owners/invitation/OwnerInvitationManagement";
 
 export const LandlordDashboard = () => {
   return (
@@ -12,7 +12,7 @@ export const LandlordDashboard = () => {
 
       <DashboardStats />
       <DashboardCharts />
-      <InvitationSection />
+      <OwnerInvitationManagement />
     </div>
   );
 };

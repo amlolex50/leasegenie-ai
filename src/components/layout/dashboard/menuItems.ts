@@ -21,7 +21,7 @@ export const menuItems = [
     icon: Building2,
   },
   {
-    label: "Owners",
+    label: "Manage Owners",
     path: "/owners",
     icon: UserRound,
   },
