@@ -27,15 +27,6 @@ export const InvitationForm = () => {
     return password;
   };
 
-  const sendInvitationEmail = async (invitationId: string, email: string, inviterName: string, temporaryPassword: string) => {
-    const { data, error } = await supabase.functions.invoke('send-invitation-email', {
-      body: { to: email, invitationId, inviterName, temporaryPassword },
-    });
-
-    if (error) throw error;
-    return data;
-  };
-
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -72,13 +63,17 @@ export const InvitationForm = () => {
 
       if (inviteError) throw inviteError;
 
-      // Send email
-      try {
-        await sendInvitationEmail(invitation.id, email, userData.full_name, temporaryPassword);
-      } catch (emailError) {
-        console.error('Error sending invitation email:', emailError);
-        throw emailError;
-      }
+      // Send invitation email
+      const { error: emailError } = await supabase.functions.invoke('send-invitation-email', {
+        body: { 
+          to: email, 
+          invitationId: invitation.id, 
+          inviterName: userData.full_name,
+          temporaryPassword
+        },
+      });
+
+      if (emailError) throw emailError;
 
       toast({
         title: "Invitation sent",

@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export const InvitationList = () => {
   const { toast } = useToast();
@@ -18,7 +18,7 @@ export const InvitationList = () => {
       const { data, error } = await supabase
         .from('invitations')
         .select('*, users!invitations_invited_by_fkey(email)')
-        .eq('invited_by', user.id)  // Filter invitations by the current landlord
+        .eq('invited_by', user.id)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -50,6 +50,14 @@ export const InvitationList = () => {
     }
   };
 
+  if (!invitations?.length) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        No pending invitations
+      </div>
+    );
+  }
+
   return (
     <Table>
       <TableHeader>
@@ -62,7 +70,7 @@ export const InvitationList = () => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invitations?.map((invitation) => (
+        {invitations.map((invitation) => (
           <TableRow key={invitation.id}>
             <TableCell>{invitation.email}</TableCell>
             <TableCell>
