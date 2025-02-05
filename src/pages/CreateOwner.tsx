@@ -24,7 +24,6 @@ const CreateOwner = () => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // Get the user's role from the users table
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role')
@@ -48,9 +47,6 @@ const CreateOwner = () => {
     setIsSubmitting(true);
 
     try {
-      // Log current user info for debugging
-      console.log('Current user:', currentUser);
-
       if (!currentUser) {
         throw new Error('You must be logged in to create an owner');
       }
@@ -59,24 +55,24 @@ const CreateOwner = () => {
         throw new Error(`Unauthorized role: ${currentUser.role}. Must be LANDLORD or PROPERTY_MANAGER`);
       }
 
-      // Create owner record
-      const { data: ownerData, error: ownerError } = await supabase
-        .from("owners")
+      // Create user with OWNER role
+      const { data: userData, error: userError } = await supabase
+        .from('users')
         .insert([
           {
             full_name: formData.full_name,
             email: formData.email,
             phone: formData.phone || null,
-            company_name: formData.company_name || null,
-            maintenance_auth_limit: formData.maintenance_auth_limit ? parseFloat(formData.maintenance_auth_limit) : null,
-          },
+            role: 'OWNER',
+            landlord_id: currentUser.id
+          }
         ])
         .select()
         .single();
 
-      if (ownerError) {
-        console.error('Detailed error:', ownerError);
-        throw ownerError;
+      if (userError) {
+        console.error('Detailed error:', userError);
+        throw userError;
       }
 
       toast({

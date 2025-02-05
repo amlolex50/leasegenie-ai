@@ -13,11 +13,9 @@ interface OwnerWithInvitation {
   full_name: string;
   email: string;
   phone: string | null;
-  company_name: string | null;
-  users: {
-    invitations: {
-      status: string;
-    }[];
+  role: string;
+  invitations: {
+    status: string;
   }[];
 }
 
@@ -30,15 +28,14 @@ const ManageOwners = () => {
     queryKey: ['owners'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('owners')
+        .from('users')
         .select(`
           *,
-          users (
-            invitations!invitations_invited_by_fkey (
-              status
-            )
+          invitations!invitations_invited_by_fkey (
+            status
           )
         `)
+        .eq('role', 'OWNER')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -89,16 +86,13 @@ const ManageOwners = () => {
                   {owner.phone && (
                     <p className="text-gray-500 text-sm">{owner.phone}</p>
                   )}
-                  {owner.company_name && (
-                    <p className="text-gray-500 text-sm mt-1">{owner.company_name}</p>
-                  )}
                   <div className="mt-2">
                     <span className={`text-sm px-2 py-1 rounded-full ${
-                      owner.users?.[0]?.invitations?.[0]?.status === 'ACCEPTED' 
+                      owner.invitations?.[0]?.status === 'ACCEPTED' 
                         ? 'bg-green-100 text-green-800'
                         : 'bg-yellow-100 text-yellow-800'
                     }`}>
-                      {owner.users?.[0]?.invitations?.[0]?.status === 'ACCEPTED' ? 'Active' : 'Pending'}
+                      {owner.invitations?.[0]?.status === 'ACCEPTED' ? 'Active' : 'Pending'}
                     </span>
                   </div>
                 </div>
