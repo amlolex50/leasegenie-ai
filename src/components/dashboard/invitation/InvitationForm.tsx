@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Mail } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 type InvitationRole = 'TENANT' | 'CONTRACTOR' | 'OWNER';
 
@@ -15,6 +16,7 @@ export const InvitationForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const generateTemporaryPassword = () => {
     const length = 12;
@@ -32,8 +34,29 @@ export const InvitationForm = () => {
     setIsLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      // Check authentication first
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error('Auth error:', authError);
+        toast({
+          title: "Authentication Error",
+          description: "Please sign in again",
+          variant: "destructive",
+        });
+        navigate('/auth');
+        return;
+      }
+
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to send invitations",
+          variant: "destructive",
+        });
+        navigate('/auth');
+        return;
+      }
 
       const temporaryPassword = generateTemporaryPassword();
 
@@ -53,7 +76,14 @@ export const InvitationForm = () => {
         .select()
         .single();
 
-      if (inviteError) throw inviteError;
+      if (inviteError) {
+        console.error('Invitation creation error:', inviteError);
+        throw inviteError;
+      }
+
+      if (!invitation) {
+        throw new Error('No invitation was created');
+      }
 
       console.log('Created invitation:', invitation);
 

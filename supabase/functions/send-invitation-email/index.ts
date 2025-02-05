@@ -1,55 +1,53 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
-import { Resend } from 'npm:resend@2.0.0'
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
+import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    );
 
     const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
-    const { to, invitationId, inviterId, temporaryPassword, role } = await req.json()
+    const { to, invitationId, inviterId, temporaryPassword, role } = await req.json();
 
     // Validate required fields
     if (!to || !invitationId || !inviterId || !temporaryPassword || !role) {
       console.error('Missing required fields:', { to, invitationId, inviterId, role });
-      throw new Error('Missing required fields');
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields' }),
+        { 
+          status: 400,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        }
+      );
     }
 
     // Validate UUID format
     if (!inviterId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
       console.error('Invalid UUID format for inviterId:', inviterId);
-      throw new Error('Invalid inviterId format');
+      return new Response(
+        JSON.stringify({ error: 'Invalid inviterId format' }),
+        { 
+          status: 400,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        }
+      );
     }
 
     console.log('Processing invitation request:', { to, invitationId, inviterId, role });
-
-    // Create the user in auth.users
-    const { data: authUser, error: authError } = await supabaseClient.auth.admin.createUser({
-      email: to,
-      password: temporaryPassword,
-      email_confirm: true
-    })
-
-    if (authError) {
-      console.error('Auth user creation error:', authError);
-      throw authError;
-    }
-
-    console.log('Auth user created:', authUser.user.id);
 
     // Get inviter's name for the email
     const { data: inviterData, error: inviterError } = await supabaseClient
@@ -65,36 +63,13 @@ serve(async (req) => {
 
     if (!inviterData) {
       console.error('Inviter not found:', inviterId);
-      throw new Error('Inviter not found');
-    }
-
-    // Create the user profile
-    const { error: profileError } = await supabaseClient
-      .from('users')
-      .insert([
-        {
-          id: authUser.user.id,
-          email: to,
-          role: role,
-          landlord_id: inviterId,
-          full_name: to.split('@')[0] // Temporary name
+      return new Response(
+        JSON.stringify({ error: 'Inviter not found' }),
+        { 
+          status: 404,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
         }
-      ])
-
-    if (profileError) {
-      console.error('Profile creation error:', profileError);
-      throw profileError;
-    }
-
-    // Update invitation status
-    const { error: inviteUpdateError } = await supabaseClient
-      .from('invitations')
-      .update({ status: 'ACCEPTED' })
-      .eq('id', invitationId)
-
-    if (inviteUpdateError) {
-      console.error('Invitation update error:', inviteUpdateError);
-      throw inviteUpdateError;
+      );
     }
 
     // Send email using Resend
@@ -119,7 +94,7 @@ serve(async (req) => {
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
         status: 200,
       }
-    )
+    );
   } catch (error) {
     console.error('Error processing invitation:', error);
     return new Response(
@@ -128,6 +103,6 @@ serve(async (req) => {
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
         status: 400,
       }
-    )
+    );
   }
-})
+});
