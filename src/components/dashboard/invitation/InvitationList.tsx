@@ -6,20 +6,30 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
-export const InvitationList = () => {
+interface InvitationListProps {
+  ownerOnly?: boolean;
+}
+
+export const InvitationList = ({ ownerOnly = false }: InvitationListProps) => {
   const { toast } = useToast();
   
   const { data: invitations, refetch } = useQuery({
-    queryKey: ['invitations'],
+    queryKey: ['invitations', ownerOnly],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('invitations')
         .select('*, users!invitations_invited_by_fkey(email)')
-        .eq('invited_by', user.id)  // Filter invitations by the current landlord
+        .eq('invited_by', user.id)
         .order('created_at', { ascending: false });
+
+      if (ownerOnly) {
+        query = query.eq('role', 'OWNER');
+      }
+      
+      const { data, error } = await query;
       
       if (error) throw error;
       return data;
@@ -50,6 +60,14 @@ export const InvitationList = () => {
     }
   };
 
+  if (!invitations?.length) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        No pending {ownerOnly ? "owner " : ""}invitations
+      </div>
+    );
+  }
+
   return (
     <Table>
       <TableHeader>
@@ -62,7 +80,7 @@ export const InvitationList = () => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invitations?.map((invitation) => (
+        {invitations.map((invitation) => (
           <TableRow key={invitation.id}>
             <TableCell>{invitation.email}</TableCell>
             <TableCell>

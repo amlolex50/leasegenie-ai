@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Mail } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
-type InvitationRole = 'TENANT' | 'CONTRACTOR';
+interface InvitationFormProps {
+  ownerOnly?: boolean;
+}
 
-export const InvitationForm = () => {
+export const InvitationForm = ({ ownerOnly = false }: InvitationFormProps) => {
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<InvitationRole>("TENANT");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -27,15 +27,6 @@ export const InvitationForm = () => {
     return password;
   };
 
-  const sendInvitationEmail = async (invitationId: string, email: string, inviterName: string, temporaryPassword: string) => {
-    const { data, error } = await supabase.functions.invoke('send-invitation-email', {
-      body: { to: email, invitationId, inviterName, temporaryPassword },
-    });
-
-    if (error) throw error;
-    return data;
-  };
-
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -44,7 +35,6 @@ export const InvitationForm = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Get user's full name
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('full_name')
@@ -55,16 +45,16 @@ export const InvitationForm = () => {
 
       const temporaryPassword = generateTemporaryPassword();
 
-      // Create invitation
       const { data: invitation, error: inviteError } = await supabase
         .from('invitations')
         .insert([
           {
             email,
-            role,
+            role: ownerOnly ? 'OWNER' : 'TENANT',
             invited_by: user.id,
             landlord_id: user.id,
-            temporary_password: temporaryPassword
+            temporary_password: temporaryPassword,
+            status: 'PENDING'
           }
         ])
         .select()
@@ -72,13 +62,16 @@ export const InvitationForm = () => {
 
       if (inviteError) throw inviteError;
 
-      // Send email
-      try {
-        await sendInvitationEmail(invitation.id, email, userData.full_name, temporaryPassword);
-      } catch (emailError) {
-        console.error('Error sending invitation email:', emailError);
-        throw emailError;
-      }
+      const { error: emailError } = await supabase.functions.invoke('send-invitation-email', {
+        body: { 
+          to: email, 
+          invitationId: invitation.id, 
+          inviterName: userData.full_name,
+          temporaryPassword
+        },
+      });
+
+      if (emailError) throw emailError;
 
       toast({
         title: "Invitation sent",
@@ -86,7 +79,7 @@ export const InvitationForm = () => {
       });
 
       setEmail("");
-      queryClient.invalidateQueries({ queryKey: ['invitations'] });
+      queryClient.invalidateQueries({ queryKey: ['invitations', ownerOnly] });
     } catch (error: any) {
       console.error('Error creating invitation:', error);
       toast({
@@ -104,24 +97,12 @@ export const InvitationForm = () => {
       <div className="flex gap-4">
         <Input
           type="email"
-          placeholder="Enter email address"
+          placeholder={`Enter ${ownerOnly ? "owner's" : "user's"} email address`}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
           className="flex-1"
         />
-        <Select
-          value={role}
-          onValueChange={(value) => setRole(value as InvitationRole)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="TENANT">Tenant</SelectItem>
-            <SelectItem value="CONTRACTOR">Contractor</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
       <Button type="submit" disabled={isLoading} className="w-full">
         {isLoading ? (
@@ -132,7 +113,7 @@ export const InvitationForm = () => {
         ) : (
           <>
             <Mail className="mr-2 h-4 w-4" />
-            Send Invitation
+            Send {ownerOnly ? "Owner " : ""}Invitation
           </>
         )}
       </Button>
