@@ -55,12 +55,14 @@ export const InvitationForm = () => {
 
       if (inviteError) throw inviteError;
 
+      console.log('Created invitation:', invitation);
+
       // Send invitation email
       const { error: emailError } = await supabase.functions.invoke('send-invitation-email', {
         body: { 
           to: email, 
           invitationId: invitation.id,
-          inviterId: user.id, // Changed from inviterName to inviterId
+          inviterId: user.id,
           temporaryPassword,
           role
         },

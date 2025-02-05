@@ -23,7 +23,19 @@ serve(async (req) => {
 
     const { to, invitationId, inviterId, temporaryPassword, role } = await req.json()
 
-    console.log('Received invitation request:', { to, invitationId, inviterId, role }) // Debug log
+    // Validate required fields
+    if (!to || !invitationId || !inviterId || !temporaryPassword || !role) {
+      console.error('Missing required fields:', { to, invitationId, inviterId, role });
+      throw new Error('Missing required fields');
+    }
+
+    // Validate UUID format
+    if (!inviterId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      console.error('Invalid UUID format for inviterId:', inviterId);
+      throw new Error('Invalid inviterId format');
+    }
+
+    console.log('Processing invitation request:', { to, invitationId, inviterId, role });
 
     // Create the user in auth.users
     const { data: authUser, error: authError } = await supabaseClient.auth.admin.createUser({
@@ -33,27 +45,27 @@ serve(async (req) => {
     })
 
     if (authError) {
-      console.error('Auth user creation error:', authError)
-      throw authError
+      console.error('Auth user creation error:', authError);
+      throw authError;
     }
 
-    console.log('Auth user created:', authUser.user.id) // Debug log
+    console.log('Auth user created:', authUser.user.id);
 
     // Get inviter's name for the email
     const { data: inviterData, error: inviterError } = await supabaseClient
       .from('users')
       .select('full_name')
       .eq('id', inviterId)
-      .maybeSingle()
+      .maybeSingle();
 
     if (inviterError) {
-      console.error('Error fetching inviter data:', inviterError)
-      throw inviterError
+      console.error('Error fetching inviter data:', inviterError);
+      throw inviterError;
     }
 
     if (!inviterData) {
-      console.error('Inviter not found:', inviterId)
-      throw new Error('Inviter not found')
+      console.error('Inviter not found:', inviterId);
+      throw new Error('Inviter not found');
     }
 
     // Create the user profile
@@ -70,8 +82,8 @@ serve(async (req) => {
       ])
 
     if (profileError) {
-      console.error('Profile creation error:', profileError)
-      throw profileError
+      console.error('Profile creation error:', profileError);
+      throw profileError;
     }
 
     // Update invitation status
@@ -81,8 +93,8 @@ serve(async (req) => {
       .eq('id', invitationId)
 
     if (inviteUpdateError) {
-      console.error('Invitation update error:', inviteUpdateError)
-      throw inviteUpdateError
+      console.error('Invitation update error:', inviteUpdateError);
+      throw inviteUpdateError;
     }
 
     // Send email using Resend
@@ -109,7 +121,7 @@ serve(async (req) => {
       }
     )
   } catch (error) {
-    console.error('Error processing invitation:', error)
+    console.error('Error processing invitation:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
