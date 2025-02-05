@@ -24,11 +24,18 @@ serve(async (req) => {
     const body = await req.text();
     const { to, invitationId, inviterId, temporaryPassword, role } = JSON.parse(body);
 
+    // Log received data
+    console.log('Received data:', { to, invitationId, inviterId, role });
+
     // Validate required fields
     if (!to || !invitationId || !inviterId || !temporaryPassword || !role) {
-      console.error('Missing required fields:', { to, invitationId, inviterId, temporaryPassword, role });
+      const missingFields = { to, invitationId, inviterId, temporaryPassword, role };
+      console.error('Missing required fields:', missingFields);
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ 
+          error: 'Missing required fields',
+          details: missingFields 
+        }),
         { 
           status: 400,
           headers: { 'Content-Type': 'application/json', ...corsHeaders }
@@ -37,7 +44,8 @@ serve(async (req) => {
     }
 
     // Validate UUID format for inviterId
-    if (!inviterId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(inviterId)) {
       console.error('Invalid UUID format for inviterId:', inviterId);
       return new Response(
         JSON.stringify({ error: 'Invalid inviterId format' }),

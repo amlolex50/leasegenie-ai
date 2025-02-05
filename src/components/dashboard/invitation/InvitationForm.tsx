@@ -34,7 +34,7 @@ export const InvitationForm = () => {
     setIsLoading(true);
 
     try {
-      // Check authentication first
+      // Get the current user's session
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError) {
@@ -49,6 +49,7 @@ export const InvitationForm = () => {
       }
 
       if (!user) {
+        console.error('No user found');
         toast({
           title: "Error",
           description: "You must be logged in to send invitations",
@@ -57,6 +58,8 @@ export const InvitationForm = () => {
         navigate('/auth');
         return;
       }
+
+      console.log('Current user:', user); // Debug log
 
       const temporaryPassword = generateTemporaryPassword();
 
@@ -87,11 +90,11 @@ export const InvitationForm = () => {
 
       console.log('Created invitation:', invitation);
 
-      // Prepare data for email sending
+      // Prepare email data
       const emailData = {
         to: email,
         invitationId: invitation.id,
-        inviterId: user.id, // Make sure we pass the authenticated user's ID
+        inviterId: user.id, // Explicitly set the inviterId
         temporaryPassword,
         role
       };
