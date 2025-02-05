@@ -304,39 +304,6 @@ export type Database = {
           },
         ]
       }
-      owners: {
-        Row: {
-          company_name: string | null
-          created_at: string
-          email: string
-          full_name: string
-          id: string
-          maintenance_auth_limit: number | null
-          phone: string | null
-          updated_at: string
-        }
-        Insert: {
-          company_name?: string | null
-          created_at?: string
-          email: string
-          full_name: string
-          id?: string
-          maintenance_auth_limit?: number | null
-          phone?: string | null
-          updated_at?: string
-        }
-        Update: {
-          company_name?: string | null
-          created_at?: string
-          email?: string
-          full_name?: string
-          id?: string
-          maintenance_auth_limit?: number | null
-          phone?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
       payments: {
         Row: {
           amount: number
@@ -387,7 +354,6 @@ export type Database = {
           id: string
           name: string
           owner_id: string
-          owner_reference_id: string | null
           state: string | null
           updated_at: string
         }
@@ -399,7 +365,6 @@ export type Database = {
           id?: string
           name: string
           owner_id: string
-          owner_reference_id?: string | null
           state?: string | null
           updated_at?: string
         }
@@ -411,7 +376,6 @@ export type Database = {
           id?: string
           name?: string
           owner_id?: string
-          owner_reference_id?: string | null
           state?: string | null
           updated_at?: string
         }
@@ -421,13 +385,6 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "properties_owner_reference_id_fkey"
-            columns: ["owner_reference_id"]
-            isOneToOne: false
-            referencedRelation: "owners"
             referencedColumns: ["id"]
           },
         ]
@@ -604,7 +561,6 @@ export type Database = {
           landlord_id: string | null
           location: string | null
           nationality: string | null
-          owner_id: string | null
           phone: string | null
           rating: number | null
           role: string
@@ -624,7 +580,6 @@ export type Database = {
           landlord_id?: string | null
           location?: string | null
           nationality?: string | null
-          owner_id?: string | null
           phone?: string | null
           rating?: number | null
           role: string
@@ -644,7 +599,6 @@ export type Database = {
           landlord_id?: string | null
           location?: string | null
           nationality?: string | null
-          owner_id?: string | null
           phone?: string | null
           rating?: number | null
           role?: string
@@ -658,13 +612,6 @@ export type Database = {
             columns: ["landlord_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "users_owner_id_fkey"
-            columns: ["owner_id"]
-            isOneToOne: false
-            referencedRelation: "owners"
             referencedColumns: ["id"]
           },
         ]
