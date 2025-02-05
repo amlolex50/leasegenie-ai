@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Mail } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
+type InvitationRole = 'TENANT' | 'CONTRACTOR' | 'OWNER';
+
 export const OwnerInvitationForm = () => {
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState<InvitationRole>("OWNER");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -48,7 +52,7 @@ export const OwnerInvitationForm = () => {
         .insert([
           {
             email,
-            role: 'OWNER',
+            role,
             invited_by: user.id,
             landlord_id: user.id,
             temporary_password: temporaryPassword,
@@ -78,7 +82,7 @@ export const OwnerInvitationForm = () => {
       });
 
       setEmail("");
-      queryClient.invalidateQueries({ queryKey: ['owner-invitations'] });
+      queryClient.invalidateQueries({ queryKey: ['invitations'] });
     } catch (error: any) {
       console.error('Error creating invitation:', error);
       toast({
@@ -96,12 +100,25 @@ export const OwnerInvitationForm = () => {
       <div className="flex gap-4">
         <Input
           type="email"
-          placeholder="Enter owner's email address"
+          placeholder="Enter email address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
           className="flex-1"
         />
+        <Select
+          value={role}
+          onValueChange={(value) => setRole(value as InvitationRole)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select role" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="TENANT">Tenant</SelectItem>
+            <SelectItem value="CONTRACTOR">Contractor</SelectItem>
+            <SelectItem value="OWNER">Owner</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <Button type="submit" disabled={isLoading} className="w-full">
         {isLoading ? (
@@ -112,7 +129,7 @@ export const OwnerInvitationForm = () => {
         ) : (
           <>
             <Mail className="mr-2 h-4 w-4" />
-            Send Owner Invitation
+            Send Invitation
           </>
         )}
       </Button>
