@@ -91,7 +91,7 @@ export const InvitationForm = () => {
       const emailData = {
         to: email,
         invitationId: invitation.id,
-        inviterId: user.id,
+        inviterId: user.id, // Make sure we pass the authenticated user's ID
         temporaryPassword,
         role
       };
