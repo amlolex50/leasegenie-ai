@@ -83,15 +83,15 @@ serve(async (req) => {
 
     // Send email using Resend
     const emailResponse = await resend.emails.send({
-      from: 'Property Management <onboarding@resend.dev>',
+      from: 'ManageLease <amlolex50@live.co.uk>',
       to: [to],
       subject: `You've been invited as a ${role.toLowerCase()}`,
       html: `
-        <h1>Welcome to Property Management!</h1>
+        <h1>Welcome to ManageLease!</h1>
         <p>You've been invited by ${inviterName} to join as a ${role.toLowerCase()}.</p>
         <p>Your temporary password is: <strong>${temporaryPassword}</strong></p>
         <p>Please login and change your password as soon as possible.</p>
-        <p>Best regards,<br>The Property Management Team</p>
+        <p>Best regards,<br>The ManageLease Team</p>
       `,
     });
 
