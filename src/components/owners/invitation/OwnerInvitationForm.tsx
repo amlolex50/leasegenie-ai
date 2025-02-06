@@ -32,17 +32,14 @@ export const OwnerInvitationForm = () => {
     setIsLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      // Get current user's session
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        throw new Error("Authentication required");
+      }
 
-      // Get user's full name
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('full_name')
-        .eq('id', user.id)
-        .single();
-
-      if (userError) throw userError;
+      console.log("Current user ID:", user.id); // Debug log
 
       const temporaryPassword = generateTemporaryPassword();
 
@@ -64,15 +61,21 @@ export const OwnerInvitationForm = () => {
 
       if (inviteError) throw inviteError;
 
-      // Send invitation email
+      if (!invitation) {
+        throw new Error('No invitation was created');
+      }
+
+      console.log('Created invitation:', invitation); // Debug log
+
+      // Send invitation email with all required fields
       const { error: emailError } = await supabase.functions.invoke('send-invitation-email', {
-        body: { 
-          to: email, 
-          invitationId: invitation.id, 
-          inviterName: userData.full_name,
+        body: {
+          to: email,
+          invitationId: invitation.id,
+          inviterId: user.id, // Explicitly passing the user ID
           temporaryPassword,
           role
-        },
+        }
       });
 
       if (emailError) throw emailError;
