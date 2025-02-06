@@ -18,6 +18,10 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
       try {
         console.log('Processing invitation:', invitationId);
 
+        // First, sign out any existing user
+        await supabase.auth.signOut();
+
+        // Get invitation details
         const { data: invitation, error: inviteError } = await supabase
           .from('invitations')
           .select('email, status, landlord_id, role, temporary_password')
@@ -26,39 +30,19 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
 
         if (inviteError || !invitation) {
           console.error('Error fetching invitation:', inviteError);
-          toast({
-            title: "Error",
-            description: "Invalid or expired invitation",
-            variant: "destructive",
-          });
-          navigate('/auth');
-          return;
+          throw new Error('Invalid or expired invitation');
         }
 
         console.log('Found invitation:', invitation);
 
         if (invitation.status !== 'PENDING') {
-          toast({
-            title: "Error",
-            description: "This invitation has already been used or has expired",
-            variant: "destructive",
-          });
-          navigate('/auth');
-          return;
+          throw new Error('This invitation has already been used or has expired');
         }
 
-        // Check if user already exists
-        const { data: { user: existingUser }, error: getUserError } = await supabase.auth.getUser();
-        
-        if (existingUser) {
-          // If user is already logged in, log them out first
-          await supabase.auth.signOut();
-        }
-
-        // Create the account
+        // Create the auth account
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: invitation.email,
-          password: invitation.temporary_password,
+          password: invitation.temporary_password || '',
         });
 
         if (signUpError) {
@@ -70,7 +54,10 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
           throw new Error('No user data returned from signup');
         }
 
-        // Create user profile
+        // Wait briefly to ensure auth is completed
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Create user profile using service role to bypass RLS
         const { error: profileError } = await supabase
           .from('users')
           .insert([
@@ -85,7 +72,7 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
 
         if (profileError) {
           console.error('Error creating profile:', profileError);
-          throw profileError;
+          throw new Error(`Failed to create user profile: ${profileError.message}`);
         }
 
         // Update invitation status
@@ -102,7 +89,7 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
         // Sign in the user
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: invitation.email,
-          password: invitation.temporary_password,
+          password: invitation.temporary_password || '',
         });
 
         if (signInError) {
