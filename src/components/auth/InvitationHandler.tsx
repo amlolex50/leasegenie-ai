@@ -56,34 +56,35 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
           throw new Error('This invitation has already been used or has expired');
         }
 
-        // Create the auth account
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        if (!invitation.temporary_password) {
+          throw new Error('Invalid invitation: missing temporary password');
+        }
+
+        // Sign in with temporary password
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: invitation.email,
-          password: invitation.temporary_password || '',
+          password: invitation.temporary_password,
         });
 
-        if (signUpError) {
-          console.error('Error signing up:', signUpError);
-          throw signUpError;
+        if (signInError) {
+          console.error('Error signing in:', signInError);
+          throw signInError;
         }
 
-        if (!signUpData.user) {
-          console.error('No user data returned from signup');
-          throw new Error('Failed to create user account');
+        if (!signInData.user) {
+          throw new Error('Failed to sign in with temporary password');
         }
 
-        console.log('Successfully created auth user:', signUpData.user.id);
+        console.log('Successfully signed in with temporary password');
 
-        // Create user profile immediately
+        // Create user profile
         const userProfile = {
-          id: signUpData.user.id,
+          id: signInData.user.id,
           email: invitation.email,
-          role: invitation.role as AppRole, // Type assertion here
+          role: invitation.role as AppRole,
           landlord_id: invitation.landlord_id,
           full_name: invitation.email.split('@')[0], // Temporary name
         };
-
-        console.log('Creating user profile:', userProfile);
 
         const { error: profileError } = await supabase
           .from('users')
@@ -96,18 +97,15 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
 
         console.log('Successfully created user profile');
 
-        // Store the data needed for next steps
+        // Store the data needed for password change
         setInvitationData({
           email: invitation.email,
-          temporaryPassword: invitation.temporary_password || '',
+          temporaryPassword: invitation.temporary_password,
           role: invitation.role as AppRole,
           landlord_id: invitation.landlord_id,
         });
-        setUserId(signUpData.user.id);
-
-        // Show password change screen
+        setUserId(signInData.user.id);
         setShowPasswordChange(true);
-        setLoading(false);
 
       } catch (error: any) {
         console.error('Error in handleInvitation:', error);
@@ -117,6 +115,8 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
           variant: "destructive",
         });
         navigate('/auth');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -154,12 +154,7 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
         description: "Your account has been created successfully.",
       });
 
-      // For owners, navigate to the owner dashboard
-      if (invitationData.role === 'OWNER') {
-        navigate("/dashboard");
-      } else {
-        navigate("/dashboard");
-      }
+      navigate("/dashboard");
     } catch (error: any) {
       console.error('Error in handlePasswordChanged:', error);
       toast({
@@ -194,4 +189,3 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
 
   return null;
 };
-
