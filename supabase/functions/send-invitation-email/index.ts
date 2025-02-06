@@ -83,7 +83,7 @@ serve(async (req) => {
 
     // Send email using Resend
     const emailResponse = await resend.emails.send({
-      from: 'ManageLease <amlolex50@live.co.uk>',
+      from: 'ManageLease <manageleaseai@estate.teachai.io>',
       to: [to],
       subject: `You've been invited as a ${role.toLowerCase()}`,
       html: `
