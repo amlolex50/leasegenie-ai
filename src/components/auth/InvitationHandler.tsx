@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -16,7 +17,7 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
   useEffect(() => {
     const handleInvitation = async () => {
       try {
-        console.log('Processing invitation:', invitationId);
+        console.log('Starting invitation process for:', invitationId);
 
         // First, sign out any existing user
         await supabase.auth.signOut();
@@ -33,7 +34,11 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
           throw new Error('Invalid or expired invitation');
         }
 
-        console.log('Found invitation:', invitation);
+        console.log('Found invitation details:', { 
+          email: invitation.email, 
+          role: invitation.role,
+          landlord_id: invitation.landlord_id 
+        });
 
         if (invitation.status !== 'PENDING') {
           throw new Error('This invitation has already been used or has expired');
@@ -51,34 +56,37 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
         }
 
         if (!signUpData.user) {
-          throw new Error('No user data returned from signup');
+          console.error('No user data returned from signup');
+          throw new Error('Failed to create user account');
         }
 
-        // Wait briefly to ensure auth is completed
+        console.log('Successfully created auth user:', signUpData.user.id);
+
+        // Wait for auth to complete
         await new Promise(resolve => setTimeout(resolve, 2000));
 
-        // Create user profile using service role client
+        // Create user profile
+        const userProfile = {
+          id: signUpData.user.id,
+          email: invitation.email,
+          role: invitation.role,
+          landlord_id: invitation.landlord_id,
+          full_name: invitation.email.split('@')[0], // Temporary name
+        };
+
+        console.log('Attempting to create user profile:', userProfile);
+
         const { error: profileError } = await supabase
           .from('users')
-          .insert({
-            id: signUpData.user.id,
-            email: invitation.email,
-            role: invitation.role,
-            landlord_id: invitation.landlord_id,
-            full_name: invitation.email.split('@')[0], // Temporary name
-          });
+          .insert([userProfile]);
 
         if (profileError) {
           console.error('Error creating profile:', profileError);
-          // Log detailed error information
-          console.log('Profile creation attempt:', {
-            id: signUpData.user.id,
-            email: invitation.email,
-            role: invitation.role,
-            landlord_id: invitation.landlord_id
-          });
+          console.log('Profile creation attempt details:', userProfile);
           throw new Error(`Failed to create user profile: ${profileError.message}`);
         }
+
+        console.log('Successfully created user profile');
 
         // Update invitation status
         const { error: inviteUpdateError } = await supabase
@@ -91,6 +99,8 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
           throw inviteUpdateError;
         }
 
+        console.log('Successfully updated invitation status');
+
         // Sign in the user
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email: invitation.email,
@@ -102,12 +112,19 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
           throw signInError;
         }
 
+        console.log('Successfully signed in user');
+
         toast({
           title: "Welcome!",
           description: "Your account has been created. Please change your password in settings.",
         });
 
-        navigate("/dashboard");
+        // For owners, navigate to the owner dashboard
+        if (invitation.role === 'OWNER') {
+          navigate("/dashboard");
+        } else {
+          navigate("/dashboard");
+        }
       } catch (error: any) {
         console.error('Error in handleInvitation:', error);
         toast({
