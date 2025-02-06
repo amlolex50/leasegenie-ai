@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { Database } from "@/integrations/supabase/types";
+import { ChangeTemporaryPassword } from "./ChangeTemporaryPassword";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
@@ -14,6 +15,14 @@ interface InvitationHandlerProps {
 
 export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
   const [loading, setLoading] = useState(true);
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [invitationData, setInvitationData] = useState<{
+    email: string;
+    temporaryPassword: string;
+    role: AppRole;
+    landlord_id: string | null;
+  } | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -65,69 +74,19 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
 
         console.log('Successfully created auth user:', signUpData.user.id);
 
-        // Wait for auth to complete
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Create user profile with the correct type
-        const userProfile = {
-          id: signUpData.user.id,
+        // Store the data needed for next steps
+        setInvitationData({
           email: invitation.email,
+          temporaryPassword: invitation.temporary_password || '',
           role: invitation.role as AppRole,
           landlord_id: invitation.landlord_id,
-          full_name: invitation.email.split('@')[0], // Temporary name
-        };
-
-        console.log('Attempting to create user profile:', userProfile);
-
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert(userProfile);
-
-        if (profileError) {
-          console.error('Error creating profile:', profileError);
-          console.log('Profile creation attempt details:', userProfile);
-          throw new Error(`Failed to create user profile: ${profileError.message}`);
-        }
-
-        console.log('Successfully created user profile');
-
-        // Update invitation status
-        const { error: inviteUpdateError } = await supabase
-          .from('invitations')
-          .update({ status: 'ACCEPTED' })
-          .eq('id', invitationId);
-
-        if (inviteUpdateError) {
-          console.error('Error updating invitation:', inviteUpdateError);
-          throw inviteUpdateError;
-        }
-
-        console.log('Successfully updated invitation status');
-
-        // Sign in the user
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: invitation.email,
-          password: invitation.temporary_password || '',
         });
+        setUserId(signUpData.user.id);
 
-        if (signInError) {
-          console.error('Error signing in:', signInError);
-          throw signInError;
-        }
+        // Show password change screen
+        setShowPasswordChange(true);
+        setLoading(false);
 
-        console.log('Successfully signed in user');
-
-        toast({
-          title: "Welcome!",
-          description: "Your account has been created. Please change your password in settings.",
-        });
-
-        // For owners, navigate to the owner dashboard
-        if (invitation.role === 'OWNER') {
-          navigate("/dashboard");
-        } else {
-          navigate("/dashboard");
-        }
       } catch (error: any) {
         console.error('Error in handleInvitation:', error);
         toast({
@@ -136,15 +95,78 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
           variant: "destructive",
         });
         navigate('/auth');
-      } finally {
-        setLoading(false);
       }
     };
 
     handleInvitation();
   }, [invitationId, toast, navigate]);
 
-  if (loading) {
+  const handlePasswordChanged = async () => {
+    if (!invitationData || !userId) return;
+
+    try {
+      setLoading(true);
+      
+      // Create user profile
+      const userProfile = {
+        id: userId,
+        email: invitationData.email,
+        role: invitationData.role,
+        landlord_id: invitationData.landlord_id,
+        full_name: invitationData.email.split('@')[0], // Temporary name
+      };
+
+      console.log('Attempting to create user profile:', userProfile);
+
+      const { error: profileError } = await supabase
+        .from('users')
+        .insert(userProfile);
+
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+        throw new Error(`Failed to create user profile: ${profileError.message}`);
+      }
+
+      console.log('Successfully created user profile');
+
+      // Update invitation status
+      const { error: inviteUpdateError } = await supabase
+        .from('invitations')
+        .update({ status: 'ACCEPTED' })
+        .eq('id', invitationId);
+
+      if (inviteUpdateError) {
+        console.error('Error updating invitation:', inviteUpdateError);
+        throw inviteUpdateError;
+      }
+
+      console.log('Successfully updated invitation status');
+
+      toast({
+        title: "Welcome!",
+        description: "Your account has been created successfully.",
+      });
+
+      // For owners, navigate to the owner dashboard
+      if (invitationData.role === 'OWNER') {
+        navigate("/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error: any) {
+      console.error('Error in handlePasswordChanged:', error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      navigate('/auth');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading && !showPasswordChange) {
     return (
       <div className="flex flex-col items-center gap-4">
         <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
@@ -153,5 +175,16 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
     );
   }
 
+  if (showPasswordChange && invitationData) {
+    return (
+      <ChangeTemporaryPassword
+        email={invitationData.email}
+        temporaryPassword={invitationData.temporaryPassword}
+        onPasswordChanged={handlePasswordChanged}
+      />
+    );
+  }
+
   return null;
 };
+
