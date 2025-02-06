@@ -74,6 +74,28 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
 
         console.log('Successfully created auth user:', signUpData.user.id);
 
+        // Create user profile immediately
+        const userProfile = {
+          id: signUpData.user.id,
+          email: invitation.email,
+          role: invitation.role,
+          landlord_id: invitation.landlord_id,
+          full_name: invitation.email.split('@')[0], // Temporary name
+        };
+
+        console.log('Creating user profile:', userProfile);
+
+        const { error: profileError } = await supabase
+          .from('users')
+          .insert(userProfile);
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          throw new Error(`Failed to create user profile: ${profileError.message}`);
+        }
+
+        console.log('Successfully created user profile');
+
         // Store the data needed for next steps
         setInvitationData({
           email: invitation.email,
@@ -106,28 +128,6 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
 
     try {
       setLoading(true);
-      
-      // Create user profile
-      const userProfile = {
-        id: userId,
-        email: invitationData.email,
-        role: invitationData.role,
-        landlord_id: invitationData.landlord_id,
-        full_name: invitationData.email.split('@')[0], // Temporary name
-      };
-
-      console.log('Attempting to create user profile:', userProfile);
-
-      const { error: profileError } = await supabase
-        .from('users')
-        .insert(userProfile);
-
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
-        throw new Error(`Failed to create user profile: ${profileError.message}`);
-      }
-
-      console.log('Successfully created user profile');
 
       // Update invitation status
       const { error: inviteUpdateError } = await supabase
@@ -141,6 +141,13 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
       }
 
       console.log('Successfully updated invitation status');
+
+      // Refresh the session to ensure new role is picked up
+      const { error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError) {
+        console.error('Error refreshing session:', refreshError);
+        throw refreshError;
+      }
 
       toast({
         title: "Welcome!",
@@ -187,4 +194,3 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
 
   return null;
 };
-
