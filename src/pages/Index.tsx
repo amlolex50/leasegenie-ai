@@ -5,6 +5,8 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { LandlordDashboard } from "@/components/dashboard/LandlordDashboard";
 import { TenantDashboard } from "@/components/dashboard/TenantDashboard";
 import { ContractorDashboard } from "@/components/dashboard/ContractorDashboard";
+import { OwnerDashboard } from "@/components/dashboard/OwnerDashboard";
+import { PropertyManagerDashboard } from "@/components/dashboard/PropertyManagerDashboard";
 import { useToast } from "@/components/ui/use-toast";
 import { Database } from "@/integrations/supabase/types";
 
