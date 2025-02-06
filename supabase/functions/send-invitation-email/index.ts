@@ -81,17 +81,38 @@ serve(async (req) => {
 
     const inviterName = inviterData?.full_name || 'Property Manager';
 
+    // Generate the invitation link
+    const baseUrl = 'https://app.lovable.dev'; // Replace with your actual frontend URL
+    const invitationLink = `${baseUrl}/invitation/${invitationId}`;
+
     // Send email using Resend
     const emailResponse = await resend.emails.send({
       from: 'ManageLease <manageleaseai@estate.teachai.io>',
       to: [to],
-      subject: `You've been invited as a ${role.toLowerCase()}`,
+      subject: `You've been invited to ManageLeaseAI!`,
       html: `
-        <h1>Welcome to ManageLease!</h1>
-        <p>You've been invited by ${inviterName} to join as a ${role.toLowerCase()}.</p>
-        <p>Your temporary password is: <strong>${temporaryPassword}</strong></p>
-        <p>Please login and change your password as soon as possible.</p>
-        <p>Best regards,<br>The ManageLease Team</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h1 style="color: #2563eb; margin-bottom: 20px;">Welcome to ManageLeaseAI!</h1>
+          <p style="font-size: 16px; line-height: 1.5; margin-bottom: 15px;">
+            ${inviterName} has invited you to join their property management system as a ${role.toLowerCase()}.
+          </p>
+          <p style="font-size: 16px; line-height: 1.5; margin-bottom: 15px;">
+            Your temporary password is: <strong>${temporaryPassword}</strong>
+          </p>
+          <div style="margin: 30px 0;">
+            <a href="${invitationLink}" 
+               style="background-color: #2563eb; color: white; padding: 12px 24px; 
+                      text-decoration: none; border-radius: 6px; display: inline-block;">
+              Accept Invitation
+            </a>
+          </div>
+          <p style="font-size: 14px; color: #666; margin-top: 20px;">
+            This invitation will expire in 7 days.
+          </p>
+          <p style="font-size: 14px; color: #666;">
+            Please change your password after your first login.
+          </p>
+        </div>
       `,
     });
 
