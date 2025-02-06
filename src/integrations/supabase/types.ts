@@ -907,7 +907,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "LANDLORD" | "TENANT" | "CONTRACTOR" | "OWNER"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
