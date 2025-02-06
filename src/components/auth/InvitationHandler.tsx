@@ -55,23 +55,28 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
         }
 
         // Wait briefly to ensure auth is completed
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-        // Create user profile using service role to bypass RLS
+        // Create user profile using service role client
         const { error: profileError } = await supabase
           .from('users')
-          .insert([
-            {
-              id: signUpData.user.id,
-              email: invitation.email,
-              role: invitation.role,
-              landlord_id: invitation.landlord_id,
-              full_name: invitation.email.split('@')[0] // Temporary name
-            }
-          ]);
+          .insert({
+            id: signUpData.user.id,
+            email: invitation.email,
+            role: invitation.role,
+            landlord_id: invitation.landlord_id,
+            full_name: invitation.email.split('@')[0], // Temporary name
+          });
 
         if (profileError) {
           console.error('Error creating profile:', profileError);
+          // Log detailed error information
+          console.log('Profile creation attempt:', {
+            id: signUpData.user.id,
+            email: invitation.email,
+            role: invitation.role,
+            landlord_id: invitation.landlord_id
+          });
           throw new Error(`Failed to create user profile: ${profileError.message}`);
         }
 
