@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { Database } from "@/integrations/supabase/types";
+
+type AppRole = Database["public"]["Enums"]["app_role"];
 
 interface InvitationHandlerProps {
   invitationId: string;
@@ -65,11 +68,11 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
         // Wait for auth to complete
         await new Promise(resolve => setTimeout(resolve, 2000));
 
-        // Create user profile
+        // Create user profile with the correct type
         const userProfile = {
           id: signUpData.user.id,
           email: invitation.email,
-          role: invitation.role,
+          role: invitation.role as AppRole,
           landlord_id: invitation.landlord_id,
           full_name: invitation.email.split('@')[0], // Temporary name
         };
@@ -78,7 +81,7 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
 
         const { error: profileError } = await supabase
           .from('users')
-          .insert([userProfile]);
+          .insert(userProfile);
 
         if (profileError) {
           console.error('Error creating profile:', profileError);
