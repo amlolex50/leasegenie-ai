@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -5,9 +6,12 @@ import { LandlordDashboard } from "@/components/dashboard/LandlordDashboard";
 import { TenantDashboard } from "@/components/dashboard/TenantDashboard";
 import { ContractorDashboard } from "@/components/dashboard/ContractorDashboard";
 import { useToast } from "@/components/ui/use-toast";
+import { Database } from "@/integrations/supabase/types";
+
+type AppRole = Database["public"]["Enums"]["app_role"];
 
 const Index = () => {
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<AppRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -71,6 +75,8 @@ const Index = () => {
       {userRole === 'LANDLORD' && <LandlordDashboard />}
       {userRole === 'TENANT' && <TenantDashboard />}
       {userRole === 'CONTRACTOR' && <ContractorDashboard />}
+      {userRole === 'OWNER' && <LandlordDashboard />} {/* Owners see the landlord dashboard */}
+      {userRole === 'PROPERTY_MANAGER' && <LandlordDashboard />} {/* Property managers see the landlord dashboard */}
       {!userRole && (
         <div className="flex flex-col items-center justify-center min-h-screen">
           <p className="text-gray-600">No dashboard available for your role.</p>
