@@ -16,6 +16,8 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
   useEffect(() => {
     const handleInvitation = async () => {
       try {
+        console.log('Processing invitation:', invitationId);
+
         const { data: invitation, error } = await supabase
           .from('invitations')
           .select('email, status, landlord_id, role, temporary_password')
@@ -23,13 +25,17 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
           .single();
 
         if (error || !invitation) {
+          console.error('Error fetching invitation:', error);
           toast({
             title: "Error",
             description: "Invalid or expired invitation",
             variant: "destructive",
           });
+          navigate('/auth');
           return;
         }
+
+        console.log('Found invitation:', invitation);
 
         if (invitation.status !== 'PENDING') {
           toast({
@@ -37,18 +43,33 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
             description: "This invitation has already been used or has expired",
             variant: "destructive",
           });
+          navigate('/auth');
           return;
         }
 
-        // Sign up the user with the temporary password
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        // First try to sign in in case the user already exists
+        const { error: signInError } = await supabase.auth.signInWithPassword({
           email: invitation.email,
           password: invitation.temporary_password,
         });
 
-        if (signUpError) throw signUpError;
+        if (signInError?.message.includes('Invalid login credentials')) {
+          console.log('User does not exist, creating new account');
+          // If sign in fails, create the account
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email: invitation.email,
+            password: invitation.temporary_password,
+          });
 
-        if (signUpData.user) {
+          if (signUpError) {
+            console.error('Error signing up:', signUpError);
+            throw signUpError;
+          }
+
+          if (!signUpData.user) {
+            throw new Error('No user data returned from signup');
+          }
+
           // Create user profile
           const { error: profileError } = await supabase
             .from('users')
@@ -62,7 +83,10 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
               }
             ]);
 
-          if (profileError) throw profileError;
+          if (profileError) {
+            console.error('Error creating profile:', profileError);
+            throw profileError;
+          }
 
           // Update invitation status
           const { error: inviteError } = await supabase
@@ -70,29 +94,41 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
             .update({ status: 'ACCEPTED' })
             .eq('id', invitationId);
 
-          if (inviteError) throw inviteError;
+          if (inviteError) {
+            console.error('Error updating invitation:', inviteError);
+            throw inviteError;
+          }
 
           // Sign in the user
-          const { error: signInError } = await supabase.auth.signInWithPassword({
+          const { error: finalSignInError } = await supabase.auth.signInWithPassword({
             email: invitation.email,
             password: invitation.temporary_password,
           });
 
-          if (signInError) throw signInError;
-
-          toast({
-            title: "Welcome!",
-            description: "Your account has been created. Please change your password in settings.",
-          });
-
-          navigate("/dashboard");
+          if (finalSignInError) {
+            console.error('Error signing in:', finalSignInError);
+            throw finalSignInError;
+          }
+        } else if (signInError) {
+          // If there was a different error during sign in
+          console.error('Error signing in:', signInError);
+          throw signInError;
         }
+
+        toast({
+          title: "Welcome!",
+          description: "Your account has been created. Please change your password in settings.",
+        });
+
+        navigate("/dashboard");
       } catch (error: any) {
+        console.error('Error in handleInvitation:', error);
         toast({
           title: "Error",
           description: error.message,
           variant: "destructive",
         });
+        navigate('/auth');
       } finally {
         setLoading(false);
       }

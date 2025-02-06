@@ -81,9 +81,9 @@ serve(async (req) => {
 
     const inviterName = inviterData?.full_name || 'Property Manager';
 
-    // Generate the invitation link
+    // Generate the invitation link - using the correct format
     const baseUrl = 'https://app.lovable.dev'; // Replace with your actual frontend URL
-    const invitationLink = `${baseUrl}/invitation/${invitationId}`;
+    const invitationLink = `${baseUrl}/auth?invitation=${invitationId}`;
 
     // Send email using Resend
     const emailResponse = await resend.emails.send({
