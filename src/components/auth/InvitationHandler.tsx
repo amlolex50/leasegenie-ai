@@ -78,7 +78,7 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
         const userProfile = {
           id: signUpData.user.id,
           email: invitation.email,
-          role: invitation.role,
+          role: invitation.role as AppRole, // Type assertion here
           landlord_id: invitation.landlord_id,
           full_name: invitation.email.split('@')[0], // Temporary name
         };
@@ -194,3 +194,4 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
 
   return null;
 };
+
