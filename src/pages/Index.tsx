@@ -70,19 +70,32 @@ const Index = () => {
     );
   }
 
+  const getDashboardComponent = () => {
+    switch (userRole) {
+      case 'LANDLORD':
+        return <LandlordDashboard />;
+      case 'TENANT':
+        return <TenantDashboard />;
+      case 'CONTRACTOR':
+        return <ContractorDashboard />;
+      case 'OWNER':
+        // Here we no longer default to LandlordDashboard for OWNER
+        return <OwnerDashboard />;
+      case 'PROPERTY_MANAGER':
+        return <PropertyManagerDashboard />;
+      default:
+        return (
+          <div className="flex flex-col items-center justify-center min-h-screen">
+            <p className="text-gray-600">No dashboard available for your role.</p>
+            <p className="text-sm text-gray-500">Current role: {userRole || 'None'}</p>
+          </div>
+        );
+    }
+  };
+
   return (
     <DashboardLayout>
-      {userRole === 'LANDLORD' && <LandlordDashboard />}
-      {userRole === 'TENANT' && <TenantDashboard />}
-      {userRole === 'CONTRACTOR' && <ContractorDashboard />}
-      {userRole === 'OWNER' && <LandlordDashboard />} {/* Owners see the landlord dashboard */}
-      {userRole === 'PROPERTY_MANAGER' && <LandlordDashboard />} {/* Property managers see the landlord dashboard */}
-      {!userRole && (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-          <p className="text-gray-600">No dashboard available for your role.</p>
-          <p className="text-sm text-gray-500">Current role: {userRole || 'None'}</p>
-        </div>
-      )}
+      {getDashboardComponent()}
     </DashboardLayout>
   );
 };
