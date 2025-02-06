@@ -563,7 +563,7 @@ export type Database = {
           nationality: string | null
           phone: string | null
           rating: number | null
-          role: string
+          role: Database["public"]["Enums"]["app_role"]
           skills: string[] | null
           speciality: string | null
           updated_at: string
@@ -582,7 +582,7 @@ export type Database = {
           nationality?: string | null
           phone?: string | null
           rating?: number | null
-          role: string
+          role: Database["public"]["Enums"]["app_role"]
           skills?: string[] | null
           speciality?: string | null
           updated_at?: string
@@ -601,7 +601,7 @@ export type Database = {
           nationality?: string | null
           phone?: string | null
           rating?: number | null
-          role?: string
+          role?: Database["public"]["Enums"]["app_role"]
           skills?: string[] | null
           speciality?: string | null
           updated_at?: string
@@ -907,7 +907,12 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "LANDLORD"
+        | "TENANT"
+        | "CONTRACTOR"
+        | "OWNER"
+        | "PROPERTY_MANAGER"
     }
     CompositeTypes: {
       [_ in never]: never
