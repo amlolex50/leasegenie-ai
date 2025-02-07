@@ -1,15 +1,30 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { StatCard } from "../StatCard";
 import { Building, DollarSign, Home, Wrench } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/components/ui/use-toast";
 
 export const DashboardStats = () => {
+  const { toast } = useToast();
+
   const { data: properties, isLoading: propertiesLoading } = useQuery({
     queryKey: ['properties'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('properties').select('*');
-      if (error) throw error;
+      const { data, error } = await supabase
+        .from('properties')
+        .select('id');
+      
+      if (error) {
+        console.error('Error fetching properties:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load properties data",
+          variant: "destructive",
+        });
+        return [];
+      }
       return data;
     }
   });
@@ -17,8 +32,19 @@ export const DashboardStats = () => {
   const { data: units, isLoading: unitsLoading } = useQuery({
     queryKey: ['units'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('units').select('*');
-      if (error) throw error;
+      const { data, error } = await supabase
+        .from('units')
+        .select('id, status');
+      
+      if (error) {
+        console.error('Error fetching units:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load units data",
+          variant: "destructive",
+        });
+        return [];
+      }
       return data;
     }
   });
@@ -26,8 +52,19 @@ export const DashboardStats = () => {
   const { data: leases, isLoading: leasesLoading } = useQuery({
     queryKey: ['leases'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('leases').select('*, units(*)');
-      if (error) throw error;
+      const { data, error } = await supabase
+        .from('leases')
+        .select('id, monthly_rent');
+      
+      if (error) {
+        console.error('Error fetching leases:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load leases data",
+          variant: "destructive",
+        });
+        return [];
+      }
       return data;
     }
   });
@@ -35,8 +72,19 @@ export const DashboardStats = () => {
   const { data: maintenanceRequests, isLoading: maintenanceLoading } = useQuery({
     queryKey: ['maintenance_requests'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('maintenance_requests').select('*');
-      if (error) throw error;
+      const { data, error } = await supabase
+        .from('maintenance_requests')
+        .select('id, status, priority');
+      
+      if (error) {
+        console.error('Error fetching maintenance requests:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load maintenance data",
+          variant: "destructive",
+        });
+        return [];
+      }
       return data;
     }
   });
@@ -72,14 +120,14 @@ export const DashboardStats = () => {
     {
       icon: DollarSign,
       label: "Monthly Revenue",
-      value: `$${(leases?.reduce((acc: number, lease: any) => acc + Number(lease.monthly_rent), 0) || 0).toLocaleString()}`,
+      value: `$${(leases?.reduce((acc, lease) => acc + Number(lease.monthly_rent), 0) || 0).toLocaleString()}`,
       trend: "+8% vs last month"
     },
     {
       icon: Wrench,
       label: "Open Maintenance",
       value: String(maintenanceRequests?.filter(mr => mr.status === 'OPEN')?.length || "0"),
-      trend: "3 high priority"
+      trend: `${maintenanceRequests?.filter(mr => mr.priority === 'HIGH' && mr.status === 'OPEN')?.length || 0} high priority`
     }
   ];
 
