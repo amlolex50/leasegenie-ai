@@ -21,25 +21,32 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchUserData = async () => {
       try {
+        // First check if we have a session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (sessionError) throw sessionError;
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          throw sessionError;
+        }
         
         if (!session?.user) {
-          console.log('No authenticated user found');
+          console.log('No authenticated user found, redirecting to auth');
           navigate('/auth');
           return;
         }
 
+        // Then fetch the user role
         console.log('Fetching user role for ID:', session.user.id);
         
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
         
         if (userError) {
           console.error('Error fetching user data:', userError);
@@ -49,30 +56,38 @@ const Index = () => {
         if (!userData?.role) {
           console.error('No role found for user');
           toast({
-            title: "Error",
-            description: "No role assigned. Please contact support.",
+            title: "Account Setup Required",
+            description: "Your account needs to be set up. Please contact support.",
             variant: "destructive",
           });
           navigate('/auth');
           return;
         }
 
-        console.log('User role fetched:', userData.role);
-        setUserRole(userData.role);
+        if (mounted) {
+          console.log('Setting user role:', userData.role);
+          setUserRole(userData.role);
+        }
       } catch (error: any) {
         console.error('Error in fetchUserData:', error);
         toast({
-          title: "Error",
-          description: error.message || "An unexpected error occurred. Please try again.",
+          title: "Error Loading Dashboard",
+          description: error.message || "Please try signing in again.",
           variant: "destructive",
         });
         navigate('/auth');
       } finally {
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchUserData();
+
+    return () => {
+      mounted = false;
+    };
   }, [toast, navigate]);
 
   if (isLoading) {

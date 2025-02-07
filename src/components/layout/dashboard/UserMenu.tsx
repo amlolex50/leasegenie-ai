@@ -22,23 +22,32 @@ export const UserMenu = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchUserData = async () => {
       try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        const { data: { user: authUser }, error: userError } = await supabase.auth.getUser();
         
-        if (userError) throw userError;
+        if (userError) {
+          console.error('Auth user fetch error:', userError);
+          throw userError;
+        }
         
-        if (user) {
-          setUser(user);
+        if (authUser && mounted) {
+          setUser(authUser);
+          
           const { data: userData, error: profileError } = await supabase
             .from('users')
             .select('full_name')
-            .eq('id', user.id)
-            .single();
+            .eq('id', authUser.id)
+            .maybeSingle();
           
-          if (profileError) throw profileError;
+          if (profileError) {
+            console.error('Profile fetch error:', profileError);
+            throw profileError;
+          }
           
-          if (userData) {
+          if (userData && mounted) {
             setUserName(userData.full_name);
           }
         }
@@ -46,13 +55,17 @@ export const UserMenu = () => {
         console.error('Error fetching user data:', error);
         toast({
           title: "Error",
-          description: "Failed to load user data",
+          description: "Failed to load user profile",
           variant: "destructive",
         });
       }
     };
 
     fetchUserData();
+
+    return () => {
+      mounted = false;
+    };
   }, [toast]);
 
   const handleSignOut = async () => {
