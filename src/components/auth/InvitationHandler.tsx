@@ -10,19 +10,21 @@ interface InvitationHandlerProps {
 
 export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
   const { loading, showPasswordChange, invitationData } = useInvitationHandler(invitationId);
-  const { handlePasswordChanged } = usePasswordChangeHandler(invitationId);
+  const { loading: passwordChangeLoading, handlePasswordChanged } = usePasswordChangeHandler(invitationId);
 
-  if (loading && !showPasswordChange) {
+  if (loading || passwordChangeLoading) {
     return <InvitationLoading />;
   }
 
   if (showPasswordChange && invitationData) {
     return (
-      <ChangeTemporaryPassword
-        email={invitationData.email}
-        temporaryPassword={invitationData.temporaryPassword}
-        onPasswordChanged={handlePasswordChanged}
-      />
+      <div className="animate-fade-in">
+        <ChangeTemporaryPassword
+          email={invitationData.email}
+          temporaryPassword={invitationData.temporaryPassword}
+          onPasswordChanged={handlePasswordChanged}
+        />
+      </div>
     );
   }
 

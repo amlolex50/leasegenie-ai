@@ -26,6 +26,7 @@ export const useInvitationHandler = (invitationId: string) => {
       try {
         console.log('Starting invitation process for:', invitationId);
 
+        // Sign out any existing session
         await supabase.auth.signOut();
 
         const { data: invitation, error: inviteError } = await supabase
@@ -72,21 +73,6 @@ export const useInvitationHandler = (invitationId: string) => {
 
           if (!signInData.user) {
             throw new Error('Failed to authenticate user');
-          }
-
-          const { error: profileError } = await supabase
-            .from('users')
-            .upsert({
-              id: signInData.user.id,
-              email: invitation.email,
-              role: invitation.role as AppRole,
-              landlord_id: invitation.landlord_id,
-              full_name: invitation.email.split('@')[0],
-            });
-
-          if (profileError) {
-            console.error('Error updating profile:', profileError);
-            throw new Error(`Failed to update user profile: ${profileError.message}`);
           }
 
           setInvitationData({
