@@ -23,9 +23,9 @@ export const DashboardStats = () => {
           description: "Failed to load properties data",
           variant: "destructive",
         });
-        return [];
+        throw error; // Let React Query handle the retry
       }
-      return data;
+      return data || [];
     }
   });
 
@@ -43,10 +43,11 @@ export const DashboardStats = () => {
           description: "Failed to load units data",
           variant: "destructive",
         });
-        return [];
+        throw error;
       }
-      return data;
-    }
+      return data || [];
+    },
+    enabled: !propertiesLoading && !!properties?.length
   });
 
   const { data: leases, isLoading: leasesLoading } = useQuery({
@@ -63,10 +64,11 @@ export const DashboardStats = () => {
           description: "Failed to load leases data",
           variant: "destructive",
         });
-        return [];
+        throw error;
       }
-      return data;
-    }
+      return data || [];
+    },
+    enabled: !unitsLoading && !!units?.length
   });
 
   const { data: maintenanceRequests, isLoading: maintenanceLoading } = useQuery({
@@ -83,10 +85,11 @@ export const DashboardStats = () => {
           description: "Failed to load maintenance data",
           variant: "destructive",
         });
-        return [];
+        throw error;
       }
-      return data;
-    }
+      return data || [];
+    },
+    enabled: !leasesLoading && !!leases?.length
   });
 
   const isLoading = propertiesLoading || unitsLoading || leasesLoading || maintenanceLoading;
