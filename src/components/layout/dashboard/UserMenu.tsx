@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Settings, User } from "lucide-react";
+import { Settings, LogOut, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -19,6 +19,7 @@ export const UserMenu = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [userName, setUserName] = useState<string>("");
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -60,7 +61,7 @@ export const UserMenu = () => {
           setUserName(userData.full_name);
         }
       } catch (error: any) {
-        console.error('Error fetching user data:', error);
+        console.error('Error fetching user profile:', error);
         if (!error.message?.includes('JWT')) {
           toast({
             title: "Error",
@@ -90,7 +91,10 @@ export const UserMenu = () => {
   }, [navigate, toast]);
 
   const handleSignOut = async () => {
+    if (isSigningOut) return;
+    
     try {
+      setIsSigningOut(true);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       navigate('/auth');
@@ -101,6 +105,8 @@ export const UserMenu = () => {
         description: "Failed to sign out. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSigningOut(false);
     }
   };
 
@@ -119,7 +125,12 @@ export const UserMenu = () => {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
+      <DropdownMenuContent 
+        className="w-56 bg-background border-border" 
+        align="end" 
+        forceMount
+        sideOffset={5}
+      >
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{userName}</p>
@@ -133,9 +144,17 @@ export const UserMenu = () => {
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleSignOut}>
-          <User className="mr-2 h-4 w-4" />
-          <span>Sign out</span>
+        <DropdownMenuItem 
+          onClick={handleSignOut}
+          disabled={isSigningOut}
+          className="text-red-600 focus:text-red-600"
+        >
+          {isSigningOut ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <LogOut className="mr-2 h-4 w-4" />
+          )}
+          <span>{isSigningOut ? 'Signing out...' : 'Sign out'}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
