@@ -12,7 +12,9 @@ export const usePasswordChangeHandler = (invitationId: string) => {
   const handlePasswordChanged = async () => {
     try {
       setLoading(true);
+      console.log('Starting password change completion process');
 
+      // Update invitation status
       const { error: inviteUpdateError } = await supabase
         .from('invitations')
         .update({ status: 'ACCEPTED' })
@@ -25,10 +27,30 @@ export const usePasswordChangeHandler = (invitationId: string) => {
 
       console.log('Successfully updated invitation status');
 
+      // Refresh the session to get the latest user data
       const { error: refreshError } = await supabase.auth.refreshSession();
       if (refreshError) {
         console.error('Error refreshing session:', refreshError);
         throw refreshError;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log('Current user after refresh:', user);
+
+      if (!user) {
+        throw new Error('No authenticated user found after password change');
+      }
+
+      // Get user role to determine dashboard redirect
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (userError) {
+        console.error('Error fetching user role:', userError);
+        throw userError;
       }
 
       toast({
@@ -36,7 +58,10 @@ export const usePasswordChangeHandler = (invitationId: string) => {
         description: "Your account has been created successfully.",
       });
 
-      navigate("/dashboard");
+      // Redirect based on role
+      const role = userData.role.toLowerCase();
+      navigate(`/${role}-dashboard`);
+
     } catch (error: any) {
       console.error('Error in handlePasswordChanged:', error);
       toast({

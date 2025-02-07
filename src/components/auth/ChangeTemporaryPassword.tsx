@@ -46,7 +46,7 @@ export const ChangeTemporaryPassword = ({
 
     setLoading(true);
     try {
-      console.log('Attempting to change password for:', email);
+      console.log('Starting password change process for:', email);
       
       // First sign in with temporary password
       const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -59,7 +59,7 @@ export const ChangeTemporaryPassword = ({
         throw signInError;
       }
 
-      console.log('Successfully signed in, updating password...');
+      console.log('Successfully signed in with temporary password');
 
       // Then update to new password
       const { error: updateError } = await supabase.auth.updateUser({
@@ -72,6 +72,12 @@ export const ChangeTemporaryPassword = ({
       }
 
       console.log('Password successfully updated');
+
+      // Get current session to ensure we're properly authenticated
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
+        throw new Error('Failed to verify session after password change');
+      }
 
       toast({
         title: "Success",
