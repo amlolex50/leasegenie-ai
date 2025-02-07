@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -45,20 +46,20 @@ export const ChangeTemporaryPassword = ({
 
     setLoading(true);
     try {
-      console.log('Starting password change process for:', email);
+      console.log('Attempting to change password for:', email);
       
       // First sign in with temporary password
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password: temporaryPassword,
       });
 
-      if (signInError || !signInData.session) {
+      if (signInError) {
         console.error('Error signing in:', signInError);
-        throw signInError || new Error('Failed to sign in');
+        throw signInError;
       }
 
-      console.log('Successfully signed in with temporary password');
+      console.log('Successfully signed in, updating password...');
 
       // Then update to new password
       const { error: updateError } = await supabase.auth.updateUser({
@@ -72,25 +73,11 @@ export const ChangeTemporaryPassword = ({
 
       console.log('Password successfully updated');
 
-      // Sign in with the new password to get a fresh session
-      const { data: newSignInData, error: newSignInError } = await supabase.auth.signInWithPassword({
-        email,
-        password: newPassword,
-      });
-
-      if (newSignInError || !newSignInData.session) {
-        console.error('Error signing in with new password:', newSignInError);
-        throw newSignInError || new Error('Failed to sign in with new password');
-      }
-
-      console.log('Successfully signed in with new password');
-
       toast({
         title: "Success",
         description: "Password successfully changed",
       });
 
-      // Call the callback to handle redirection
       onPasswordChanged();
     } catch (error: any) {
       console.error('Error in password change:', error);
