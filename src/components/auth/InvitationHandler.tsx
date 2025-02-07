@@ -49,7 +49,7 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
         console.log('Found invitation details:', { 
           email: invitation.email, 
           role: invitation.role,
-          landlord_id: invitation.landlord_id 
+          status: invitation.status
         });
 
         if (invitation.status !== 'PENDING') {
@@ -60,26 +60,43 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
           throw new Error('Invalid invitation: missing temporary password');
         }
 
-        // Sign in with temporary password
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        // Create user profile first
+        const { data: { user }, error: signUpError } = await supabase.auth.signUp({
           email: invitation.email,
           password: invitation.temporary_password,
         });
 
-        if (signInError) {
-          console.error('Error signing in:', signInError);
-          throw signInError;
+        if (signUpError) {
+          // Check if user already exists
+          console.log('SignUp error, attempting signin:', signUpError);
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: invitation.email,
+            password: invitation.temporary_password,
+          });
+
+          if (signInError) {
+            console.error('Error signing in:', signInError);
+            throw new Error('Failed to authenticate with the provided credentials');
+          }
+
+          if (!signInData.user) {
+            throw new Error('Failed to authenticate user');
+          }
+
+          setUserId(signInData.user.id);
+        } else if (user) {
+          setUserId(user.id);
+        } else {
+          throw new Error('Failed to create or authenticate user');
         }
 
-        if (!signInData.user) {
-          throw new Error('Failed to sign in with temporary password');
+        if (!userId) {
+          throw new Error('No user ID available');
         }
-
-        console.log('Successfully signed in with temporary password');
 
         // Create user profile
         const userProfile = {
-          id: signInData.user.id,
+          id: userId,
           email: invitation.email,
           role: invitation.role as AppRole,
           landlord_id: invitation.landlord_id,
@@ -88,14 +105,14 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
 
         const { error: profileError } = await supabase
           .from('users')
-          .insert(userProfile);
+          .upsert(userProfile);
 
         if (profileError) {
           console.error('Error creating profile:', profileError);
           throw new Error(`Failed to create user profile: ${profileError.message}`);
         }
 
-        console.log('Successfully created user profile');
+        console.log('Successfully created/updated user profile');
 
         // Store the data needed for password change
         setInvitationData({
@@ -104,7 +121,6 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
           role: invitation.role as AppRole,
           landlord_id: invitation.landlord_id,
         });
-        setUserId(signInData.user.id);
         setShowPasswordChange(true);
 
       } catch (error: any) {
@@ -121,7 +137,7 @@ export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
     };
 
     handleInvitation();
-  }, [invitationId, toast, navigate]);
+  }, [invitationId, toast, navigate, userId]);
 
   const handlePasswordChanged = async () => {
     if (!invitationData || !userId) return;
