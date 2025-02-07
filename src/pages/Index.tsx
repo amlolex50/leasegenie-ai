@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { LandlordDashboard } from "@/components/dashboard/LandlordDashboard";
@@ -9,6 +10,7 @@ import { OwnerDashboard } from "@/components/dashboard/OwnerDashboard";
 import { PropertyManagerDashboard } from "@/components/dashboard/PropertyManagerDashboard";
 import { useToast } from "@/components/ui/use-toast";
 import { Database } from "@/integrations/supabase/types";
+import { Loader2 } from "lucide-react";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
@@ -16,6 +18,7 @@ const Index = () => {
   const [userRole, setUserRole] = useState<AppRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -23,7 +26,8 @@ const Index = () => {
         const { data: { user } } = await supabase.auth.getUser();
         
         if (!user) {
-          setIsLoading(false);
+          console.log('No authenticated user found');
+          navigate('/auth');
           return;
         }
 
@@ -40,13 +44,23 @@ const Index = () => {
             description: "Failed to load user role. Please try again.",
             variant: "destructive",
           });
+          navigate('/auth');
           return;
         }
 
-        if (data) {
-          console.log('User role fetched:', data.role); // Debug log
-          setUserRole(data.role);
+        if (!data?.role) {
+          console.error('No role found for user');
+          toast({
+            title: "Error",
+            description: "No role assigned. Please contact support.",
+            variant: "destructive",
+          });
+          navigate('/auth');
+          return;
         }
+
+        console.log('User role fetched:', data.role);
+        setUserRole(data.role);
       } catch (error) {
         console.error('Error in fetchUserRole:', error);
         toast({
@@ -54,19 +68,30 @@ const Index = () => {
           description: "An unexpected error occurred. Please try again.",
           variant: "destructive",
         });
+        navigate('/auth');
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchUserRole();
-  }, [toast]);
+  }, [toast, navigate]);
 
   if (isLoading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-900"></div>
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!userRole) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <p className="text-gray-600">Please sign in to access your dashboard.</p>
         </div>
       </DashboardLayout>
     );
@@ -81,7 +106,6 @@ const Index = () => {
       case 'CONTRACTOR':
         return <ContractorDashboard />;
       case 'OWNER':
-        // Here we no longer default to LandlordDashboard for OWNER
         return <OwnerDashboard />;
       case 'PROPERTY_MANAGER':
         return <PropertyManagerDashboard />;
@@ -89,7 +113,7 @@ const Index = () => {
         return (
           <div className="flex flex-col items-center justify-center min-h-screen">
             <p className="text-gray-600">No dashboard available for your role.</p>
-            <p className="text-sm text-gray-500">Current role: {userRole || 'None'}</p>
+            <p className="text-sm text-gray-500">Current role: {userRole}</p>
           </div>
         );
     }
@@ -103,3 +127,4 @@ const Index = () => {
 };
 
 export default Index;
+
