@@ -21,9 +21,11 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUserRole = async () => {
+    const fetchUserData = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
         
         if (!session?.user) {
           console.log('No authenticated user found');
@@ -31,25 +33,20 @@ const Index = () => {
           return;
         }
 
-        // Simplified query that only fetches the role
-        const { data, error } = await supabase
+        console.log('Fetching user role for ID:', session.user.id);
+        
+        const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role')
           .eq('id', session.user.id)
           .single();
         
-        if (error) {
-          console.error('Error fetching user role:', error);
-          toast({
-            title: "Error",
-            description: "Failed to load user role. Please try again.",
-            variant: "destructive",
-          });
-          navigate('/auth');
-          return;
+        if (userError) {
+          console.error('Error fetching user data:', userError);
+          throw userError;
         }
 
-        if (!data?.role) {
+        if (!userData?.role) {
           console.error('No role found for user');
           toast({
             title: "Error",
@@ -60,13 +57,13 @@ const Index = () => {
           return;
         }
 
-        console.log('User role fetched:', data.role);
-        setUserRole(data.role);
-      } catch (error) {
-        console.error('Error in fetchUserRole:', error);
+        console.log('User role fetched:', userData.role);
+        setUserRole(userData.role);
+      } catch (error: any) {
+        console.error('Error in fetchUserData:', error);
         toast({
           title: "Error",
-          description: "An unexpected error occurred. Please try again.",
+          description: error.message || "An unexpected error occurred. Please try again.",
           variant: "destructive",
         });
         navigate('/auth');
@@ -75,7 +72,7 @@ const Index = () => {
       }
     };
 
-    fetchUserRole();
+    fetchUserData();
   }, [toast, navigate]);
 
   if (isLoading) {
