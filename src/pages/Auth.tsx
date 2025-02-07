@@ -12,14 +12,14 @@ export default function Auth() {
 
   if (invitationId) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full min-h-screen flex items-center justify-center bg-gray-50">
         <InvitationHandler invitationId={invitationId} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="w-full min-h-screen flex items-center justify-center bg-gray-50">
       <Card className="w-[400px] mx-4">
         <CardHeader className="text-center">
           <CardTitle className="flex items-center justify-center gap-2 text-2xl font-bold">
