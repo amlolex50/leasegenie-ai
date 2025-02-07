@@ -14,6 +14,14 @@ export const usePasswordChangeHandler = (invitationId: string) => {
       setLoading(true);
       console.log('Starting password change completion process');
 
+      // Ensure we have the latest session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        console.error('Session error:', sessionError);
+        throw new Error('No valid session found');
+      }
+
       // Update invitation status
       const { error: inviteUpdateError } = await supabase
         .from('invitations')
@@ -27,25 +35,11 @@ export const usePasswordChangeHandler = (invitationId: string) => {
 
       console.log('Successfully updated invitation status');
 
-      // Refresh the session to get the latest user data
-      const { error: refreshError } = await supabase.auth.refreshSession();
-      if (refreshError) {
-        console.error('Error refreshing session:', refreshError);
-        throw refreshError;
-      }
-
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log('Current user after refresh:', user);
-
-      if (!user) {
-        throw new Error('No authenticated user found after password change');
-      }
-
-      // Get user role to determine dashboard redirect
+      // Get user data for role-based redirect
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('role')
-        .eq('id', user.id)
+        .eq('id', session.user.id)
         .single();
 
       if (userError) {
@@ -60,6 +54,7 @@ export const usePasswordChangeHandler = (invitationId: string) => {
 
       // Redirect based on role
       const role = userData.role.toLowerCase();
+      console.log('Redirecting to dashboard for role:', role);
       navigate(`/${role}-dashboard`);
 
     } catch (error: any) {

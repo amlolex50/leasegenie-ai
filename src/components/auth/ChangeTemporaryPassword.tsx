@@ -49,41 +49,46 @@ export const ChangeTemporaryPassword = ({
       console.log('Starting password change process for:', email);
       
       // First sign in with temporary password
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password: temporaryPassword,
       });
 
-      if (signInError) {
+      if (signInError || !signInData.session) {
         console.error('Error signing in:', signInError);
-        throw signInError;
+        throw signInError || new Error('Failed to sign in');
       }
 
       console.log('Successfully signed in with temporary password');
 
       // Then update to new password
-      const { error: updateError } = await supabase.auth.updateUser({
+      const { data: updateData, error: updateError } = await supabase.auth.updateUser({
         password: newPassword,
       });
 
-      if (updateError) {
+      if (updateError || !updateData.user) {
         console.error('Error updating password:', updateError);
-        throw updateError;
+        throw updateError || new Error('Failed to update password');
       }
 
       console.log('Password successfully updated');
 
-      // Get current session to ensure we're properly authenticated
+      // Ensure we have a valid session after password change
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
       if (sessionError || !session) {
+        console.error('Session error:', sessionError);
         throw new Error('Failed to verify session after password change');
       }
+
+      console.log('Session verified after password change');
 
       toast({
         title: "Success",
         description: "Password successfully changed",
       });
 
+      // Call the callback to handle redirection
       onPasswordChanged();
     } catch (error: any) {
       console.error('Error in password change:', error);
