@@ -19,40 +19,40 @@ const Properties = () => {
       const { data: userResponse } = await supabase.auth.getUser();
       console.log('Current user:', userResponse?.user);
       
-      const { data, error } = await supabase
+      // First fetch properties
+      const { data: propertiesData, error: propertiesError } = await supabase
         .from('properties')
-        .select(`
-          id,
-          name,
-          address,
-          city,
-          state,
-          units (
-            id,
-            unit_name,
-            status,
-            floor_area
-          )
-        `);
+        .select('id, name, address, city, state');
 
-      console.log('Properties response:', { data, error });
-
-      if (error) {
-        console.error('Properties fetch error:', error);
+      if (propertiesError) {
+        console.error('Properties fetch error:', propertiesError);
         toast({
           title: "Error",
-          description: `Failed to load properties: ${error.message}`,
+          description: `Failed to load properties: ${propertiesError.message}`,
           variant: "destructive",
         });
-        throw error;
+        throw propertiesError;
       }
 
-      if (!data) {
-        console.log('No properties found');
-        return [];
-      }
+      // Then fetch units for each property
+      const propertiesWithUnits = await Promise.all(
+        (propertiesData || []).map(async (property) => {
+          const { data: unitsData, error: unitsError } = await supabase
+            .from('units')
+            .select('id, unit_name, status, floor_area')
+            .eq('property_id', property.id);
 
-      return data;
+          if (unitsError) {
+            console.error('Units fetch error:', unitsError);
+            return { ...property, units: [] };
+          }
+
+          return { ...property, units: unitsData || [] };
+        })
+      );
+
+      console.log('Properties with units:', propertiesWithUnits);
+      return propertiesWithUnits || [];
     },
     retry: 1
   });
