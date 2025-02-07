@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -17,10 +16,17 @@ export const usePasswordChangeHandler = (invitationId: string) => {
       // Ensure we have the latest session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (sessionError || !session) {
+      if (sessionError) {
         console.error('Session error:', sessionError);
         throw new Error('No valid session found');
       }
+
+      if (!session) {
+        console.error('No active session found');
+        throw new Error('No valid session found');
+      }
+
+      console.log('Found valid session for user:', session.user.id);
 
       // Update invitation status
       const { error: inviteUpdateError } = await supabase
@@ -33,7 +39,7 @@ export const usePasswordChangeHandler = (invitationId: string) => {
         throw inviteUpdateError;
       }
 
-      console.log('Successfully updated invitation status');
+      console.log('Successfully updated invitation status to ACCEPTED');
 
       // Get user data for role-based redirect
       const { data: userData, error: userError } = await supabase
@@ -46,6 +52,13 @@ export const usePasswordChangeHandler = (invitationId: string) => {
         console.error('Error fetching user role:', userError);
         throw userError;
       }
+
+      if (!userData) {
+        console.error('No user data found for ID:', session.user.id);
+        throw new Error('User data not found');
+      }
+
+      console.log('Retrieved user role:', userData.role);
 
       toast({
         title: "Welcome!",
@@ -61,7 +74,7 @@ export const usePasswordChangeHandler = (invitationId: string) => {
       console.error('Error in handlePasswordChanged:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "An error occurred while processing your request.",
         variant: "destructive",
       });
       navigate('/auth');
