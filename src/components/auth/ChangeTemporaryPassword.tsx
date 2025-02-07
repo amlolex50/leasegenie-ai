@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -62,26 +61,29 @@ export const ChangeTemporaryPassword = ({
       console.log('Successfully signed in with temporary password');
 
       // Then update to new password
-      const { data: updateData, error: updateError } = await supabase.auth.updateUser({
+      const { error: updateError } = await supabase.auth.updateUser({
         password: newPassword,
       });
 
-      if (updateError || !updateData.user) {
+      if (updateError) {
         console.error('Error updating password:', updateError);
-        throw updateError || new Error('Failed to update password');
+        throw updateError;
       }
 
       console.log('Password successfully updated');
 
-      // Ensure we have a valid session after password change
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session) {
-        console.error('Session error:', sessionError);
-        throw new Error('Failed to verify session after password change');
+      // Sign in with the new password to get a fresh session
+      const { data: newSignInData, error: newSignInError } = await supabase.auth.signInWithPassword({
+        email,
+        password: newPassword,
+      });
+
+      if (newSignInError || !newSignInData.session) {
+        console.error('Error signing in with new password:', newSignInError);
+        throw newSignInError || new Error('Failed to sign in with new password');
       }
 
-      console.log('Session verified after password change');
+      console.log('Successfully signed in with new password');
 
       toast({
         title: "Success",
