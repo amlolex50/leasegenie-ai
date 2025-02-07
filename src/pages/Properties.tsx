@@ -17,10 +17,10 @@ const Properties = () => {
     queryFn: async () => {
       console.log('Fetching properties...');
       
-      // Fetch properties first
+      // First fetch properties
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('properties')
-        .select('*');
+        .select('id, name, address, city, state');
 
       if (propertiesError) {
         console.error('Properties fetch error:', propertiesError);
@@ -32,12 +32,12 @@ const Properties = () => {
         throw propertiesError;
       }
 
-      // Then fetch units separately for each property
+      // Then fetch units in a separate query
       const propertiesWithUnits = await Promise.all(
         (propertiesData || []).map(async (property) => {
           const { data: unitsData, error: unitsError } = await supabase
             .from('units')
-            .select('*')
+            .select('id, unit_name, status, floor_area')
             .eq('property_id', property.id);
 
           if (unitsError) {
