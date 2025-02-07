@@ -21,42 +21,41 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error('Session error:', sessionError);
-        navigate('/auth');
-        return;
-      }
-
-      if (!session) {
-        console.log('No active session found');
-        navigate('/auth');
-        return;
-      }
-
-      return session;
-    };
-
     const fetchUserData = async () => {
       try {
         setIsLoading(true);
         
-        const session = await checkSession();
-        if (!session) return;
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          toast({
+            title: "Authentication Error",
+            description: "Please sign in again",
+            variant: "destructive",
+          });
+          navigate('/auth');
+          return;
+        }
 
+        if (!session) {
+          console.log('No active session found');
+          navigate('/auth');
+          return;
+        }
+
+        console.log('Fetching user data for ID:', session.user.id);
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
         if (userError) {
           console.error('Error fetching user data:', userError);
           toast({
             title: "Error Loading User Data",
-            description: "Please try signing in again",
+            description: userError.message || "Please try signing in again",
             variant: "destructive",
           });
           navigate('/auth');
@@ -74,6 +73,7 @@ const Index = () => {
           return;
         }
 
+        console.log('User role found:', userData.role);
         setUserRole(userData.role);
       } catch (error: any) {
         console.error('Error in fetchUserData:', error);
@@ -89,6 +89,19 @@ const Index = () => {
     };
 
     fetchUserData();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setUserRole(null);
+        navigate('/auth');
+      } else if (event === 'SIGNED_IN' && session) {
+        fetchUserData();
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate, toast]);
 
   if (isLoading) {

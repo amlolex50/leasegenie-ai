@@ -22,36 +22,41 @@ export const UserMenu = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error('Session error:', sessionError);
-        return null;
-      }
-
-      return session?.user || null;
-    };
-
     const fetchUserData = async () => {
       try {
-        const authUser = await checkSession();
-        if (!authUser) return;
-
-        setUser(authUser);
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          return;
+        }
+
+        if (!session?.user) {
+          console.log('No active session found');
+          return;
+        }
+
+        setUser(session.user);
+        
+        console.log('Fetching user profile for ID:', session.user.id);
         const { data: userData, error: profileError } = await supabase
           .from('users')
           .select('full_name')
-          .eq('id', authUser.id)
-          .single();
+          .eq('id', session.user.id)
+          .maybeSingle();
         
         if (profileError) {
           console.error('Error fetching user profile:', profileError);
+          toast({
+            title: "Error",
+            description: "Failed to load user profile",
+            variant: "destructive",
+          });
           return;
         }
         
         if (userData?.full_name) {
+          console.log('User name found:', userData.full_name);
           setUserName(userData.full_name);
         }
       } catch (error: any) {
@@ -75,13 +80,14 @@ export const UserMenu = () => {
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setUserName("");
+        navigate('/auth');
       }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [toast]);
+  }, [navigate, toast]);
 
   const handleSignOut = async () => {
     try {
