@@ -20,34 +20,36 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2 text-2xl font-bold">
-            <span className="text-primary text-3xl">★</span>
-            LeaseGenie AI
-          </CardTitle>
-          <CardDescription>
-            Manage your properties with AI-powered insights
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-            <TabsContent value="signin">
-              <SignInForm />
-            </TabsContent>
-            <TabsContent value="signup">
-              <SignUpForm />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-        <CardFooter className="text-center text-sm text-gray-600">
-          By continuing, you agree to our Terms of Service and Privacy Policy
-        </CardFooter>
-      </Card>
+      <div className="w-full max-w-md">
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="flex items-center justify-center gap-2 text-2xl font-bold">
+              <span className="text-primary text-3xl">★</span>
+              LeaseGenie AI
+            </CardTitle>
+            <CardDescription>
+              Manage your properties with AI-powered insights
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="signin" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
+              <TabsContent value="signin">
+                <SignInForm />
+              </TabsContent>
+              <TabsContent value="signup">
+                <SignUpForm />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+          <CardFooter className="text-center text-sm text-gray-600">
+            By continuing, you agree to our Terms of Service and Privacy Policy
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 }
