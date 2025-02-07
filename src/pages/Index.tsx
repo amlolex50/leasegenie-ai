@@ -23,18 +23,19 @@ const Index = () => {
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
         
-        if (!user) {
+        if (!session?.user) {
           console.log('No authenticated user found');
           navigate('/auth');
           return;
         }
 
+        // Simplified query that only fetches the role
         const { data, error } = await supabase
           .from('users')
           .select('role')
-          .eq('id', user.id)
+          .eq('id', session.user.id)
           .single();
         
         if (error) {
@@ -127,4 +128,3 @@ const Index = () => {
 };
 
 export default Index;
-
