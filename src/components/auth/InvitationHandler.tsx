@@ -10,24 +10,19 @@ interface InvitationHandlerProps {
 
 export const InvitationHandler = ({ invitationId }: InvitationHandlerProps) => {
   const { loading, showPasswordChange, invitationData } = useInvitationHandler(invitationId);
-  const { loading: passwordChangeLoading, handlePasswordChanged } = usePasswordChangeHandler(invitationId);
+  const { handlePasswordChanged } = usePasswordChangeHandler(invitationId);
 
-  console.log('InvitationHandler state:', { loading, showPasswordChange, invitationData });
-
-  if (loading || passwordChangeLoading) {
+  if (loading && !showPasswordChange) {
     return <InvitationLoading />;
   }
 
-  if (showPasswordChange && invitationData?.email && invitationData?.temporaryPassword) {
-    console.log('Showing password change form for:', invitationData.email);
+  if (showPasswordChange && invitationData) {
     return (
-      <div className="w-full h-screen flex items-center justify-center bg-gray-50 animate-fade-in">
-        <ChangeTemporaryPassword
-          email={invitationData.email}
-          temporaryPassword={invitationData.temporaryPassword}
-          onPasswordChanged={handlePasswordChanged}
-        />
-      </div>
+      <ChangeTemporaryPassword
+        email={invitationData.email}
+        temporaryPassword={invitationData.temporaryPassword}
+        onPasswordChanged={handlePasswordChanged}
+      />
     );
   }
 

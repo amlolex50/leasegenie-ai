@@ -46,32 +46,20 @@ export const ChangeTemporaryPassword = ({
 
     setLoading(true);
     try {
-      console.log('Attempting to change password for:', email);
-      
       // First sign in with temporary password
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password: temporaryPassword,
       });
 
-      if (signInError) {
-        console.error('Error signing in:', signInError);
-        throw signInError;
-      }
-
-      console.log('Successfully signed in, updating password...');
+      if (signInError) throw signInError;
 
       // Then update to new password
       const { error: updateError } = await supabase.auth.updateUser({
         password: newPassword,
       });
 
-      if (updateError) {
-        console.error('Error updating password:', updateError);
-        throw updateError;
-      }
-
-      console.log('Password successfully updated');
+      if (updateError) throw updateError;
 
       toast({
         title: "Success",
@@ -80,7 +68,6 @@ export const ChangeTemporaryPassword = ({
 
       onPasswordChanged();
     } catch (error: any) {
-      console.error('Error in password change:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -92,44 +79,38 @@ export const ChangeTemporaryPassword = ({
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto animate-fade-in">
+    <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle className="text-center">Set Your Password</CardTitle>
+        <CardTitle className="text-center">Change Your Password</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+          <div>
             <Input
               type="password"
               placeholder="New Password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               disabled={loading}
-              className="transition-all duration-200"
             />
           </div>
-          <div className="space-y-2">
+          <div>
             <Input
               type="password"
               placeholder="Confirm New Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={loading}
-              className="transition-all duration-200"
             />
           </div>
-          <Button 
-            type="submit" 
-            className="w-full transition-all duration-200" 
-            disabled={loading}
-          >
+          <Button type="submit" className="w-full" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Setting Password...
+                Changing Password...
               </>
             ) : (
-              "Set Password"
+              "Change Password"
             )}
           </Button>
         </form>
@@ -137,3 +118,4 @@ export const ChangeTemporaryPassword = ({
     </Card>
   );
 };
+

@@ -26,7 +26,6 @@ export const useInvitationHandler = (invitationId: string) => {
       try {
         console.log('Starting invitation process for:', invitationId);
 
-        // Sign out any existing session
         await supabase.auth.signOut();
 
         const { data: invitation, error: inviteError } = await supabase
@@ -54,14 +53,75 @@ export const useInvitationHandler = (invitationId: string) => {
           throw new Error('Invalid invitation: missing temporary password');
         }
 
-        setInvitationData({
+        const { data: { user }, error: signUpError } = await supabase.auth.signUp({
           email: invitation.email,
-          temporaryPassword: invitation.temporary_password,
-          role: invitation.role as AppRole,
-          landlord_id: invitation.landlord_id,
+          password: invitation.temporary_password,
         });
-        setShowPasswordChange(true);
-        setLoading(false);
+
+        if (signUpError) {
+          console.log('SignUp error, attempting signin:', signUpError);
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: invitation.email,
+            password: invitation.temporary_password,
+          });
+
+          if (signInError) {
+            console.error('Error signing in:', signInError);
+            throw new Error('Failed to authenticate with the provided credentials');
+          }
+
+          if (!signInData.user) {
+            throw new Error('Failed to authenticate user');
+          }
+
+          const { error: profileError } = await supabase
+            .from('users')
+            .upsert({
+              id: signInData.user.id,
+              email: invitation.email,
+              role: invitation.role as AppRole,
+              landlord_id: invitation.landlord_id,
+              full_name: invitation.email.split('@')[0],
+            });
+
+          if (profileError) {
+            console.error('Error updating profile:', profileError);
+            throw new Error(`Failed to update user profile: ${profileError.message}`);
+          }
+
+          setInvitationData({
+            email: invitation.email,
+            temporaryPassword: invitation.temporary_password,
+            role: invitation.role as AppRole,
+            landlord_id: invitation.landlord_id,
+          });
+          setShowPasswordChange(true);
+        } else if (user) {
+          const { error: profileError } = await supabase
+            .from('users')
+            .insert({
+              id: user.id,
+              email: invitation.email,
+              role: invitation.role as AppRole,
+              landlord_id: invitation.landlord_id,
+              full_name: invitation.email.split('@')[0],
+            });
+
+          if (profileError) {
+            console.error('Error creating profile:', profileError);
+            throw new Error(`Failed to create user profile: ${profileError.message}`);
+          }
+
+          setInvitationData({
+            email: invitation.email,
+            temporaryPassword: invitation.temporary_password,
+            role: invitation.role as AppRole,
+            landlord_id: invitation.landlord_id,
+          });
+          setShowPasswordChange(true);
+        } else {
+          throw new Error('Failed to create or authenticate user');
+        }
 
       } catch (error: any) {
         console.error('Error in handleInvitation:', error);
