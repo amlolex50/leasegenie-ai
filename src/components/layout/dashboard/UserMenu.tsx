@@ -26,45 +26,57 @@ export const UserMenu = () => {
 
     const fetchUserData = async () => {
       try {
-        const { data: { user: authUser }, error: userError } = await supabase.auth.getUser();
+        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
         
-        if (userError) {
-          console.error('Auth user fetch error:', userError);
-          throw userError;
+        if (authError) throw authError;
+        
+        if (!authUser) {
+          console.log('No authenticated user');
+          return;
         }
-        
-        if (authUser && mounted) {
+
+        if (mounted) {
           setUser(authUser);
           
           const { data: userData, error: profileError } = await supabase
             .from('users')
             .select('full_name')
             .eq('id', authUser.id)
+            .limit(1)
             .maybeSingle();
           
-          if (profileError) {
-            console.error('Profile fetch error:', profileError);
-            throw profileError;
-          }
+          if (profileError) throw profileError;
           
-          if (userData && mounted) {
+          if (userData?.full_name && mounted) {
             setUserName(userData.full_name);
           }
         }
       } catch (error: any) {
         console.error('Error fetching user data:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load user profile",
-          variant: "destructive",
-        });
+        if (!error.message?.includes('JWT')) {  // Don't show toast for auth errors
+          toast({
+            title: "Error",
+            description: "Failed to load user profile",
+            variant: "destructive",
+          });
+        }
       }
     };
 
     fetchUserData();
 
+    const { data: { subscription }} = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user && mounted) {
+        setUser(session.user);
+      } else if (!session && mounted) {
+        setUser(null);
+        setUserName("");
+      }
+    });
+
     return () => {
       mounted = false;
+      subscription.unsubscribe();
     };
   }, [toast]);
 
@@ -82,6 +94,10 @@ export const UserMenu = () => {
       });
     }
   };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <DropdownMenu>
