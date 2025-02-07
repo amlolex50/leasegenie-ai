@@ -16,8 +16,6 @@ const Properties = () => {
     queryKey: ['properties'],
     queryFn: async () => {
       console.log('Fetching properties...');
-      const { data: userResponse } = await supabase.auth.getUser();
-      console.log('Current user:', userResponse?.user);
       
       // First fetch properties
       const { data: propertiesData, error: propertiesError } = await supabase
@@ -37,17 +35,15 @@ const Properties = () => {
       // Then fetch units for each property
       const propertiesWithUnits = await Promise.all(
         (propertiesData || []).map(async (property) => {
-          const { data: unitsData, error: unitsError } = await supabase
+          const { data: unitsData } = await supabase
             .from('units')
             .select('id, unit_name, status, floor_area')
             .eq('property_id', property.id);
 
-          if (unitsError) {
-            console.error('Units fetch error:', unitsError);
-            return { ...property, units: [] };
-          }
-
-          return { ...property, units: unitsData || [] };
+          return { 
+            ...property, 
+            units: unitsData || [] 
+          };
         })
       );
 
