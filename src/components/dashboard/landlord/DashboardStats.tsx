@@ -14,7 +14,7 @@ export const DashboardStats = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('properties')
-        .select('id');
+        .select('id, name');
       
       if (error) {
         console.error('Error fetching properties:', error);
@@ -34,7 +34,7 @@ export const DashboardStats = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('units')
-        .select('id, status');
+        .select('id, status, property_id');
       
       if (error) {
         console.error('Error fetching units:', error);
@@ -54,7 +54,7 @@ export const DashboardStats = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('leases')
-        .select('id, monthly_rent');
+        .select('id, monthly_rent, unit_id');
       
       if (error) {
         console.error('Error fetching leases:', error);
@@ -74,7 +74,7 @@ export const DashboardStats = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('maintenance_requests')
-        .select('id, status, priority');
+        .select('id, status, priority, lease_id');
       
       if (error) {
         console.error('Error fetching maintenance requests:', error);
@@ -104,6 +104,18 @@ export const DashboardStats = () => {
     );
   }
 
+  // Filter units belonging to the owner's properties
+  const propertyIds = properties?.map(p => p.id) || [];
+  const filteredUnits = units?.filter(u => propertyIds.includes(u.property_id)) || [];
+  
+  // Filter leases for the owner's units
+  const unitIds = filteredUnits?.map(u => u.id) || [];
+  const filteredLeases = leases?.filter(l => unitIds.includes(l.unit_id)) || [];
+  
+  // Filter maintenance requests for the owner's leases
+  const leaseIds = filteredLeases?.map(l => l.id) || [];
+  const filteredMaintenance = maintenanceRequests?.filter(mr => leaseIds.includes(mr.lease_id)) || [];
+
   const stats = [
     {
       icon: Building,
@@ -114,20 +126,20 @@ export const DashboardStats = () => {
     {
       icon: Home,
       label: "Total Units",
-      value: String(units?.length || "0"),
-      trend: `${units?.filter(u => u.status === 'OCCUPIED')?.length || 0}/${units?.length || 0} occupied`
+      value: String(filteredUnits?.length || "0"),
+      trend: `${filteredUnits?.filter(u => u.status === 'OCCUPIED')?.length || 0}/${filteredUnits?.length || 0} occupied`
     },
     {
       icon: DollarSign,
       label: "Monthly Revenue",
-      value: `$${(leases?.reduce((acc, lease) => acc + Number(lease.monthly_rent), 0) || 0).toLocaleString()}`,
+      value: `$${(filteredLeases?.reduce((acc, lease) => acc + Number(lease.monthly_rent), 0) || 0).toLocaleString()}`,
       trend: "+8% vs last month"
     },
     {
       icon: Wrench,
       label: "Open Maintenance",
-      value: String(maintenanceRequests?.filter(mr => mr.status === 'OPEN')?.length || "0"),
-      trend: `${maintenanceRequests?.filter(mr => mr.priority === 'HIGH' && mr.status === 'OPEN')?.length || 0} high priority`
+      value: String(filteredMaintenance?.filter(mr => mr.status === 'OPEN')?.length || "0"),
+      trend: `${filteredMaintenance?.filter(mr => mr.priority === 'HIGH' && mr.status === 'OPEN')?.length || 0} high priority`
     }
   ];
 
