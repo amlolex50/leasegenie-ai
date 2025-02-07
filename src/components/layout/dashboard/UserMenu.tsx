@@ -22,38 +22,41 @@ export const UserMenu = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    let mounted = true;
+    const checkSession = async () => {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        return null;
+      }
+
+      return session?.user || null;
+    };
 
     const fetchUserData = async () => {
       try {
-        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+        const authUser = await checkSession();
+        if (!authUser) return;
+
+        setUser(authUser);
         
-        if (authError) throw authError;
+        const { data: userData, error: profileError } = await supabase
+          .from('users')
+          .select('full_name')
+          .eq('id', authUser.id)
+          .single();
         
-        if (!authUser) {
-          console.log('No authenticated user');
+        if (profileError) {
+          console.error('Error fetching user profile:', profileError);
           return;
         }
-
-        if (mounted) {
-          setUser(authUser);
-          
-          const { data: userData, error: profileError } = await supabase
-            .from('users')
-            .select('full_name')
-            .eq('id', authUser.id)
-            .limit(1)
-            .maybeSingle();
-          
-          if (profileError) throw profileError;
-          
-          if (userData?.full_name && mounted) {
-            setUserName(userData.full_name);
-          }
+        
+        if (userData?.full_name) {
+          setUserName(userData.full_name);
         }
       } catch (error: any) {
         console.error('Error fetching user data:', error);
-        if (!error.message?.includes('JWT')) {  // Don't show toast for auth errors
+        if (!error.message?.includes('JWT')) {
           toast({
             title: "Error",
             description: "Failed to load user profile",
@@ -65,17 +68,17 @@ export const UserMenu = () => {
 
     fetchUserData();
 
-    const { data: { subscription }} = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user && mounted) {
+    const { data: { subscription }} = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
         setUser(session.user);
-      } else if (!session && mounted) {
+        fetchUserData();
+      } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setUserName("");
       }
     });
 
     return () => {
-      mounted = false;
       subscription.unsubscribe();
     };
   }, [toast]);

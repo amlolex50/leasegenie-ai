@@ -21,28 +21,47 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    let mounted = true;
+    const checkSession = async () => {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        navigate('/auth');
+        return;
+      }
+
+      if (!session) {
+        console.log('No active session found');
+        navigate('/auth');
+        return;
+      }
+
+      return session;
+    };
 
     const fetchUserData = async () => {
       try {
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        setIsLoading(true);
         
-        if (sessionError) throw sessionError;
-        
-        if (!sessionData.session?.user) {
-          console.log('No authenticated user found');
-          navigate('/auth');
-          return;
-        }
+        const session = await checkSession();
+        if (!session) return;
 
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role')
-          .eq('id', sessionData.session.user.id)
-          .limit(1)
-          .maybeSingle();
+          .eq('id', session.user.id)
+          .single();
 
-        if (userError) throw userError;
+        if (userError) {
+          console.error('Error fetching user data:', userError);
+          toast({
+            title: "Error Loading User Data",
+            description: "Please try signing in again",
+            variant: "destructive",
+          });
+          navigate('/auth');
+          return;
+        }
 
         if (!userData?.role) {
           console.error('No role found for user');
@@ -55,9 +74,7 @@ const Index = () => {
           return;
         }
 
-        if (mounted) {
-          setUserRole(userData.role);
-        }
+        setUserRole(userData.role);
       } catch (error: any) {
         console.error('Error in fetchUserData:', error);
         toast({
@@ -65,21 +82,13 @@ const Index = () => {
           description: error.message || "Please try signing in again",
           variant: "destructive",
         });
-        if (error.message?.includes('JWT')) {
-          navigate('/auth');
-        }
+        navigate('/auth');
       } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     };
 
     fetchUserData();
-
-    return () => {
-      mounted = false;
-    };
   }, [navigate, toast]);
 
   if (isLoading) {
