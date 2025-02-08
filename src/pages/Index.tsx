@@ -51,26 +51,15 @@ const Index = () => {
           .from('users')
           .select('role')
           .eq('id', userId)
-          .limit(1)
-          .single();
+          .maybeSingle();
 
         if (userError) {
           console.error('Error fetching user data:', userError);
-          // Handle specific database errors
-          if (userError.code === '42P17') {
-            toast({
-              title: "Database Access Error",
-              description: "Please try again in a few moments while we resolve this issue",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Error Loading User Data",
-              description: "Please try signing in again",
-              variant: "destructive",
-            });
-          }
-          navigate('/auth');
+          toast({
+            title: "Database Access Error",
+            description: "Please try again in a few moments. If the issue persists, contact support.",
+            variant: "destructive",
+          });
           return;
         }
 
@@ -91,10 +80,9 @@ const Index = () => {
         console.error('Error in fetchUserData:', error);
         toast({
           title: "Error Loading Dashboard",
-          description: "Please try signing in again",
+          description: "We're experiencing technical difficulties. Please try again later.",
           variant: "destructive",
         });
-        navigate('/auth');
       } finally {
         setIsLoading(false);
       }
@@ -130,7 +118,7 @@ const Index = () => {
     return (
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-screen">
-          <p className="text-gray-600">Please sign in to access your dashboard.</p>
+          <p className="text-gray-600">Unable to load your dashboard. Please try signing in again.</p>
         </div>
       </DashboardLayout>
     );

@@ -48,11 +48,19 @@ export const UserMenu = () => {
         
         if (profileError) {
           console.error('Error fetching user profile:', profileError);
-          toast({
-            title: "Error",
-            description: "Failed to load user profile",
-            variant: "destructive",
-          });
+          if (profileError.code === '42P17') {
+            toast({
+              title: "Database Access Error",
+              description: "We're experiencing technical difficulties. Please try again in a few moments.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: "Failed to load user profile",
+              variant: "destructive",
+            });
+          }
           return;
         }
         
@@ -65,7 +73,7 @@ export const UserMenu = () => {
         if (!error.message?.includes('JWT')) {
           toast({
             title: "Error",
-            description: "Failed to load user profile",
+            description: "Failed to load user profile. Please refresh the page.",
             variant: "destructive",
           });
         }
@@ -133,7 +141,7 @@ export const UserMenu = () => {
       >
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{userName}</p>
+            <p className="text-sm font-medium leading-none">{userName || "Loading..."}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {user?.email}
             </p>
