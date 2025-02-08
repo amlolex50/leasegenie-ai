@@ -733,6 +733,15 @@ export type Database = {
         }
         Returns: number
       }
+      handle_user_profile_upsert: {
+        Args: {
+          user_id: string
+          user_email: string
+          user_full_name: string
+          user_role: string
+        }
+        Returns: undefined
+      }
       hnsw_bit_support: {
         Args: {
           "": unknown

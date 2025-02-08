@@ -34,35 +34,21 @@ export const SignInForm = () => {
         throw new Error('No user data returned after sign in');
       }
 
-      console.log("Sign in successful, checking for profile...");
-      const { data: existingProfile, error: profileError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('id', authData.user.id)
-        .single();
-
-      if (profileError) {
-        console.error('Profile check error:', profileError);
-      }
-
-      // If profile doesn't exist, create it
-      if (!existingProfile) {
-        console.log("Creating new profile...");
-        const { error: insertError } = await supabase
-          .from('users')
-          .insert([
-            {
-              id: authData.user.id,
-              email: authData.user.email,
-              full_name: email.split('@')[0], // Simple default
-              role: 'TENANT'
-            }
-          ]);
-
-        if (insertError) {
-          console.error('Error creating profile:', insertError);
-          throw new Error('Failed to create user profile');
+      console.log("Sign in successful, upserting profile...");
+      const { error: upsertError } = await supabase.rpc(
+        'handle_user_profile_upsert',
+        {
+          user_id: authData.user.id,
+          user_email: authData.user.email,
+          user_full_name: email.split('@')[0], // Simple default
+          user_role: 'TENANT'
         }
+      );
+
+      if (upsertError) {
+        console.error('Profile upsert error:', upsertError);
+        // Continue with navigation even if profile update fails
+        console.warn('Profile update failed, but continuing with sign in');
       }
 
       console.log("Redirecting to dashboard...");
