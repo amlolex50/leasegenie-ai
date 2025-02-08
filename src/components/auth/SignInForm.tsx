@@ -19,52 +19,51 @@ export const SignInForm = () => {
     setLoading(true);
     
     try {
-      console.log('Attempting to sign in with:', { email });
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Step 1: Attempt to sign in
+      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        console.error('Sign in error:', error);
-        throw error;
+      if (signInError) {
+        console.error('Sign in error:', signInError);
+        throw signInError;
       }
 
-      if (data?.user) {
-        console.log('Sign in successful:', data.user);
-        
-        // Query the users table to ensure the profile exists
-        const { data: profile, error: profileError } = await supabase
+      if (!authData.user) {
+        throw new Error('No user data returned after sign in');
+      }
+
+      // Step 2: Create profile if it doesn't exist
+      const { data: existingProfile, error: profileError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', authData.user.id)
+        .single();
+
+      if (profileError && profileError.code === 'PGRST116') {
+        // Profile doesn't exist, create it
+        const { error: insertError } = await supabase
           .from('users')
-          .select('id, email, role')
-          .eq('id', data.user.id)
-          .single();
+          .insert({
+            id: authData.user.id,
+            email: authData.user.email,
+            full_name: email.split('@')[0],
+            role: 'TENANT'
+          });
 
-        if (profileError) {
-          console.error('Profile fetch error:', profileError);
-          // If profile doesn't exist, create it
-          if (profileError.code === 'PGRST116') {
-            const { error: insertError } = await supabase
-              .from('users')
-              .insert({
-                id: data.user.id,
-                email: data.user.email,
-                full_name: email.split('@')[0], // Default name from email
-                role: 'TENANT' // Default role
-              });
-
-            if (insertError) {
-              console.error('Profile creation error:', insertError);
-              throw new Error('Failed to create user profile');
-            }
-          } else {
-            throw profileError;
-          }
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+          throw new Error('Failed to create user profile');
         }
-
-        // Successful login, navigate to dashboard
-        navigate("/dashboard");
+      } else if (profileError) {
+        console.error('Error checking profile:', profileError);
+        throw profileError;
       }
+
+      // Step 3: Navigate to dashboard
+      navigate("/dashboard");
+      
     } catch (error: any) {
       console.error('Authentication error:', error);
       toast({
