@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ export const SignUpForm = () => {
         options: {
           data: {
             full_name: fullName,
+            role: 'TENANT' // Default role for new signups
           }
         }
       });
@@ -30,17 +32,16 @@ export const SignUpForm = () => {
       if (error) throw error;
 
       if (data.user) {
-        // Create user profile
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert([
-            {
-              id: data.user.id,
-              email,
-              full_name: fullName,
-              role: 'LANDLORD'
-            }
-          ]);
+        // Create user profile using our secure function
+        const { error: profileError } = await supabase.rpc(
+          'handle_user_profile_upsert',
+          {
+            user_id: data.user.id,
+            user_email: email,
+            user_full_name: fullName,
+            user_role: 'TENANT'
+          }
+        );
 
         if (profileError) throw profileError;
 

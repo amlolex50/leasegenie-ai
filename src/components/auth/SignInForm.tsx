@@ -34,6 +34,27 @@ export const SignInForm = () => {
         throw new Error('No user data returned after sign in');
       }
 
+      // Get or create user profile
+      const { error: profileError } = await supabase.rpc(
+        'handle_user_profile_upsert',
+        {
+          user_id: authData.user.id,
+          user_email: authData.user.email,
+          user_full_name: authData.user.user_metadata?.full_name || email.split('@')[0],
+          user_role: authData.user.user_metadata?.role || 'TENANT'
+        }
+      );
+
+      if (profileError) {
+        console.error('Profile update error:', profileError);
+        // Don't throw here, as the user is already authenticated
+        toast({
+          title: "Profile Update Warning",
+          description: "Signed in successfully, but there was an issue updating your profile.",
+          variant: "default",
+        });
+      }
+
       console.log("Sign in successful, redirecting to dashboard...");
       navigate("/dashboard");
       
