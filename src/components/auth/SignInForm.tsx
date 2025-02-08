@@ -19,6 +19,7 @@ export const SignInForm = () => {
     setLoading(true);
     
     try {
+      console.log("Attempting to sign in...");
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -33,15 +34,20 @@ export const SignInForm = () => {
         throw new Error('No user data returned after sign in');
       }
 
-      // After successful sign in, check if user profile exists
-      const { data: existingProfile } = await supabase
+      console.log("Sign in successful, checking for profile...");
+      const { data: existingProfile, error: profileError } = await supabase
         .from('users')
         .select('id')
         .eq('id', authData.user.id)
         .single();
 
+      if (profileError) {
+        console.error('Profile check error:', profileError);
+      }
+
       // If profile doesn't exist, create it
       if (!existingProfile) {
+        console.log("Creating new profile...");
         const { error: insertError } = await supabase
           .from('users')
           .insert([
@@ -59,14 +65,22 @@ export const SignInForm = () => {
         }
       }
 
-      // Navigate to dashboard
+      console.log("Redirecting to dashboard...");
       navigate("/dashboard");
       
     } catch (error: any) {
       console.error('Authentication error:', error);
+      let errorMessage = 'Failed to sign in. Please try again.';
+      
+      if (error.message?.includes('Failed to fetch')) {
+        errorMessage = 'Unable to connect to authentication service. Please check your internet connection and try again.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
-        title: "Error",
-        description: error.message || "Failed to sign in. Please try again.",
+        title: "Authentication Error",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
