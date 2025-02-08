@@ -24,7 +24,6 @@ const Index = () => {
     const fetchUserData = async () => {
       try {
         setIsLoading(true);
-        
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -44,24 +43,30 @@ const Index = () => {
           return;
         }
 
-        const userId = session.user.id;
-        console.log('Fetching user data for ID:', userId);
-
+        // Add debugging logs
+        console.log('Current auth user ID:', session.user.id);
+        
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role')
-          .eq('id', userId)
+          .eq('id', session.user.id)
           .maybeSingle();
 
         if (userError) {
           console.error('Error fetching user data:', userError);
           toast({
-            title: "Database Access Error",
-            description: "Please try again in a few moments. If the issue persists, contact support.",
+            title: "Error Loading Profile",
+            description: "Unable to load your profile. Please try signing in again.",
             variant: "destructive",
           });
+          // Sign out the user if we can't load their profile
+          await supabase.auth.signOut();
+          navigate('/auth');
           return;
         }
+
+        // Add debugging log for user data
+        console.log('Fetched user data:', userData);
 
         if (!userData?.role) {
           console.error('No role found for user');
@@ -74,7 +79,6 @@ const Index = () => {
           return;
         }
 
-        console.log('User role found:', userData.role);
         setUserRole(userData.role);
       } catch (error: any) {
         console.error('Error in fetchUserData:', error);
