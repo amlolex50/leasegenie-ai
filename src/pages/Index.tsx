@@ -38,13 +38,15 @@ const Index = () => {
           return;
         }
 
-        if (!session) {
+        if (!session?.user) {
           console.log('No active session found');
           navigate('/auth');
           return;
         }
 
         console.log('Fetching user data for ID:', session.user.id);
+        
+        // Using maybeSingle() instead of single() to handle cases where user might not exist
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role')
@@ -53,11 +55,20 @@ const Index = () => {
 
         if (userError) {
           console.error('Error fetching user data:', userError);
-          toast({
-            title: "Error Loading User Data",
-            description: userError.message || "Please try signing in again",
-            variant: "destructive",
-          });
+          if (userError.code === '42P17') {
+            // Handle recursion error specifically
+            toast({
+              title: "Database Configuration Error",
+              description: "Please try again in a few moments",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Error Loading User Data",
+              description: userError.message || "Please try signing in again",
+              variant: "destructive",
+            });
+          }
           navigate('/auth');
           return;
         }
@@ -90,12 +101,12 @@ const Index = () => {
 
     fetchUserData();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
         setUserRole(null);
         navigate('/auth');
       } else if (event === 'SIGNED_IN' && session) {
-        fetchUserData();
+        await fetchUserData();
       }
     });
 
