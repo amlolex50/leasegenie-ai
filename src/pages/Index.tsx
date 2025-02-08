@@ -44,28 +44,29 @@ const Index = () => {
           return;
         }
 
-        console.log('Fetching user data for ID:', session.user.id);
-        
-        // Using maybeSingle() instead of single() to handle cases where user might not exist
+        const userId = session.user.id;
+        console.log('Fetching user data for ID:', userId);
+
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('role')
-          .eq('id', session.user.id)
-          .maybeSingle();
+          .eq('id', userId)
+          .limit(1)
+          .single();
 
         if (userError) {
           console.error('Error fetching user data:', userError);
+          // Handle specific database errors
           if (userError.code === '42P17') {
-            // Handle recursion error specifically
             toast({
-              title: "Database Configuration Error",
-              description: "Please try again in a few moments",
+              title: "Database Access Error",
+              description: "Please try again in a few moments while we resolve this issue",
               variant: "destructive",
             });
           } else {
             toast({
               title: "Error Loading User Data",
-              description: userError.message || "Please try signing in again",
+              description: "Please try signing in again",
               variant: "destructive",
             });
           }
@@ -77,7 +78,7 @@ const Index = () => {
           console.error('No role found for user');
           toast({
             title: "Account Setup Required",
-            description: "Please contact support to complete your account setup.",
+            description: "Please contact support to complete your account setup",
             variant: "destructive",
           });
           navigate('/auth');
@@ -90,7 +91,7 @@ const Index = () => {
         console.error('Error in fetchUserData:', error);
         toast({
           title: "Error Loading Dashboard",
-          description: error.message || "Please try signing in again",
+          description: "Please try signing in again",
           variant: "destructive",
         });
         navigate('/auth');
