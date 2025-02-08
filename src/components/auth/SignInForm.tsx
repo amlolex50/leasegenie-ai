@@ -34,24 +34,7 @@ export const SignInForm = () => {
         throw new Error('No user data returned after sign in');
       }
 
-      console.log("Sign in successful, upserting profile...");
-      const { error: upsertError } = await supabase.rpc(
-        'handle_user_profile_upsert',
-        {
-          user_id: authData.user.id,
-          user_email: authData.user.email,
-          user_full_name: email.split('@')[0], // Simple default
-          user_role: 'TENANT'
-        }
-      );
-
-      if (upsertError) {
-        console.error('Profile upsert error:', upsertError);
-        // Continue with navigation even if profile update fails
-        console.warn('Profile update failed, but continuing with sign in');
-      }
-
-      console.log("Redirecting to dashboard...");
+      console.log("Sign in successful, redirecting to dashboard...");
       navigate("/dashboard");
       
     } catch (error: any) {
