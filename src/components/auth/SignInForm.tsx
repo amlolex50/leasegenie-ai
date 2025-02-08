@@ -34,31 +34,30 @@ export const SignInForm = () => {
         throw new Error('No user data returned after sign in');
       }
 
-      // Step 2: Create profile if it doesn't exist
-      const { data: existingProfile, error: profileError } = await supabase
+      // Step 2: Check if profile exists using service role (done automatically by RLS now)
+      const { error: profileError } = await supabase
         .from('users')
         .select('id')
         .eq('id', authData.user.id)
         .single();
 
+      // If profile doesn't exist, create it
       if (profileError && profileError.code === 'PGRST116') {
-        // Profile doesn't exist, create it
         const { error: insertError } = await supabase
           .from('users')
-          .insert({
-            id: authData.user.id,
-            email: authData.user.email,
-            full_name: email.split('@')[0],
-            role: 'TENANT'
-          });
+          .insert([
+            {
+              id: authData.user.id,
+              email: authData.user.email,
+              full_name: email.split('@')[0], // Simple default
+              role: 'TENANT'
+            }
+          ]);
 
         if (insertError) {
           console.error('Error creating profile:', insertError);
           throw new Error('Failed to create user profile');
         }
-      } else if (profileError) {
-        console.error('Error checking profile:', profileError);
-        throw profileError;
       }
 
       // Step 3: Navigate to dashboard
