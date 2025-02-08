@@ -19,7 +19,6 @@ export const SignInForm = () => {
     setLoading(true);
     
     try {
-      // Step 1: Attempt to sign in
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -34,15 +33,15 @@ export const SignInForm = () => {
         throw new Error('No user data returned after sign in');
       }
 
-      // Step 2: Check if profile exists using service role (done automatically by RLS now)
-      const { error: profileError } = await supabase
+      // After successful sign in, check if user profile exists
+      const { data: existingProfile } = await supabase
         .from('users')
         .select('id')
         .eq('id', authData.user.id)
         .single();
 
       // If profile doesn't exist, create it
-      if (profileError && profileError.code === 'PGRST116') {
+      if (!existingProfile) {
         const { error: insertError } = await supabase
           .from('users')
           .insert([
@@ -60,7 +59,7 @@ export const SignInForm = () => {
         }
       }
 
-      // Step 3: Navigate to dashboard
+      // Navigate to dashboard
       navigate("/dashboard");
       
     } catch (error: any) {
