@@ -19,7 +19,8 @@ export const SignInForm = () => {
     setLoading(true);
     
     try {
-      console.log("Attempting to sign in...");
+      // Step 1: Sign in with password
+      console.log("Starting sign in process...");
       const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -34,29 +35,27 @@ export const SignInForm = () => {
         throw new Error('No user data returned after sign in');
       }
 
-      // Just verify the profile exists
+      console.log("Successfully signed in, fetching user profile...");
+
+      // Step 2: Fetch user profile with a delay to allow auth state to propagate
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       const { data: profile, error: profileError } = await supabase
         .from('users')
-        .select('id, role')
+        .select('id, role, email')
         .eq('id', authData.user.id)
-        .single();
+        .maybeSingle();
 
       if (profileError) {
-        console.error('Error fetching profile:', profileError);
-        // Only show warning if it's a permissions error
+        console.error('Profile fetch error:', profileError);
         if (profileError.code === 'PGRST301') {
-          toast({
-            title: "Access Error",
-            description: "Unable to access your profile. Please contact support.",
-            variant: "destructive",
-          });
-          await supabase.auth.signOut();
-          return;
+          throw new Error('Unable to access your profile due to permissions. Please contact support.');
         }
+        // For other profile errors, try to create the profile
       }
 
       if (!profile) {
-        // Create missing profile
+        console.log("No profile found, attempting to create one...");
         const { error: insertError } = await supabase
           .from('users')
           .insert([
@@ -72,19 +71,27 @@ export const SignInForm = () => {
 
         if (insertError) {
           console.error('Profile creation error:', insertError);
-          throw new Error('Failed to create user profile');
+          // If we can't create a profile, sign out and show error
+          await supabase.auth.signOut();
+          throw new Error('Failed to create user profile. Please try again or contact support.');
         }
       }
 
-      console.log("Sign in successful, redirecting to dashboard...");
+      console.log("Sign in process complete, redirecting to dashboard...");
       navigate("/dashboard");
+      toast({
+        title: "Welcome back!",
+        description: "You have successfully signed in.",
+      });
       
     } catch (error: any) {
-      console.error('Authentication error:', error);
+      console.error('Authentication process error:', error);
       let errorMessage = 'Failed to sign in. Please try again.';
       
-      if (error.message?.includes('Failed to fetch')) {
-        errorMessage = 'Unable to connect to authentication service. Please check your internet connection and try again.';
+      if (error.message?.includes('Invalid login credentials')) {
+        errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+      } else if (error.message?.includes('Failed to fetch')) {
+        errorMessage = 'Unable to connect to the authentication service. Please check your internet connection and try again.';
       } else if (error.message) {
         errorMessage = error.message;
       }
@@ -94,6 +101,9 @@ export const SignInForm = () => {
         description: errorMessage,
         variant: "destructive",
       });
+
+      // If there was an error, ensure we're signed out
+      await supabase.auth.signOut();
     } finally {
       setLoading(false);
     }
