@@ -18,14 +18,13 @@ export const SignUpForm = () => {
     setLoading(true);
     
     try {
-      // First, create the auth user
+      // First, create the auth user with metadata
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
-            role: 'TENANT' // Default role for new signups
           }
         }
       });
@@ -36,7 +35,7 @@ export const SignUpForm = () => {
         throw new Error('Failed to create user account');
       }
 
-      // Insert the user profile directly
+      // Insert the user profile with required fields
       const { error: insertError } = await supabase
         .from('users')
         .insert([
@@ -46,18 +45,29 @@ export const SignUpForm = () => {
             full_name: fullName,
             role: 'TENANT'
           }
-        ]);
+        ])
+        .select()
+        .single();
 
       if (insertError) {
         console.error('Profile creation error:', insertError);
-        throw insertError;
+        // If profile creation fails, we should clean up the auth user
+        await supabase.auth.signOut();
+        throw new Error('Failed to create user profile. Please try again.');
       }
 
       toast({
         title: "Success!",
         description: "Please check your email to verify your account.",
       });
+      
+      // Clear form
+      setEmail("");
+      setPassword("");
+      setFullName("");
+      
     } catch (error: any) {
+      console.error('Signup error:', error);
       toast({
         title: "Error",
         description: error.message,

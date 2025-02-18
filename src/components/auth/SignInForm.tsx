@@ -34,14 +34,29 @@ export const SignInForm = () => {
         throw new Error('No user data returned after sign in');
       }
 
-      // Verify if user profile exists, if not create it
+      // Just verify the profile exists
       const { data: profile, error: profileError } = await supabase
         .from('users')
-        .select('id')
+        .select('id, role')
         .eq('id', authData.user.id)
         .single();
 
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        // Only show warning if it's a permissions error
+        if (profileError.code === 'PGRST301') {
+          toast({
+            title: "Access Error",
+            description: "Unable to access your profile. Please contact support.",
+            variant: "destructive",
+          });
+          await supabase.auth.signOut();
+          return;
+        }
+      }
+
       if (!profile) {
+        // Create missing profile
         const { error: insertError } = await supabase
           .from('users')
           .insert([
@@ -49,17 +64,15 @@ export const SignInForm = () => {
               id: authData.user.id,
               email: authData.user.email,
               full_name: authData.user.user_metadata?.full_name || email.split('@')[0],
-              role: authData.user.user_metadata?.role || 'TENANT'
+              role: 'TENANT'
             }
-          ]);
+          ])
+          .select()
+          .single();
 
         if (insertError) {
           console.error('Profile creation error:', insertError);
-          toast({
-            title: "Profile Update Warning",
-            description: "Signed in successfully, but there was an issue creating your profile.",
-            variant: "default",
-          });
+          throw new Error('Failed to create user profile');
         }
       }
 

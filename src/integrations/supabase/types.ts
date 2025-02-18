@@ -709,6 +709,10 @@ export type Database = {
             }
             Returns: unknown
           }
+      get_auth_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       halfvec_avg: {
         Args: {
           "": number[]
