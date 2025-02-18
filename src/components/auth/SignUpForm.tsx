@@ -18,7 +18,8 @@ export const SignUpForm = () => {
     setLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signUp({
+      // First, create the auth user
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -29,27 +30,33 @@ export const SignUpForm = () => {
         }
       });
 
-      if (error) throw error;
-
-      if (data.user) {
-        // Create user profile using our secure function
-        const { error: profileError } = await supabase.rpc(
-          'handle_user_profile_upsert',
-          {
-            user_id: data.user.id,
-            user_email: email,
-            user_full_name: fullName,
-            user_role: 'TENANT'
-          }
-        );
-
-        if (profileError) throw profileError;
-
-        toast({
-          title: "Success!",
-          description: "Please check your email to verify your account.",
-        });
+      if (signUpError) throw signUpError;
+      
+      if (!authData.user) {
+        throw new Error('Failed to create user account');
       }
+
+      // Insert the user profile directly
+      const { error: insertError } = await supabase
+        .from('users')
+        .insert([
+          {
+            id: authData.user.id,
+            email: email,
+            full_name: fullName,
+            role: 'TENANT'
+          }
+        ]);
+
+      if (insertError) {
+        console.error('Profile creation error:', insertError);
+        throw insertError;
+      }
+
+      toast({
+        title: "Success!",
+        description: "Please check your email to verify your account.",
+      });
     } catch (error: any) {
       toast({
         title: "Error",
