@@ -35,7 +35,7 @@ export const SignUpForm = () => {
         throw new Error('Failed to create user account');
       }
 
-      // Insert the user profile with required fields
+      // Insert the user profile with required fields - now with LANDLORD role
       const { error: insertError } = await supabase
         .from('users')
         .insert([
@@ -43,7 +43,7 @@ export const SignUpForm = () => {
             id: authData.user.id,
             email: email,
             full_name: fullName,
-            role: 'TENANT'
+            role: 'LANDLORD'  // Changed from 'TENANT' to 'LANDLORD'
           }
         ])
         .select()
